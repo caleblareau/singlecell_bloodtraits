@@ -1,0 +1,54 @@
+\documentclass{article}
+\usepackage{enumitem}
+\usepackage{ amssymb }
+\usepackage{ textcomp }
+\usepackage{longtable}
+\usepackage{amsmath,tabu}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage[figurename=Supplemental Figure]{caption}
+\usepackage{titling}
+
+\setlength{\droptitle}{-5em}  
+\topmargin=-0.4in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9in
+\headsep=0.25in
+
+\title{Interrogation of human hematopoietic traits at single-cell and single-variant resolution}
+\date{Supplemental Information}
+\author{(Caleb, Eric, Jacob), (Hilary, Martin, Will), (Jason, Vijay)}
+
+
+\begin{document}
+\maketitle
+\section*{Overview of UK Biobank data}
+\begin{enumerate}[label=(\Alph*)]
+\item 
+a
+<<part1a, message = FALSE, warning = FALSE>>=
+print("hi")
+@
+
+\item
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{staticFigures/LDtoSentinel_PPcomparison.pdf}
+\caption{Sample embedding of figure in document.}
+\end{figure} 
+
+\end{enumerate}
+
+
+
+\section*{Description of single-cell enrichment}
+
+<<part2a, message = FALSE, warning = FALSE>>=
+print("part2")
+@
+
+\end{document}
