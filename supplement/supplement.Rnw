@@ -20,7 +20,7 @@
 
 \title{Interrogation of human hematopoietic traits at single-cell and single-variant resolution}
 \date{Supplemental Information}
-\author{(Caleb, Eric, Jacob), (Hilary, Martin, Will), (Jason, Vijay)}
+\author{(Caleb, Erik, Jacob), (Hilary, Martin, Will), (Jason, Vijay)}
 
 
 \begin{document}
