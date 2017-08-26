@@ -29,8 +29,10 @@
 \begin{enumerate}[label=(\Alph*)]
 \item 
 a
-<<part1a, message = FALSE, warning = FALSE>>=
+<<part1a, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.width = 2, fig.cap="Figure">>=
 print("hi")
+library(ggplot2)
+qplot(1:10, 10:1)
 @
 
 \item

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  10 AUG 2017 13:44
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  10 AUG 2017 14:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -436,40 +436,47 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 76.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 Package color Info: Redefining color shadecolor on input line 82.
-LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 84.
 
-<staticFigures/LDtoSentinel_PPcomparison.pdf, id=1, 614.295pt x 794.97pt>
+<figure/part1a-1.pdf, id=1, 144.54pt x 361.35pt>
+File: figure/part1a-1.pdf Graphic file (type pdf)
+ <use figure/part1a-1.pdf>
+Package pdftex.def Info: figure/part1a-1.pdf used on input line 87.
+(pdftex.def)             Requested size: 144.53963pt x 361.36566pt.
+
+<staticFigures/LDtoSentinel_PPcomparison.pdf, id=2, 614.295pt x 794.97pt>
 File: staticFigures/LDtoSentinel_PPcomparison.pdf Graphic file (type pdf)
 
 <use staticFigures/LDtoSentinel_PPcomparison.pdf>
 Package pdftex.def Info: staticFigures/LDtoSentinel_PPcomparison.pdf used on in
-put line 96.
+put line 97.
 (pdftex.def)             Requested size: 469.75499pt x 607.9196pt.
  [1
 
-{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2 <./s
-taticFigures/LDtoSentinel_PPcomparison.pdf>]
-Package color Info: Redefining color shadecolor on input line 107.
- [3] (./supplement.aux) ) 
+{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2 <./f
+igure/part1a-1.pdf>]
+[3 <./staticFigures/LDtoSentinel_PPcomparison.pdf>]
+Package color Info: Redefining color shadecolor on input line 108.
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 110.
+ [4] (./supplement.aux) ) 
 Here is how much of TeX's memory you used:
- 5436 strings out of 493089
- 81270 string characters out of 6134842
- 145698 words of memory out of 5000000
- 8831 multiletter control sequences out of 15000+600000
+ 5444 strings out of 493089
+ 81400 string characters out of 6134842
+ 145706 words of memory out of 5000000
+ 8836 multiletter control sequences out of 15000+600000
  9357 words of font info for 36 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,6n,38p,288b,405s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 38i,6n,38p,288b,418s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2015/texmf-dist/fonts/type1/public
 /amsfonts/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/
 amsfonts/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/am
 sfonts/cm/cmr12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsf
 onts/cm/cmr17.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfon
 ts/cm/cmtt10.pfb>
-Output written on supplement.pdf (3 pages, 498202 bytes).
+Output written on supplement.pdf (4 pages, 502858 bytes).
 PDF statistics:
- 41 PDF objects out of 1000 (max. 8388607)
- 28 compressed objects within 1 object stream
+ 50 PDF objects out of 1000 (max. 8388607)
+ 34 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
