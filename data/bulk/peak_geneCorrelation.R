@@ -10,7 +10,7 @@ library(diffloop)
 # Import genomic coordinates
 peaks_g <- rmchr(makeGRangesFromDataFrame(fread("ATAC/26August2017_EJCsamples_allReads_250bp.bed"),
                                     seqnames.field = "V1", start.field = "V2", end.field = "V3"))
-tss_g <- makeGRangesFromDataFrame(data.frame(fread("RNA/geneTSScoordaintes.txt")), keep.extra.columns = TRUE,
+tss_g <- makeGRangesFromDataFrame(data.frame(fread("RNA/geneTSScoordinates.txt")), keep.extra.columns = TRUE,
                                   seqnames.field = "V1", start.field = "V2", end.field = "V2")
 
 # Import other raw data
@@ -73,7 +73,7 @@ if(FALSE){
   tssdf <- rbind(setNames(coords[coords$strand == "+", c(1,3,7)], c("chr", "start", "gene")), 
                  setNames(coords[coords$strand == "-", c(1,4,7)], c("chr", "start", "gene")))
   rownames(tssdf) <- NULL
-  write.table(tssdf, file = "RNA/geneTSScoordaintes.txt",
+  write.table(tssdf, file = "RNA/geneTSScoordinates.txt",
               row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE)
 }
 
