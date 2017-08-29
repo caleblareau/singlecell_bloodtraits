@@ -29,12 +29,130 @@
 \begin{enumerate}[label=(\Alph*)]
 \item 
 a
-<<part1a, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.width = 2, fig.cap="Figure">>=
-print("hi")
-library(ggplot2)
-qplot(1:10, 10:1)
-@
+<<correlationPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Fold change enrichment of individually resolved peaks", eval = TRUE, cache = FALSE, results="hide">>=
+library(corrplot)
+library(BuenColors)
+library(dplyr)
 
+reorderedtraits=traits=c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
+
+########################################################################
+### Phenotypic correlations
+phenocors <-read.table("../data/phenotypeCorrelations/raw_phenotypes.txt",header=TRUE,row.names=1)
+for (i in 1:16){
+  phenocors[,i] <- as.numeric(as.character(phenocors[,i]))
+}
+phenocors <- as.matrix(phenocors)
+
+corrplot(phenocors[reorderedtraits,reorderedtraits],method="square",tl.cex=0.5,
+         cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,2,0),title="Phenotypic Correlations")
+
+################################################################################ 
+#Constrained intercept genetic correlations
+constrained_gencors <- vector(mode = "list", length = length(traits))
+
+traits=c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
+
+# Read unix files into R lists
+constrained_gencors <- lapply(traits, function(y) read.table(paste0("../Data/",y,"_UK10K_constrained.gcsummary.txt"),header=TRUE,row.names=NULL))
+
+make.gc.matrix <- function(list_of_gcs,traits){
+  allgencors <- bind_rows(list_of_gcs)
+  allgencors$rg <- as.numeric(as.character(allgencors$rg))
+  
+  gc.matrix <- matrix(ncol = 16, nrow = 16, dimnames=list(traits,traits))
+  pv.matrix <- matrix(ncol = 16, nrow = 16, dimnames=list(traits,traits))
+  
+  for (i in traits) {
+    for (j in traits) {
+      if (i == j){
+        gc.matrix[i,j]=1
+      } else {
+        gc.matrix[i,j] <- allgencors[allgencors$p1 == i & allgencors$p2 == j,'rg']
+        if (gc.matrix[i,j]>1) gc.matrix[i,j]=1
+        pv.matrix[i,j]<- allgencors[allgencors$p1 == i & allgencors$p2 == j,'p']
+      }
+    }
+  }
+  return(list(gc.matrix,pv.matrix))
+}
+
+
+output <- make.gc.matrix(constrained_gencors,traits)[[1]]
+constrained.pv.matrix <- make.gc.matrix(constrained_gencors,traits)[[2]]
+
+# Plot genetic correlations side-by-side with phenotypic correlations, with traits in the same order
+par(mfrow=c(1,2))
+par(xpd=TRUE)
+reorderedtraits<- dimnames(corrplot(output,method="square",order="hclust",hclust.method = "complete", tl.cex=0.6,
+                                    cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,0,0)))[[1]]
+corrplot(phenocors[reorderedtraits,reorderedtraits],method="square", tl.cex=0.6, 
+         cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,0,0))
+
+
+# Plot just genetic correlations
+par(mfrow=c(1,1))
+corrplot(output,method="square",order="hclust",tl.cex=0.6,cl.lim=c(-1,1),cl.cex=0.6,mar=c(0,0,0,0))
+
+##########################################################################
+#Compare geno and pheno correlations
+phenotriangle <- phenocors
+phenotriangle[lower.tri(phenotriangle, diag = FALSE)]<- 0
+genotriangle <- output
+genotriangle[lower.tri(genotriangle, diag = FALSE)]<- 0
+
+phenomelt <- melt(phenotriangle); genomelt <- melt(genotriangle); allmelt <- melt(phenocors)
+
+genomelt$traitpairs <- paste(genomelt$Var1,genomelt$Var2)
+phenomelt$traitpairs <- paste(phenomelt$Var1,phenomelt$Var2)
+
+colnames(genomelt)[3]<- "GenoCor"
+colnames(phenomelt)[3] <- "PhenoCor"
+merged <- merge(genomelt,phenomelt,by="traitpairs")
+merged[,c("Var1.x","Var2.x")] <- NULL
+merged <- merged[merged$GenoCor != 0,]
+
+#### regression of phenocor to gencor
+summary(lm(formula=PhenoCor~GenoCor, data=merged))
+
+par(mfrow=c(1,2))
+library(plotly)
+library(BuenColors)
+
+attach(merged)
+UKBB_color_maps <- c("BASO_COUNT"='#00441B',"EO_COUNT"="#46A040","HCT"="#00AF99","HGB"="#FFC179","LYMPH_COUNT"="#98D9E9","MCH"="#F6313E",
+                     "MCHC"="#FFA300","MCV"="#C390D4","MEAN_RETIC_VOL"="#FF5A00","MONO_COUNT"="#AFAFAF",
+                     "MPV"="#7D7D7D","NEUTRO_COUNT"="#4B4B4B","PLT_COUNT"="#0081C9","RBC_COUNT"="#8F1336",
+                     "RETIC_COUNT"="#001588","WBC_COUNT"="#490C65")
+
+p<- ggplot(merged,aes(x=GenoCor,y=PhenoCor,pairs=traitpairs)) + geom_point(aes(color=Var1.y)) +  scale_color_manual(values = UKBB_color_maps) + 
+  pretty_plot()+ geom_smooth(method=lm)+
+  geom_abline(intercept=0,slope=1) + 
+  theme(plot.title = element_text(size=10,hjust = 0.5,face="bold"), panel.background = element_rect(fill = "white", colour = "grey50"), panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+#ggplotly(p,tooltip = c("pairs","x", "y"))
+
+############################################################################################################
+# Narrow-Sense Heritability Estimates Obtained from Genetic Correlations
+
+heritability <- data.frame(row.names=traits)
+allgencors <- bind_rows(constrained_gencors)
+nodups <- allgencors[!(duplicated(allgencors$p2)),]
+
+for (i in traits){
+  heritability[i,"h_obs"] <- nodups[nodups$p2 == i,'h2_obs']
+  heritability[i,"h_obs_se"] <- nodups[nodups$p2 == i,'h2_obs_se']
+}
+
+heritability$trait <- rownames(heritability)
+heritability$trait <- factor(heritability$trait,levels=reorderedtraits)
+
+ggplot(data=heritability, aes(trait,h_obs)) +
+  geom_bar(stat="identity",fill="steel blue") + ggtitle("Trait Heritability") + theme_bw() + 
+  theme(plot.title = element_text(size=10,hjust = 0.5,face="bold"), panel.background = element_rect(fill = "white", colour = "grey50"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+        axis.title.y=element_blank(),axis.title.x=element_blank()) +  scale_x_discrete(labels = abbreviate) +
+          geom_errorbar(aes(ymin=h_obs-h_obs_se, ymax=h_obs+h_obs_se),width=.2,position=position_dodge(.9),color="black")
+
+@
 \item
 
 \begin{figure}[H]

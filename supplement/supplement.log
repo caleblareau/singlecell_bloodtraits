@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  26 AUG 2017 04:42
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  29 AUG 2017 18:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -437,46 +437,105 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 Package color Info: Redefining color shadecolor on input line 82.
 
-<figure/part1a-1.pdf, id=1, 144.54pt x 361.35pt>
-File: figure/part1a-1.pdf Graphic file (type pdf)
- <use figure/part1a-1.pdf>
-Package pdftex.def Info: figure/part1a-1.pdf used on input line 87.
-(pdftex.def)             Requested size: 144.53963pt x 361.36566pt.
+<figure/correlationPlots-1.pdf, id=1, 578.16pt x 361.35pt>
+File: figure/correlationPlots-1.pdf Graphic file (type pdf)
 
-<staticFigures/LDtoSentinel_PPcomparison.pdf, id=2, 614.295pt x 794.97pt>
+<use figure/correlationPlots-1.pdf>
+Package pdftex.def Info: figure/correlationPlots-1.pdf used on input line 84.
+(pdftex.def)             Requested size: 469.75499pt x 293.59616pt.
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 93.
+
+Overfull \hbox (43.49078pt too wide) in paragraph at lines 99--99
+[]\OT1/cmtt/m/n/10 ## Error in corrplot(output, method = "square", order = "hcl
+ust", hclust.method = "complete",
+ []
+
+<figure/correlationPlots-2.pdf, id=2, 578.16pt x 361.35pt>
+File: figure/correlationPlots-2.pdf Graphic file (type pdf)
+
+<use figure/correlationPlots-2.pdf>
+Package pdftex.def Info: figure/correlationPlots-2.pdf used on input line 101.
+(pdftex.def)             Requested size: 469.75499pt x 293.59616pt.
+ [1
+
+{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./figur
+e/correlationPlots-1.pdf>]
+Overfull \hbox (22.49097pt too wide) in paragraph at lines 110--111
+[]\OT1/cmtt/m/n/10 ## Error in corrplot(output, method = "square", order = "hcl
+ust", tl.cex = 0.6, : object
+ []
+
+
+Overfull \hbox (38.24083pt too wide) in paragraph at lines 114--115
+[]\OT1/cmtt/m/n/10 ## Error in genotriangle[lower.tri(genotriangle, diag = FALS
+E)] <- 0: object 'genotriangle'
+ []
+
+LaTeX Font Info:    Try loading font information for TS1+cmtt on input line 122
+.
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1cmtt.fd
+File: ts1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+
+LaTeX Font Warning: Font shape `TS1/cmtt/bx/n' undefined
+(Font)              using `TS1/cmtt/m/n' instead
+(Font)              for symbol `textdollar' on input line 122.
+
+
+Overfull \hbox (11.99106pt too wide) in paragraph at lines 130--131
+[]\OT1/cmtt/m/n/10 ## Error in merge(genomelt, phenomelt, by = "traitpairs"): o
+bject 'genomelt' not found[] 
+ []
+
+
+Overfull \hbox (11.99106pt too wide) in paragraph at lines 140--141
+[]\OT1/cmtt/m/n/10 ## Error in ggplot(merged, aes(x = GenoCor, y = PhenoCor, pa
+irs = traitpairs)): object
+ []
+
+<figure/correlationPlots-3.pdf, id=19, 578.16pt x 361.35pt>
+File: figure/correlationPlots-3.pdf Graphic file (type pdf)
+
+<use figure/correlationPlots-3.pdf>
+Package pdftex.def Info: figure/correlationPlots-3.pdf used on input line 146.
+(pdftex.def)             Requested size: 469.75499pt x 293.59616pt.
+ [2 <./figure/correlationPlots-2.pdf>]
+<staticFigures/LDtoSentinel_PPcomparison.pdf, id=29, 614.295pt x 794.97pt>
 File: staticFigures/LDtoSentinel_PPcomparison.pdf Graphic file (type pdf)
 
 <use staticFigures/LDtoSentinel_PPcomparison.pdf>
 Package pdftex.def Info: staticFigures/LDtoSentinel_PPcomparison.pdf used on in
-put line 97.
+put line 159.
 (pdftex.def)             Requested size: 469.75499pt x 607.9196pt.
- [1
+ [3 <./figure/correlationPlots-3.pdf>] [4 <./staticFigures/LDtoSentinel_PPcompa
+rison.pdf>]
+Package color Info: Redefining color shadecolor on input line 170.
+ [5]
+(./supplement.aux)
 
-{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2 <./f
-igure/part1a-1.pdf>]
-[3 <./staticFigures/LDtoSentinel_PPcomparison.pdf>]
-Package color Info: Redefining color shadecolor on input line 108.
-LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 110.
- [4] (./supplement.aux) ) 
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ ) 
 Here is how much of TeX's memory you used:
- 5444 strings out of 493089
- 81400 string characters out of 6134842
- 145716 words of memory out of 5000000
- 8836 multiletter control sequences out of 15000+600000
- 9357 words of font info for 36 fonts, out of 8000000 for 9000
+ 5473 strings out of 493089
+ 82348 string characters out of 6134842
+ 146732 words of memory out of 5000000
+ 8859 multiletter control sequences out of 15000+600000
+ 9654 words of font info for 37 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,6n,38p,288b,418s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2015/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmr12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmr17.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmtt10.pfb>
-Output written on supplement.pdf (4 pages, 503056 bytes).
+ 38i,7n,38p,288b,411s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
+}</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
+</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></
+usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></us
+r/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/
+local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/l
+ocal/texlive/2015/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
+Output written on supplement.pdf (5 pages, 537595 bytes).
 PDF statistics:
- 50 PDF objects out of 1000 (max. 8388607)
- 34 compressed objects within 1 object stream
+ 69 PDF objects out of 1000 (max. 8388607)
+ 47 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 21 words of extra memory for PDF output out of 10000 (max. 10000000)
 
