@@ -49,11 +49,12 @@ makeCVplot <- function(plottrait, method){
   plotdf <- merge(cellCoordsDF, df[df$V2 == plottrait, ],
                   by.x = "CellLabel", by.y = "V1")
   plottrait <- gsub("_PP001", "", plottrait)
-  
-  p1 <- ggplot(plotdf, aes(x = x, y = y, color = V3)) + 
+  plotdf$pvalue <- pnorm(plotdf$V3, lower.tail = FALSE)
+
+  p1 <- ggplot(plotdf, aes(x = x, y = y, color =  -log10(pvalue))) + 
     geom_point(size = 11) + pretty_plot() +
     geom_text(aes(label=CellLabel),hjust=0.5, vjust=3) + 
-    scale_color_gradientn(colors = THE_PALETTE, name = "Zscore") +
+    scale_color_gradientn(colors = THE_PALETTE, name = "-log10(pvalue)") +
     scale_y_continuous(limits = c(0, 11)) + ggtitle(paste0(method, " ", plottrait))
   
   ggsave(p1, filename = paste0("rawPDFs/",method,"/",method,"_", plottrait, ".pdf"),
