@@ -7,9 +7,9 @@ library(BSgenome.Hsapiens.UCSC.hg19)
 library(reshape2)
 
 # Create bulk Summarized Experiment
-peaksdf <- fread("../../data/bulk/ATAC/26August2017_EJCsamples_allReads_250bp.bed")
+peaksdf <- fread("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.bed")
 peaks <- makeGRangesFromDataFrame(peaksdf, seqnames = "V1", start.field = "V2", end.field = "V3")
-counts <-  data.matrix(fread("../../data/bulk/ATAC/26August2017_EJCsamples_allReads_250bp.counts.txt"))
+counts <-  data.matrix(fread("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.counts.txt"))
 SE <- SummarizedExperiment(assays = list(counts = counts),
                                rowData = peaks, 
                                colData = DataFrame(names = colnames(counts)))

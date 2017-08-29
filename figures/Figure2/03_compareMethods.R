@@ -10,7 +10,7 @@ p1 <- ggplot(df, aes(x = -log10(chromVAR_pvalue), y = -log10(weighted_pvalue), c
   pretty_plot() + geom_point() + scale_color_manual(values = ejc_color_maps) +
   coord_cartesian(xlim=c(0,7), ylim=c(0,7))
 
-ggplotly(p1)
+#ggplotly(p1)
 
 
 cor(-log10(df$ldscore_pvalue), -log10(df$weighted_pvalue))
