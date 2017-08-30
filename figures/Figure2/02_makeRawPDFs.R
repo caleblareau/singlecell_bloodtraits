@@ -48,7 +48,6 @@ makeCVplot <- function(plottrait, method){
   }
   plotdf <- merge(cellCoordsDF, df[df$V2 == plottrait, ],
                   by.x = "CellLabel", by.y = "V1")
-  plottrait <- gsub("_PP001", "", plottrait)
   plotdf$pvalue <- pnorm(plotdf$V3, lower.tail = FALSE)
 
   p1 <- ggplot(plotdf, aes(x = x, y = y, color =  -log10(pvalue))) + 
@@ -71,7 +70,7 @@ stopifnot(all(wchromvar[,1] == chromvar[,1]))
 stopifnot(all(wchromvar[,2] == chromvar[,2]))
 outdf <- data.frame(
   Celltype = wchromvar[,1],
-  Trait = gsub("_PP001", "", wchromvar[,2]),
+  Trait = wchromvar[,2],
   weightedchromVAR_Zscore =  wchromvar[,3],
   chromVAR_Zscore =  chromvar[,3]
 )
