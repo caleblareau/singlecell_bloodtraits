@@ -1,0 +1,9 @@
+base
+knitr
+corrplot
+MASS
+ggplot2
+BuenColors
+dplyr
+reshape2
+cowplot

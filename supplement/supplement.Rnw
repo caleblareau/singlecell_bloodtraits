@@ -29,32 +29,40 @@
 \begin{enumerate}[label=(\Alph*)]
 \item 
 a
-<<correlationPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Fold change enrichment of individually resolved peaks", eval = TRUE, cache = FALSE, results="hide">>=
+
+<<loadLibraries, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, eval = TRUE, cache = FALSE, results="hide">>=
 library(corrplot)
 library(BuenColors)
 library(dplyr)
+library(reshape2)
+library(cowplot)
+@
+
+<<correlationPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Phenotypic and genetic correlations across the 16 traits examined. ", eval = TRUE, cache = TRUE, results="hide">>=
 
 reorderedtraits=traits=c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
 
 ########################################################################
 ### Phenotypic correlations
 phenocors <-read.table("../data/phenotypeCorrelations/raw_phenotypes.txt",header=TRUE,row.names=1)
-for (i in 1:16){
-  phenocors[,i] <- as.numeric(as.character(phenocors[,i]))
-}
-phenocors <- as.matrix(phenocors)
+phenocors <- data.matrix(phenocors[reorderedtraits,reorderedtraits])
+melt_pheno <- reshape2::melt(phenocors)
+melt_pheno$Var1 <- ordered(as.character(melt_pheno$Var1),  ordered(traits))
+melt_pheno$Var2 <- ordered(as.character(melt_pheno$Var2),  ordered(rev((traits))))
 
-corrplot(phenocors[reorderedtraits,reorderedtraits],method="square",tl.cex=0.5,
-         cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,2,0),title="Phenotypic Correlations")
+p1 <- ggplot(data = melt_pheno, aes(x=Var1, y=Var2, fill=value)) + pretty_plot() + 
+  geom_tile() + scale_fill_gradientn(colors = jdb_palette("solar_flare"), limits = c(-1,1)) +
+  theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    axis.text.x = element_text(angle = 90)) +labs(x = NULL, y = NULL, fill = "Pearson") +
+  theme(legend.position="bottom")  + ggtitle("Phenotype Correlation")
 
 ################################################################################ 
 #Constrained intercept genetic correlations
 constrained_gencors <- vector(mode = "list", length = length(traits))
 
-traits=c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
-
 # Read unix files into R lists
-constrained_gencors <- lapply(traits, function(y) read.table(paste0("../Data/",y,"_UK10K_constrained.gcsummary.txt"),header=TRUE,row.names=NULL))
+constrained_gencors <- lapply(traits, function(y) read.table(paste0("../data/phenotypeCorrelations/ldscore/",y,"_UK10K_constrained.gcsummary.txt"),header=TRUE,row.names=NULL))
 
 make.gc.matrix <- function(list_of_gcs,traits){
   allgencors <- bind_rows(list_of_gcs)
@@ -78,27 +86,24 @@ make.gc.matrix <- function(list_of_gcs,traits){
 }
 
 
-output <- make.gc.matrix(constrained_gencors,traits)[[1]]
-constrained.pv.matrix <- make.gc.matrix(constrained_gencors,traits)[[2]]
+ldscorecor <- make.gc.matrix(constrained_gencors,traits)[[1]]
+melt_phenoLD <- reshape2::melt(ldscorecor)
+melt_phenoLD$Var1 <- ordered(as.character(melt_phenoLD$Var1),  ordered(traits))
+melt_phenoLD$Var2 <- ordered(as.character(melt_phenoLD$Var2),  ordered(rev((traits))))
 
-# Plot genetic correlations side-by-side with phenotypic correlations, with traits in the same order
-par(mfrow=c(1,2))
-par(xpd=TRUE)
-reorderedtraits<- dimnames(corrplot(output,method="square",order="hclust",hclust.method = "complete", tl.cex=0.6,
-                                    cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,0,0)))[[1]]
-corrplot(phenocors[reorderedtraits,reorderedtraits],method="square", tl.cex=0.6, 
-         cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,0,0))
+p2 <- ggplot(data = melt_phenoLD, aes(x=Var1, y=Var2, fill=value)) + pretty_plot() + 
+  geom_tile() + scale_fill_gradientn(colors = jdb_palette("solar_flare"), limits = c(-1,1)) +
+  theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    axis.text.x = element_text(angle = 90)) +labs(x = NULL, y = NULL, fill = "LDScore Correlation") +
+  theme(legend.position="bottom")  + ggtitle("Genetic Correlation")
 
-
-# Plot just genetic correlations
-par(mfrow=c(1,1))
-corrplot(output,method="square",order="hclust",tl.cex=0.6,cl.lim=c(-1,1),cl.cex=0.6,mar=c(0,0,0,0))
 
 ##########################################################################
 #Compare geno and pheno correlations
 phenotriangle <- phenocors
 phenotriangle[lower.tri(phenotriangle, diag = FALSE)]<- 0
-genotriangle <- output
+genotriangle <- ldscorecor
 genotriangle[lower.tri(genotriangle, diag = FALSE)]<- 0
 
 phenomelt <- melt(phenotriangle); genomelt <- melt(genotriangle); allmelt <- melt(phenocors)
@@ -112,25 +117,22 @@ merged <- merge(genomelt,phenomelt,by="traitpairs")
 merged[,c("Var1.x","Var2.x")] <- NULL
 merged <- merged[merged$GenoCor != 0,]
 
-#### regression of phenocor to gencor
-summary(lm(formula=PhenoCor~GenoCor, data=merged))
-
-par(mfrow=c(1,2))
-library(plotly)
-library(BuenColors)
-
-attach(merged)
-UKBB_color_maps <- c("BASO_COUNT"='#00441B',"EO_COUNT"="#46A040","HCT"="#00AF99","HGB"="#FFC179","LYMPH_COUNT"="#98D9E9","MCH"="#F6313E",
-                     "MCHC"="#FFA300","MCV"="#C390D4","MEAN_RETIC_VOL"="#FF5A00","MONO_COUNT"="#AFAFAF",
-                     "MPV"="#7D7D7D","NEUTRO_COUNT"="#4B4B4B","PLT_COUNT"="#0081C9","RBC_COUNT"="#8F1336",
-                     "RETIC_COUNT"="#001588","WBC_COUNT"="#490C65")
-
-p<- ggplot(merged,aes(x=GenoCor,y=PhenoCor,pairs=traitpairs)) + geom_point(aes(color=Var1.y)) +  scale_color_manual(values = UKBB_color_maps) + 
+p3 <- ggplot(merged,aes(x=GenoCor,y=PhenoCor,pairs=traitpairs)) + geom_point(aes(color=Var1.y)) + 
+  scale_color_manual(values = UKBB_color_maps) + 
   pretty_plot()+ geom_smooth(method=lm)+
   geom_abline(intercept=0,slope=1) + 
-  theme(plot.title = element_text(size=10,hjust = 0.5,face="bold"), panel.background = element_rect(fill = "white", colour = "grey50"), panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-#ggplotly(p,tooltip = c("pairs","x", "y"))
+  theme(plot.title = element_text(size=10,hjust = 0.5,face="bold"),
+        panel.background = element_rect(fill = "white", colour = "grey50"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  scale_x_continuous(limits = c(-1,1)) + scale_y_continuous(limits = c(-1,1))
 
+ plot_grid(p1, p2, labels = c('A', 'B'))
+
+@
+
+
+<<heritabilityPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Heritiability estimates from LD Score Regression across 16 hematopoetic traits. The estimates of the narrow-sense SNP heritabilities are plotted with their corresponding standard erors.", eval = TRUE, cache = FALSE, results="hide">>=
+ 
 ############################################################################################################
 # Narrow-Sense Heritability Estimates Obtained from Genetic Correlations
 
@@ -148,9 +150,13 @@ heritability$trait <- factor(heritability$trait,levels=reorderedtraits)
 
 ggplot(data=heritability, aes(trait,h_obs)) +
   geom_bar(stat="identity",fill="steel blue") + ggtitle("Trait Heritability") + theme_bw() + 
-  theme(plot.title = element_text(size=10,hjust = 0.5,face="bold"), panel.background = element_rect(fill = "white", colour = "grey50"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-        axis.title.y=element_blank(),axis.title.x=element_blank()) +  scale_x_discrete(labels = abbreviate) +
-          geom_errorbar(aes(ymin=h_obs-h_obs_se, ymax=h_obs+h_obs_se),width=.2,position=position_dodge(.9),color="black")
+  theme(plot.title = element_text(size=10,hjust = 0.5,face="bold"),
+        panel.background = element_rect(fill = "white", colour = "grey50"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+        axis.title.y=element_blank(),axis.title.x=element_blank()) +
+  scale_x_discrete(labels = abbreviate) +
+          geom_errorbar(aes(ymin=h_obs-h_obs_se, ymax=h_obs+h_obs_se),
+                        width=.2,position=position_dodge(.9),color="black")
 
 @
 \item
@@ -163,12 +169,5 @@ ggplot(data=heritability, aes(trait,h_obs)) +
 
 \end{enumerate}
 
-
-
-\section*{Description of single-cell enrichment}
-
-<<part2a, message = FALSE, warning = FALSE>>=
-print("part2")
-@
 
 \end{document}
