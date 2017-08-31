@@ -36,7 +36,7 @@ UTR.gr <- import("../../data/annotations/UTR_3_UCSC.bed",format="bed")
 
 #' Figure 1B
 #+ echo=FALSE, message=FALSE, warning=FALSE, fig.height = 10, fig.width = 10
-CS.df <- read.table("../../data/UKBB_BC_PP001/UKBB_BC_v3.bed")
+CS.df <- read.table("../../data/Finemap/UKBB_BC_v3.bed")
 names(CS.df) <- c("seqnames","end","start","annotation","PP")
 CS.df[,c("trait","var","region")] <- str_split_fixed(CS.df$annotation, "-", 3)
 CS.df <- CS.df %>% dplyr::select(-annotation)
@@ -57,7 +57,7 @@ ggplot(CS.df.best.sum,aes(y=count,x=trait,group=trait)) +
 
 #' Figure 1C
 #+ echo=FALSE, message=FALSE, warning=FALSE, fig.height = 10, fig.width = 10
-FM_exp <- readRDS("../../data/UKBB_BC_PP001/allFINEMAPregions.rds")
+FM_exp <- readRDS("../../data/Finemap/allFINEMAPregions.rds")
 ggplot(FM_exp,aes(x=expectedvalue,y=trait,fill=trait)) + 
   geom_joy(scale = 4) + 
   theme_joy() +
