@@ -159,6 +159,38 @@ ggplot(data=heritability, aes(trait,h_obs)) +
                         width=.2,position=position_dodge(.9),color="black")
 
 @
+
+<<barplots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=9, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Hematopoetic cell type enrichments for Mean Retic Volume and Monocyte count using various methods.", eval = TRUE, cache = FALSE, results="hide">>=
+df3 <- read.table("../data/bulk/GWAS-Bulk/compare3.tsv", header = TRUE)
+df3$LDScore <- -log10(df3$ldscore_pvalue)
+df3$`g-chromVAR` <- -log10(pnorm(df3$weighted_Zscore, lower.tail = FALSE))
+df3$chromVAR <- -log10(pnorm(df3$chromVAR_Zscore, lower.tail = FALSE))
+plotdfEnrich2 <- reshape2::melt(df3[df3$Trait %in% c("MEAN_RETIC_VOL", "MONO_COUNT"),c(1,2,6,7,8)],
+                                id.vars = c("Celltype", "Trait"))
+
+pEnrich1 <- ggplot(plotdfEnrich2[plotdfEnrich2$Trait == "MONO_COUNT", ], aes(x = Celltype, y = value)) +
+  geom_bar(width = 1, aes(fill = Celltype), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  pretty_plot() + labs(x = "", y = "Monocyte Count Enrichment (-log10 p)", fill = "") +
+   scale_fill_manual(values = ejc_color_maps) + facet_grid(variable ~ ., scales = "free_y") +
+  theme(legend.position="none") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+pEnrich2 <- ggplot(plotdfEnrich2[plotdfEnrich2$Trait == "MEAN_RETIC_VOL", ], aes(x = Celltype, y = value)) +
+  geom_bar(width = 1, aes(fill = Celltype), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  pretty_plot() + labs(x = "", y = "Mean Retic Volume Enrichment (-log10 p)", fill = "") +
+   scale_fill_manual(values = ejc_color_maps) + facet_grid(variable ~ ., scales = "free_y") +
+  theme(legend.position="bottom") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot_grid(pEnrich1, pEnrich2, labels = c('A', 'B'), nrow = 2, rel_heights = c(1,1.3))
+@
+
 \item
 
 \begin{figure}[H]
