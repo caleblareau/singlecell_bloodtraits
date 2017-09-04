@@ -190,7 +190,7 @@ pEnrich2 <- ggplot(plotdfEnrich2[plotdfEnrich2$Trait == "MEAN_RETIC_VOL", ],
 plot_grid(pEnrich1, pEnrich2, labels = c('A', 'B'), nrow = 2, rel_heights = c(1,1.3))
 @
 
-<<allGchromvar, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="All enrichments from g-chromVAR", eval = TRUE, cache = FALSE, results="hide">>=
+<<allGchromvar, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="All enrichments from g-chromVAR. The horizontal line shows a Bonferonni multiple testing adjusted threshold for statistical significance of enrichment.", eval = TRUE, cache = FALSE, results="hide">>=
 
 # Plot of all enrichments
 dfg <- read.table("../data/bulk/GWAS-Bulk/compare3.tsv", header = TRUE)
@@ -203,6 +203,26 @@ ggplot(plotdfEnrichg, aes(x = Celltype, y = value)) +
   pretty_plot() + labs(x = "", y = "g-chromVAR Enrichment (-log10 p)", fill = "") +
    scale_fill_manual(values = ejc_color_maps) + facet_wrap(~Trait, scales = "free_y") +
   theme(legend.position="bottom") +
+  geom_hline(yintercept = -log10(0.05 / (16*17)), linetype = 2) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+@
+
+
+<<allLDscore, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="All enrichments from LD Score. The horizontal line shows a Bonferonni multiple testing adjusted threshold for statistical significance of enrichment.", eval = TRUE, cache = FALSE, results="hide">>=
+
+# Plot of all enrichments
+dfldscore <- read.table("../data/bulk/GWAS-Bulk/compare3.tsv", header = TRUE)
+dfldscore$ldscoreP<- -log10(dfldscore$ldscore_pvalue)
+plotdfEnrichLDscore <- reshape2::melt(dfldscore[,c(1,2,6)], id.vars = c("Celltype", "Trait"))
+ggplot(plotdfEnrichLDscore, aes(x = Celltype, y = value)) +
+  geom_bar(width = 1, aes(fill = Celltype), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  pretty_plot() + labs(x = "", y = "LD Score Enrichment Enrichment (-log10 p)", fill = "") +
+   scale_fill_manual(values = ejc_color_maps) + facet_wrap(~Trait, scales = "free_y") +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept = -log10(0.05 / (16*17)), linetype = 2) +
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
