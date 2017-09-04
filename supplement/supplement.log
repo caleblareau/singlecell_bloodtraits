@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  31 AUG 2017 03:06
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  4 SEP 2017 16:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -465,32 +465,41 @@ File: figure/barplots-1.pdf Graphic file (type pdf)
 Package pdftex.def Info: figure/barplots-1.pdf used on input line 114.
 (pdftex.def)             Requested size: 469.75499pt x 528.47307pt.
  [2 <./figure/heritabilityPlots-1.pdf>]
-<staticFigures/LDtoSentinel_PPcomparison.pdf, id=30, 614.295pt x 794.97pt>
+Package color Info: Redefining color shadecolor on input line 125.
+
+<figure/allGchromvar-1.pdf, id=30, 578.16pt x 578.16pt>
+File: figure/allGchromvar-1.pdf Graphic file (type pdf)
+
+<use figure/allGchromvar-1.pdf>
+Package pdftex.def Info: figure/allGchromvar-1.pdf used on input line 127.
+(pdftex.def)             Requested size: 469.75499pt x 469.75385pt.
+ [3 <./figure/barplots-1.pdf>]
+<staticFigures/LDtoSentinel_PPcomparison.pdf, id=40, 614.295pt x 794.97pt>
 File: staticFigures/LDtoSentinel_PPcomparison.pdf Graphic file (type pdf)
 
 <use staticFigures/LDtoSentinel_PPcomparison.pdf>
 Package pdftex.def Info: staticFigures/LDtoSentinel_PPcomparison.pdf used on in
-put line 128.
+put line 141.
 (pdftex.def)             Requested size: 469.75499pt x 607.9196pt.
- [3 <./figure/barplots-1.pdf>] [4 <./staticFigures/LDtoSentinel_PPcomparison.pd
-f>] [5] (./supplement.aux) ) 
+ [4 <./figure/allGchromvar-1.pdf>] [5 <./staticFigures/LDtoSentinel_PPcompariso
+n.pdf>] [6] (./supplement.aux) ) 
 Here is how much of TeX's memory you used:
- 5452 strings out of 493089
- 81724 string characters out of 6134842
- 145732 words of memory out of 5000000
- 8843 multiletter control sequences out of 15000+600000
+ 5458 strings out of 493089
+ 81879 string characters out of 6134842
+ 145740 words of memory out of 5000000
+ 8848 multiletter control sequences out of 15000+600000
  9189 words of font info for 35 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,6n,38p,354b,411s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2015/texmf-dist/fonts/type1/pub
-lic/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmr12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/a
-msfonts/cm/cmr17.pfb>
-Output written on supplement.pdf (5 pages, 510303 bytes).
+</usr/local/texlive/2015/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmr12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmr17.pfb>
+Output written on supplement.pdf (6 pages, 518551 bytes).
 PDF statistics:
- 66 PDF objects out of 1000 (max. 8388607)
- 44 compressed objects within 1 object stream
+ 75 PDF objects out of 1000 (max. 8388607)
+ 50 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 21 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 26 words of extra memory for PDF output out of 10000 (max. 10000000)
 
