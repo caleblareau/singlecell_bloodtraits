@@ -32,3 +32,4 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 data/Shiny_Data/UKBB_sumstats/EO_COUNT
+data/Shiny_Data/UKBB_sumstats/BASO_COUNT
