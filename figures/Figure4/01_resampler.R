@@ -66,4 +66,4 @@ blappout <- lapply(1:100, function(i){
   varMat
 })
 
-saveRDS(blappout, "../../data/resample/resample.variance.", as.character(simN), ".rds")
+saveRDS(blappout, paste0("../../data/resample/resample.variance.", as.character(simN), ".rds"))
