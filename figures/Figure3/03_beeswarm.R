@@ -44,6 +44,16 @@ ggsave(lymph_plot, filename = "rawBeePlot/LYMPH.pdf")
 # Have to do some extra stuff here to get
 # GMP variable colors but grouped by basic GMP
 
+# Differential analysis
+GMPA <- observed_long[observed_long$Var1 == "MONO_COUNT" & observed_long$Var2 == "GMP-A", "value"]
+GMPB <- observed_long[observed_long$Var1 == "MONO_COUNT" & observed_long$Var2 == "GMP-B", "value"]
+GMPC <- observed_long[observed_long$Var1 == "MONO_COUNT" & observed_long$Var2 == "GMP-C", "value"]
+summary(GMPA)
+summary(GMPB)
+summary(GMPC)
+
+t.test(GMPA, GMPC)
+
 kct <- c("HSC", "MPP", "CMP", "GMP-A", "GMP-B", "GMP-C", "GMP", "Mono")
 mono_long <- observed_long[observed_long$Var1 == "MONO_COUNT" & observed_long$Var2 %in% kct,]
 mono_long$Var2 <- as.ordered(factor(mono_long$Var2, levels = kct))
