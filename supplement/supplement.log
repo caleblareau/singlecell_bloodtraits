@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  4 SEP 2017 20:54
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  25 SEP 2017 19:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -443,60 +443,69 @@ File: figure/correlationPlots-1.pdf Graphic file (type pdf)
 <use figure/correlationPlots-1.pdf>
 Package pdftex.def Info: figure/correlationPlots-1.pdf used on input line 87.
 (pdftex.def)             Requested size: 469.75499pt x 293.59616pt.
-Package color Info: Redefining color shadecolor on input line 99.
+Package color Info: Redefining color shadecolor on input line 101.
 
-<figure/heritabilityPlots-1.pdf, id=2, 578.16pt x 361.35pt>
-File: figure/heritabilityPlots-1.pdf Graphic file (type pdf)
+<figure/pleiotropyPlots-1.pdf, id=2, 578.16pt x 361.35pt>
+File: figure/pleiotropyPlots-1.pdf Graphic file (type pdf)
 
-<use figure/heritabilityPlots-1.pdf>
-Package pdftex.def Info: figure/heritabilityPlots-1.pdf used on input line 101.
-
+<use figure/pleiotropyPlots-1.pdf>
+Package pdftex.def Info: figure/pleiotropyPlots-1.pdf used on input line 103.
 (pdftex.def)             Requested size: 469.75499pt x 293.59616pt.
  [1
 
 {/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./figur
 e/correlationPlots-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 112.
+Package color Info: Redefining color shadecolor on input line 114.
 
-<figure/barplots-1.pdf, id=20, 578.16pt x 650.43pt>
+<figure/heritabilityPlots-1.pdf, id=20, 578.16pt x 361.35pt>
+File: figure/heritabilityPlots-1.pdf Graphic file (type pdf)
+
+<use figure/heritabilityPlots-1.pdf>
+Package pdftex.def Info: figure/heritabilityPlots-1.pdf used on input line 116.
+
+(pdftex.def)             Requested size: 469.75499pt x 293.59616pt.
+ [2 <./figure/pleiotropyPlots-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 127.
+
+<figure/barplots-1.pdf, id=32, 578.16pt x 650.43pt>
 File: figure/barplots-1.pdf Graphic file (type pdf)
 
 <use figure/barplots-1.pdf>
-Package pdftex.def Info: figure/barplots-1.pdf used on input line 114.
+Package pdftex.def Info: figure/barplots-1.pdf used on input line 129.
 (pdftex.def)             Requested size: 469.75499pt x 528.47307pt.
- [2 <./figure/heritabilityPlots-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 125.
+ [3 <./figure/heritabilityPlots-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 140.
 
-<figure/allGchromvar-1.pdf, id=29, 578.16pt x 578.16pt>
+<figure/allGchromvar-1.pdf, id=41, 578.16pt x 578.16pt>
 File: figure/allGchromvar-1.pdf Graphic file (type pdf)
 
 <use figure/allGchromvar-1.pdf>
-Package pdftex.def Info: figure/allGchromvar-1.pdf used on input line 127.
+Package pdftex.def Info: figure/allGchromvar-1.pdf used on input line 142.
 (pdftex.def)             Requested size: 469.75499pt x 469.75385pt.
- [3 <./figure/barplots-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 139.
+ [4 <./figure/barplots-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 154.
 
-<figure/allLDscore-1.pdf, id=39, 578.16pt x 578.16pt>
+<figure/allLDscore-1.pdf, id=51, 578.16pt x 578.16pt>
 File: figure/allLDscore-1.pdf Graphic file (type pdf)
 
 <use figure/allLDscore-1.pdf>
-Package pdftex.def Info: figure/allLDscore-1.pdf used on input line 141.
+Package pdftex.def Info: figure/allLDscore-1.pdf used on input line 156.
 (pdftex.def)             Requested size: 469.75499pt x 469.75385pt.
- [4 <./figure/allGchromvar-1.pdf>]
-<staticFigures/LDtoSentinel_PPcomparison.pdf, id=48, 614.295pt x 794.97pt>
+ [5 <./figure/allGchromvar-1.pdf>]
+<staticFigures/LDtoSentinel_PPcomparison.pdf, id=60, 614.295pt x 794.97pt>
 File: staticFigures/LDtoSentinel_PPcomparison.pdf Graphic file (type pdf)
 
 <use staticFigures/LDtoSentinel_PPcomparison.pdf>
 Package pdftex.def Info: staticFigures/LDtoSentinel_PPcomparison.pdf used on in
-put line 155.
+put line 170.
 (pdftex.def)             Requested size: 469.75499pt x 607.9196pt.
- [5 <./figure/allLDscore-1.pdf>] [6 <./staticFigures/LDtoSentinel_PPcomparison.
-pdf>] [7] (./supplement.aux) ) 
+ [6 <./figure/allLDscore-1.pdf>] [7 <./staticFigures/LDtoSentinel_PPcomparison.
+pdf>] [8] (./supplement.aux) ) 
 Here is how much of TeX's memory you used:
- 5464 strings out of 493089
- 82022 string characters out of 6134842
- 145748 words of memory out of 5000000
- 8853 multiletter control sequences out of 15000+600000
+ 5470 strings out of 493089
+ 82195 string characters out of 6134842
+ 145756 words of memory out of 5000000
+ 8858 multiletter control sequences out of 15000+600000
  9189 words of font info for 35 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,6n,38p,354b,411s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -505,10 +514,10 @@ ublic/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/pu
 blic/amsfonts/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/publ
 ic/amsfonts/cm/cmr12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public
 /amsfonts/cm/cmr17.pfb>
-Output written on supplement.pdf (7 pages, 528091 bytes).
+Output written on supplement.pdf (8 pages, 537316 bytes).
 PDF statistics:
- 85 PDF objects out of 1000 (max. 8388607)
- 57 compressed objects within 1 object stream
+ 97 PDF objects out of 1000 (max. 8388607)
+ 64 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 31 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 36 words of extra memory for PDF output out of 10000 (max. 10000000)
 
