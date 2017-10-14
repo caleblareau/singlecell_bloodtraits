@@ -1,0 +1,17 @@
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/BASO_COUNT_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/EO_COUNT_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/HCT_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/HGB_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/LYMPH_COUNT_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/MCH_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/MCHC_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/MCV_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/MEAN_RETIC_VOL_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/MONO_COUNT_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/MPV_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/NEUTRO_COUNT_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/PLT_COUNT_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/RBC_COUNT_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/RETIC_COUNT_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/FINEMAP/bedfiles/PP001_inclusive/WBC_COUNT_PP0.001.motifbreakr.bed
+/broad/sankaranlab/ebao/MotifbreakR/alltraits.between0.0and0.001.mbreaker.bed
