@@ -18,22 +18,44 @@ locuszoom <- fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/association_p
 # Tag the two causal variants identified from finemapping
 locuszoom$sentinel <- ifelse(locuszoom$RSQR ==1 | 
                                locuszoom$SNP =="rs112233623", "yes", "no")
-mycolours <- c("yes" = "yellow", "no" = "grey50")
 
-ggplot(locuszoom,aes(POS/(10^6),-log10(PVAL))) + 
-  geom_point(aes(fill=RSQR),shape=21,size=3) + pretty_plot() +
-  ggtitle(paste(rsid,trait)) + 
-  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1]) +
-  theme(plot.title = element_text(size=14,hjust = 0.50,face="bold")) +
+sz <- 1.5
+locustheme <-  theme(plot.title = element_text(size=sz*4,hjust = 0.50,face="bold"),
+                      text=element_text(size=sz*4),
+                      axis.title.x = element_blank(),
+                      axis.text.x = element_blank(),
+                      axis.ticks.x = element_blank(),
+                      legend.position = c(.05, .9),
+                      legend.justification = c("left", "top"),
+                      legend.box.just = "left",
+                      legend.margin = margin(1, 1, 1, 1),
+                      legend.direction = "horizontal",
+                      legend.key.size = unit(width/30, "in"),
+                      legend.text = element_text(size=sz*2),
+                      legend.title = element_text(face="bold",size=sz*2))
+  
+p1 <- ggplot(locuszoom,aes(POS/(10^6),-log10(PVAL))) + 
+  geom_point(aes(fill=RSQR),shape=21,size=sz)  +
+  pretty_plot()+
+  scale_y_continuous(expand = c(0.05, 0))+
+  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1],name="R2") +
+  guides(fill=guide_colorbar(title.vjust=0.75))+
+  locustheme+
   labs(x="Position on Chromosome 6 (Mb)",y="-log10(P-value)") + 
   geom_point(data=subset(locuszoom,sentinel=="yes"),
              aes(x=POS/(10^6),y=-log10(PVAL)),
-             fill="yellow",shape=21,size=3)+
+             fill="yellow",shape=21,size=sz)+
   geom_label_repel(data = subset(locuszoom, sentinel=="yes"),
     aes(label = paste(SNP,RSQR,sep=" - ")),
-    size = 3,
+    size = sz,
     force=TRUE,
-    nudge_x = 0.5) 
+    nudge_x = 0.75) 
+
+dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/RBC_COUNT"
+width=3
+ggsave("rs9349205_locusplot.pdf", plot = p1, device = NULL, path = dir,
+       scale = 1, width = width, height=width*1/2, units = "in",
+       dpi = 300, limitsize = TRUE)
 
 #### Conditional Locus plot (conditioning on rs9349205)
 rsid <- "rs112233623"
@@ -44,20 +66,29 @@ conditional <- merge(conditional, rsqre, by.x="SNP", by.y="snp1")
 conditional$sentinel <- ifelse(conditional$rsquare ==1 | 
                                  conditional$SNP =="rs9349205", "yes", "no")
 
-ggplot(conditional,aes(POS/(10^6),-log10(PVAL))) + 
-  geom_point(aes(fill=rsquare),shape=21,size=3) + pretty_plot() +
-  ggtitle(paste(rsid,trait)) + 
-  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1]) +
-  theme(plot.title = element_text(size=14,hjust = 0.50,face="bold")) +
+conditional<-ggplot(conditional,aes(POS/(10^6),-log10(PVAL))) + 
+  geom_point(aes(fill=RSQR),shape=21,size=sz)  +
+  pretty_plot()+
+  scale_y_continuous(expand = c(0.05, 0))+
+  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1],name="R2") +
+  guides(fill=guide_colorbar(title.vjust=0.75))+
+  locustheme+
   labs(x="Position on Chromosome 6 (Mb)",y="-log10(P-value)") + 
   geom_point(data=subset(conditional,sentinel=="yes"),
              aes(x=POS/(10^6),y=-log10(PVAL)),
-             fill="yellow",shape=21,size=3) +
-  geom_label_repel(
-    data = subset(conditional, sentinel=="yes"),
-    aes(label = paste(SNP,rsquare,sep=" - ")),
-    size = 3,
-    nudge_x = 0.5) 
+             fill="yellow",shape=21,size=sz)+
+  geom_label_repel(data = subset(conditional, sentinel=="yes"),
+                   aes(label = paste(SNP,RSQR,sep=" - ")),
+                   size = sz,
+                   force=TRUE,
+                   nudge_x = 0.75,
+                   nudge_y=0) 
+
+dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/RBC_COUNT"
+width=3
+ggsave("rs9349205_conditional_locusplot.pdf", plot = conditional, device = NULL, path = dir,
+       scale = 1, width = width, height=width*1/2, units = "in",
+       dpi = 300, limitsize = TRUE)
 
 # ggmatrix(list(p1,p2),nrow=1,ncol=2,
 #          xAxisLabels = c("CCND3 Locus", "CCND3 Locus Conditioned on rs9349205"),
@@ -74,19 +105,29 @@ FM_region <- subset(FM_region,snp_log10bf > -Inf)
 FM_region$sentinel <- ifelse(FM_region$RSQR ==1 | 
                                FM_region$SNP =="rs112233623", "yes", "no")
 
-ggplot(subset(FM_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
-  geom_point(aes(fill=RSQR),shape=21,size=3) + pretty_plot() +
-  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1]) +
-  theme(plot.title = element_text(size=14,hjust = 0.50,face="bold")) +
-  labs(x="Position on Chromosome 6 (Mb)", y="log10(Bayes factor)")+ 
+fm <- ggplot(subset(FM_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
+  geom_point(aes(fill=RSQR),shape=21,size=sz)  +
+  pretty_plot()+
+  scale_y_continuous(expand = c(0.05, 0))+
+  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1],name="R2") +
+  guides(fill=guide_colorbar(title.vjust=0.75))+
+  locustheme+
+  labs(x="Position on Chromosome 6 (Mb)",y="log10(Bayes factor)") + 
   geom_point(data=subset(FM_region,sentinel=="yes"),
              aes(x=POS/(10^6),y=snp_log10bf),
-             fill="yellow",shape=21,size=3) +
+             fill="yellow",shape=21,size=sz)+
   geom_label_repel(data = subset(FM_region, sentinel=="yes"),
-                   aes(label = paste(SNP)),
-                   size = 3,
+                   aes(label = paste(SNP,RSQR,sep=" - ")),
+                   size = sz,
                    force=TRUE,
-                   nudge_x = 0.5)
+                   nudge_x = 0.75,
+                   nudge_y=0) 
+
+dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/RBC_COUNT"
+width=3
+ggsave("rs9349205_fm_bfs.pdf", plot = fm, device = NULL, path = dir,
+       scale = 1, width = width, height=width*1/2, units = "in",
+       dpi = 300, limitsize = TRUE)
 
 # Hard called LD finemap results
 hardcallregion<-36
@@ -100,20 +141,29 @@ FM_hardcall_region$sentinel <- ifelse(FM_hardcall_region$RSQR ==1 |
                                         FM_hardcall_region$SNP =="rs112233623", "yes", "no")
 
 # Plot FM log10bf with hard called variants labeled
-ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
-  geom_point(aes(fill=RSQR),shape=21,size=3) + pretty_plot() +
-  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1]) +
-  theme(plot.title = element_text(size=14,hjust = 0.50,face="bold")) +
-  labs(x="Position on Chromosome 6 (Mb)", y="log10(Bayes factor)") + 
+hardcall <- ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
+  geom_point(aes(fill=RSQR),shape=21,size=sz)  +
+  pretty_plot()+
+  scale_y_continuous(expand = c(0.05, 0))+
+  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1],name="R2") +
+  guides(fill=guide_colorbar(title.vjust=0.75))+
+  locustheme+
+  labs(x="Position on Chromosome 6 (Mb)",y="log10(Bayes factor)") + 
   geom_point(data=subset(FM_hardcall_region,sentinel=="yes"),
              aes(x=POS/(10^6),y=snp_log10bf),
-             fill="yellow",shape=21,size=3) +
+             fill="yellow",shape=21,size=sz)+
   geom_label_repel(data = subset(FM_hardcall_region, sentinel=="yes"),
-                  aes(label = paste(SNP)),
-                  size = 3,
-                  force=TRUE,
-                  nudge_x = 0.5,
-                  nudge_y=2.5) 
+                   aes(label = paste(SNP,RSQR,sep=" - ")),
+                   size = sz,
+                   force=TRUE,
+                   nudge_x = 0.5,
+                   nudge_y=1.0) 
+
+dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/RBC_COUNT"
+width=3
+ggsave("rs9349205_hardcall_fm_bfs.pdf", plot = hardcall, device = NULL, path = dir,
+       scale = 1, width = width, height=width*1/2, units = "in",
+       dpi = 300, limitsize = TRUE)
 
 # Hard called LD finemap results
 locuszoom$hardcall <- ifelse( locuszoom$SNP =="rs72867133" | 
