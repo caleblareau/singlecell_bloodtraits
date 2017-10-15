@@ -70,16 +70,96 @@ melted$variable <- factor(melted$variable,levels=(c("PP01_enrichment","PP001_enr
 melted$trait <- factor(melted$trait,levels=traits)
   
 # Plot figure
-ggplot(data=melted, aes(x=trait,y=value,fill=variable)) +
+sz=4
+p1 <-ggplot(data=melted, aes(x=trait,y=value,fill=variable)) +
   geom_bar(stat="identity",position="dodge") +
   theme_bw() + 
   coord_flip() + 
-  scale_fill_manual(values=jdb_palette("Zissou")[c(1,3, 5)],
+  scale_fill_manual(values=jdb_palette("Zissou")[c(5,3,1)],
                     labels=c("PP01 Variants", "PP001 Variants", "GW-Significant Variants")) +
   guides(fill=guide_legend(title="",reverse=TRUE)) + 
   labs(y="Pr(h2g)/Pr(SNPs)") +
   theme(plot.title = element_text(size=10,hjust = 0.5,face="bold"), 
         panel.background = element_rect(fill = "white", colour = "grey50"), 
-        panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-        axis.title.y=element_blank())  +
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(), 
+        axis.title.y=element_blank(),
+        axis.text = element_text(size=sz),
+        axis.title.x=element_text(size=sz,margin = margin(t = 3, r = 0, b = 0, l = 0)),
+        legend.position = c(.95, .98),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(1, 1, 1, 1),
+        legend.direction = "vertical",
+        legend.key.size = unit(width/30, "in"),
+        legend.text = element_text(size=sz))  +
   geom_errorbar(aes(ymin=value-se, ymax=value+se),width=.2,position=position_dodge(.9),color="black")
+
+dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/LDSR/Heritabilities"
+wd = 6.5
+ggsave("LDSR_heritabilityenrichments.pdf", plot = p1, device = NULL, path = dir,
+       scale = 1, width = wd, height=wd/1.5, units = "in",
+       dpi = 300, limitsize = TRUE)
+
+
+###########################################################################
+# Total proportion of heritability
+output <- sapply(traits, function(trait){
+  PP001_herit <- sapply(ctHeme, function(y){
+    return(y[,Prop._h2][1])
+  })
+})
+all_herit <- do.call(rbind,(lapply(seq(16), function(y){
+  PP001_h2<- ctHeme[[y]][,Prop._h2][1]
+  PP001_h2_se <- ctHeme[[y]][,Prop._h2_std_error][1]
+  
+  PP01_h2<- PP01_snps[[y]][,Prop._h2][1]
+  PP01_h2_se <- PP01_snps[[y]][,Prop._h2_std_error][1]
+  
+  gwas_h2<- gwas_snps[[y]][,Prop._h2][1]
+  gwas_h2_se <- gwas_snps[[y]][,Prop._h2_std_error][1]
+  
+  return(cbind(PP001_h2,PP001_h2_se,
+               PP01_h2, PP01_h2_se,
+               gwas_h2, gwas_h2_se))
+}))) %>% as.data.frame()
+all_herit$trait<- traits
+
+melted <- melt(all_herit[,c("trait","gwas_h2","PP001_h2","PP01_h2")])
+
+melted$se <- melt(all_herit[,c("trait","gwas_h2_se","PP001_h2_se","PP01_h2_se")],
+                  id.vars = "trait")$value
+
+melted$variable <- factor(melted$variable,levels=(c("gwas_h2","PP001_h2","PP01_h2")))
+melted$trait <- factor(melted$trait,levels=traits)
+
+# Plot figure
+p1 <- ggplot(data=melted, aes(x=trait,y=value,fill=variable)) +
+  geom_bar(stat="identity",position="dodge") +
+  theme_bw() + 
+  scale_fill_manual(values=jdb_palette("Zissou")[c(1,3,5)],
+                    labels=c("GW-Significant Variants", "PP001 Variants", "PP01 Variants")) +
+  guides(fill=guide_legend(title="")) + 
+  labs(y="Pr(h2g)/Pr(SNPs)") +
+  theme(plot.title = element_text(size=10,hjust = 0.5,face="bold"), 
+        panel.background = element_rect(fill = "white", colour = "grey50"), 
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(), 
+        axis.title.x=element_blank(),
+        axis.text = element_text(size=sz),
+        axis.title.y=element_text(size=sz,margin = margin(t = 3, r = 0, b = 0, l = 0)),
+        legend.position = c(.95, .98),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(1, 1, 1, 1),
+        legend.direction = "vertical",
+        legend.key.size = unit(width/30, "in"),
+        legend.text = element_text(size=sz),
+        axis.text.x = element_text(angle = 60, hjust = 1))  +
+  geom_errorbar(aes(ymin=value-se, ymax=value+se),width=.2,position=position_dodge(.9),color="black")
+
+dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/LDSR/Heritabilities"
+wd = 6.5
+ggsave("LDSR_prop_h2.pdf", plot = p1, device = NULL, path = dir,
+       scale = 1, width = wd, height=wd, units = "in",
+       dpi = 300, limitsize = TRUE)
