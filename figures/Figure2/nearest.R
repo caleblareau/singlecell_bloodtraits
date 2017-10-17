@@ -51,3 +51,12 @@ ggplot(samePeakDF, aes(x = trait, y = nPeaksMultiple, color = as.factor(cutoff_P
   scale_color_manual(values = jdb_palette("Zissou"))
 
 
+# Focus on MPV Variants
+file <- "../../data/UKBB_BC_PP001/MPV_PP001.bed"  
+gr <- sort(bedToGRanges(file))
+gr <- gr[mcols(gr)$score > 0.5]
+ix <- subjectHits(findOverlaps(gr, peaks))[duplicated(subjectHits(findOverlaps(gr, peaks)))]
+
+counts <-  data.matrix(fread("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.counts.txt"))
+data.frame(peaks[ix], counts[ix, ])
+

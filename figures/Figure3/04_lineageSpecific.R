@@ -59,12 +59,27 @@ ldscore_ranksum <- sum(1:dim(df)[1]*df[order(df$ldscore_pvalue, decreasing = FAL
 chromVAR_ranksum <- sum(1:dim(df)[1]*df[order(df$chromVAR_pvalue, decreasing = FALSE), "lineageSpecific"])
 weighted_ranksum <- sum(1:dim(df)[1]*df[order(df$weighted_pvalue, decreasing = FALSE), "lineageSpecific"])
 
-pnorm((mean(permuted) - ldscore_ranksum)/sd(permuted), lower.tail = FALSE)
-pnorm((mean(permuted) - chromVAR_ranksum)/sd(permuted), lower.tail = FALSE)
-pnorm((mean(permuted) - weighted_ranksum)/sd(permuted), lower.tail = FALSE)
-
-tfdf <- data.frame(
-  truePos = c(sum(df$lineageSpecific& df$hit_ldscore), sum(df$lineageSpecific& df$hit_chromVAR), sum(df$lineageSpecific& df$hit_weighted)),
-  falsePos = c(sum(!df$lineageSpecific& df$hit_ldscore), sum(!df$lineageSpecific& df$hit_chromVAR), sum(!df$lineageSpecific& df$hit_weighted))
+allstats <- data.frame(
+  Yes = c(sum(df$lineageSpecific& df$hit_ldscore), sum(df$lineageSpecific& df$hit_chromVAR), sum(df$lineageSpecific& df$hit_weighted)),
+  No = c(sum(!df$lineageSpecific& df$hit_ldscore), sum(!df$lineageSpecific& df$hit_chromVAR), sum(!df$lineageSpecific& df$hit_weighted)),
+  pval = c(pnorm((mean(permuted) - ldscore_ranksum)/sd(permuted), lower.tail = FALSE),
+           pnorm((mean(permuted) - chromVAR_ranksum)/sd(permuted), lower.tail = FALSE),
+           pnorm((mean(permuted) - weighted_ranksum)/sd(permuted), lower.tail = FALSE)
+  )
 )
-rownames(tfdf) <- c("LDscore", "chromVAR", "g-chromVAR")
+allstats$method <- c("LDscore", "chromVAR", "g-chromVAR")
+
+ggplot(allstats[,c(3,4),drop=FALSE], aes(x = method, y = -1*log10(pval))) +
+  geom_histogram(stat = "identity", color = "black", fill = c("blue", "red", "green")) +
+  labs(x = "", y = "Lineage-Specific Enrichment -log10(p)") + coord_flip() +
+  pretty_plot()
+
+tfdf <- reshape2::melt(allstats[,c(1,2,4)], id.vars = "method")
+tfdf$variable <- factor(as.character(tfdf$variable), c("No", "Yes"))
+ggplot(tfdf, aes(x = method, y = value, fill = variable)) +
+  geom_histogram(stat = "identity", color = "black") +
+  labs(x = "", y = "Number of Significant Enrichments", fill = "Lineage Specific") +
+  scale_fill_manual(values = c("firebrick","green4")) +
+  pretty_plot() +  theme(legend.position = "bottom")
+
+
