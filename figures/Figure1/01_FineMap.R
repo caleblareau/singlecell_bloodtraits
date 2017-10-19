@@ -84,7 +84,7 @@ randomizeLocalRegions2 <- function(A, ...) {
 
 #' Figure 1E
 #+ echo=FALSE, message=FALSE, warning=FALSE, fig.height = 10, fig.width = 10
-#CS.df$seqnames <- paste0("chr",CS.df$seqnames)
+CS.df$seqnames <- paste0("chr",CS.df$seqnames)
 CS.gr <- makeGRangesFromDataFrame(CS.df, keep.extra.columns=TRUE, ignore.strand=TRUE, starts.in.df.are.0based=TRUE)
 OR <- NULL
 perm <- NULL
@@ -116,7 +116,7 @@ allregions.df <- bind_rows(allregions)
 allregions.df$trait <- rep(names(allregions), sapply(allregions, nrow))
 allregions.df$cp <- paste0(allregions.df$trait,":","chr",allregions.df$chromosome,":",allregions.df$nonsentinel)
 allregions.df$sp <- paste0(allregions.df$trait,":","chr",allregions.df$chromosome,":",allregions.df$sentinel)
-CS.df$seqnames <- paste0("chr",CS.df$seqnames)
+#CS.df$seqnames <- paste0("chr",CS.df$seqnames)
 CS.df$cp <- paste0(CS.df$trait,":",CS.df$seqnames,":",CS.df$end)
 LD.df <- CS.df %>% 
   dplyr::filter(cp %in% c(allregions.df$cp,allregions.df$sp))
