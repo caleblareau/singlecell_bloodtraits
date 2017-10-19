@@ -44,17 +44,18 @@ p1 <- ggplot(locuszoom,aes(POS/(10^6),-log10(PVAL))) +
   labs(x="Position on Chromosome 6 (Mb)",y="-log10(P-value)") + 
   geom_point(data=subset(locuszoom,sentinel=="yes"),
              aes(x=POS/(10^6),y=-log10(PVAL)),
-             fill="yellow",shape=21,size=sz)+
-  geom_label_repel(data = subset(locuszoom, sentinel=="yes"),
-    aes(label = paste(SNP,RSQR,sep=" - ")),
-    size = sz,
-    force=TRUE,
-    nudge_x = 0.75) 
+             fill="yellow",shape=21,size=sz) +
+  theme(legend.position="none")
+#  geom_label_repel(data = subset(locuszoom, sentinel=="yes"),
+#    aes(label = paste(SNP,RSQR,sep=" - ")),
+#    size = sz,
+#    force=TRUE,
+#    nudge_x = 0.75) 
 
-dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/RBC_COUNT"
-width=3
-ggsave("rs9349205_locusplot.pdf", plot = p1, device = NULL, path = dir,
-       scale = 1, width = width, height=width*1/2, units = "in",
+dir="/Users/julirsch/Desktop/singlecell_bloodtraits/figures/Figure2/CCND3_RBC_COUNT/"
+width=5
+ggsave("rs9349205_locusplot.png", plot = p1, device = NULL, path = dir,
+       scale = 1, width = width, height=width*0.6, units = "in",
        dpi = 300, limitsize = TRUE)
 
 #### Conditional Locus plot (conditioning on rs9349205)
@@ -76,18 +77,19 @@ conditional<-ggplot(conditional,aes(POS/(10^6),-log10(PVAL))) +
   labs(x="Position on Chromosome 6 (Mb)",y="-log10(P-value)") + 
   geom_point(data=subset(conditional,sentinel=="yes"),
              aes(x=POS/(10^6),y=-log10(PVAL)),
-             fill="yellow",shape=21,size=sz)+
-  geom_label_repel(data = subset(conditional, sentinel=="yes"),
-                   aes(label = paste(SNP,RSQR,sep=" - ")),
-                   size = sz,
-                   force=TRUE,
-                   nudge_x = 0.75,
-                   nudge_y=0) 
+             fill="yellow",shape=21,size=sz) +
+  theme(legend.position="none")
+#  geom_label_repel(data = subset(conditional, sentinel=="yes"),
+#                   aes(label = paste(SNP,RSQR,sep=" - ")),
+#                   size = sz,
+#                   force=TRUE,
+#                   nudge_x = 0.75,
+#                   nudge_y=0) 
 
-dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/RBC_COUNT"
-width=3
-ggsave("rs9349205_conditional_locusplot.pdf", plot = conditional, device = NULL, path = dir,
-       scale = 1, width = width, height=width*1/2, units = "in",
+dir="/Users/julirsch/Desktop/singlecell_bloodtraits/figures/Figure2/CCND3_RBC_COUNT/"
+width=5
+ggsave("rs9349205_conditional_locusplot.png", plot = conditional, device = NULL, path = dir,
+       scale = 1, width = width, height=width*0.6, units = "in",
        dpi = 300, limitsize = TRUE)
 
 # ggmatrix(list(p1,p2),nrow=1,ncol=2,
@@ -115,18 +117,19 @@ fm <- ggplot(subset(FM_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) +
   labs(x="Position on Chromosome 6 (Mb)",y="log10(Bayes factor)") + 
   geom_point(data=subset(FM_region,sentinel=="yes"),
              aes(x=POS/(10^6),y=snp_log10bf),
-             fill="yellow",shape=21,size=sz)+
-  geom_label_repel(data = subset(FM_region, sentinel=="yes"),
-                   aes(label = paste(SNP,RSQR,sep=" - ")),
-                   size = sz,
-                   force=TRUE,
-                   nudge_x = 0.75,
-                   nudge_y=0) 
+             fill="yellow",shape=21,size=sz) +
+  theme(legend.position="none")
+#  geom_label_repel(data = subset(FM_region, sentinel=="yes"),
+#                   aes(label = paste(SNP,RSQR,sep=" - ")),
+#                   size = sz,
+#                   force=TRUE,
+#                   nudge_x = 0.75,
+#                   nudge_y=0) 
 
-dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/RBC_COUNT"
-width=3
-ggsave("rs9349205_fm_bfs.pdf", plot = fm, device = NULL, path = dir,
-       scale = 1, width = width, height=width*1/2, units = "in",
+dir="/Users/julirsch/Desktop/singlecell_bloodtraits/figures/Figure2/CCND3_RBC_COUNT/"
+width=5
+ggsave("rs9349205_fm_bfs.png", plot = fm, device = NULL, path = dir,
+       scale = 1, width = width, height=width*0.6, units = "in",
        dpi = 300, limitsize = TRUE)
 
 # Hard called LD finemap results
