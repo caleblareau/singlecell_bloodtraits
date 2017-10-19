@@ -84,7 +84,7 @@ randomizeLocalRegions2 <- function(A, ...) {
 
 #' Figure 1E
 #+ echo=FALSE, message=FALSE, warning=FALSE, fig.height = 10, fig.width = 10
-CS.df$seqnames <- paste0("chr",CS.df$seqnames)
+#CS.df$seqnames <- paste0("chr",CS.df$seqnames)
 CS.gr <- makeGRangesFromDataFrame(CS.df, keep.extra.columns=TRUE, ignore.strand=TRUE, starts.in.df.are.0based=TRUE)
 OR <- NULL
 perm <- NULL
@@ -94,7 +94,7 @@ bins = c(0.001,0.01,0.05,0.1,0.25,0.75,1)
 for (i in seq(1,5,1)) {
   for (j in seq(1,6,1)) {
     CS.PP.gr <- subset(CS.gr,PP > bins[j] & PP <= bins[j+1]) 
-    perm[[paste0(i,j)]] <- permTest(A=CS.PP.gr, B=gr.list[[i]], ntimes=10000, alternative="auto", randomize.function=randomizeLocalRegions2, evaluate.function=numOverlaps, force.parallel=FALSE, mc.set.seed=FALSE, mc.cores=4)
+    perm[[paste0(i,j)]] <- permTest(A=CS.PP.gr, B=gr.list[[i]], ntimes=10000, alternative="auto", randomize.function=randomizeLocalRegions2, evaluate.function=numOverlaps, force.parallel=FALSE, mc.set.seed=FALSE, mc.cores=8)
     OR <- rbind(OR,c(i,j,perm[[paste0(i,j)]]$numOverlaps$observed / length(CS.PP.gr), mean(perm[[paste0(i,j)]]$numOverlaps$permuted) / length(CS.PP.gr), perm[[paste0(i,j)]]$numOverlaps$zscore))
   print(c(i,j))
   }
@@ -102,13 +102,15 @@ for (i in seq(1,5,1)) {
 
 #local <- localZScore(CS.PP.gr, gr.list[[2]], pt=perm[[paste0(2,6)]], window=1500000,step=1000, mc.set.seed=FALSE, mc.cores=32)
 
-perm1 <- perm
-OR1 <- OR
+saveRDS(perm,"Perm_Annots.rds")
+saveRDS(OR,"OR_Annots.rds")
 
 #' Figure 3A-C
 #+ echo=FALSE, message=FALSE, warning=FALSE, fig.height = 10, fig.width = 10
 traits <- c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
-allregions <- lapply(traits, function(y) fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/LDtosentinel_alltraits/LDfiltered.0.8.",y,".txt")))
+#allregions <- lapply(traits, function(y) fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/LDtosentinel_alltraits/LDfiltered.0.8.",y,".txt")))
+#saveRDS(allregions,"../../data/Finemap/LD80.rds")
+allregions <- readRDS("../../data/Finemap/LD80.rds")
 names(allregions) <- traits
 allregions.df <- bind_rows(allregions)
 allregions.df$trait <- rep(names(allregions), sapply(allregions, nrow))
@@ -124,13 +126,16 @@ perm <- NULL
 trait <- unique(LD.gr@elementMetadata$trait)
 gr.list <- heme.gr
 for (i in seq(1,18,1)) {
-  for (j in seq(8,8,1)) {
+  for (j in seq(1,16,1)) {
     LD.PP.gr <- LD.gr[LD.gr@elementMetadata$trait == trait[j],] 
-    perm[[paste0(i,j)]] <- permTest(A=LD.PP.gr, B=gr.list[[i]], ntimes=10000, alternative="auto", randomize.function=randomizeLocalRegions2, evaluate.function=numOverlaps, force.parallel=FALSE, mc.set.seed=FALSE, mc.cores=4)
+    perm[[paste0(i,j)]] <- permTest(A=LD.PP.gr, B=gr.list[[i]], ntimes=10000, alternative="auto", randomize.function=randomizeLocalRegions2, evaluate.function=numOverlaps, force.parallel=FALSE, mc.set.seed=FALSE, mc.cores=8)
     OR <- rbind(OR,c(i,j,names(gr.list)[i],trait[j],perm[[paste0(i,j)]]$numOverlaps$observed / length(LD.PP.gr), mean(perm[[paste0(i,j)]]$numOverlaps$permuted) / length(LD.PP.gr), perm[[paste0(i,j)]]$numOverlaps$zscore))
     print(c(i,j))
   }
 }
+
+saveRDS(perm,"Perm_Heme.rds")
+saveRDS(OR,"OR_Heme.rds")
 
 OR.df <- as.data.frame(OR,stringsAsFactors=F)
 names(OR.df) <- c("i","j","cell","trait","obs","perm","z")
