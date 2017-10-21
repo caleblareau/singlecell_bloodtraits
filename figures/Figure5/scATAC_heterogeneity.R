@@ -164,12 +164,7 @@ compare_subgroups_plot <- function(allcells,celltype,traitstoplot,numPCs=5){
   
   # combine box plots and PC scatter plots and plot them together
   all <- c(boxplots,PC_clusters)
-  ggmatrix(all,nrow=2,ncol=length(traitstoplot),
-           xAxisLabels = traitstoplot,
-           legend=c(1,1))+ 
-    ggtitle(paste(celltype, "Heterogeneity")) +
-    theme(plot.title = element_text(hjust = 0.5),
-          legend.justification = c("right", "top"))
+  return(all)
 }
 
 compare_subgroups_plot_v2 <- function(allcells,celltype,traitstoplot,numPCs=5,PCs){
@@ -201,7 +196,6 @@ compare_subgroups_plot_v2 <- function(allcells,celltype,traitstoplot,numPCs=5,PC
   ggmatrix(all,nrow=2,ncol=length(traitstoplot),
            xAxisLabels = traitstoplot,
            legend=c(1,1))+ 
-    ggtitle(paste(celltype, "Heterogeneity")) +
     theme(plot.title = element_text(hjust = 0.5),
           legend.justification = c("right", "top"))
 }
@@ -210,7 +204,7 @@ remove_smooth <- function(cols){
 }
 ##########################################################################################
 # Code begins here
-allcells <- fread("../data/singlecell/scATAC/sc_traitenrichments_11aug.txt")
+allcells <- fread("../../data/singlecell/scATAC/sc_traitenrichments_11aug.txt")
 
 # CMP k-means clustering
 CMPtraitstoplot <- c("RBC_COUNT","PLT_COUNT","MPV","MONO_COUNT")
@@ -224,8 +218,10 @@ traitstoplot <- c("RBC_COUNT","PLT_COUNT","MPV","MONO_COUNT")
 traitstoplot <- c("HCT","PLT_COUNT","MPV","MONO_COUNT")
 
 #this function call does everything that the next ~50 subsequent lines do
-compare_subgroups_plot(allcells,celltype="CMP",traitstoplot=traitstoplot,
-                       numPCs=5)
+plots <- compare_subgroups_plot(allcells,celltype="CMP",traitstoplot=traitstoplot,
+                       numPCs=6)
+ggmatrix(plots,nrow=2,ncol=length(traitstoplot),
+         xAxisLabels = traitstoplot)
 
 enrichments <- as.data.frame(allcells)[allcells$type %in% celltype,1:7]
 enrichments$kmeans <- as.character(kmeans(scale(enrichments[,3:7]),2)$cluster)
@@ -270,15 +266,34 @@ ggmatrix(all,nrow=2,ncol=length(traitstoplot),
 # MEP k-means clustering
 meptraitstoplot <- c("HCT","PLT_COUNT")
 # Get p-values for ATAC clustering differences in chromVAR score
-ggallyplot_atac(allcells,celltype="MEP",traitstoplot=meptraitstoplot,smoothed=FALSE,numPCs=5)
+ggallyplot_atac(allcells,celltype="MEP",traitstoplot=meptraitstoplot,smoothed=FALSE,numPCs=6)
 #ggallyplot(allcells,celltype="MEP",traitstoplot=meptraitstoplot,smoothed=FALSE)
 
 # Generate PC scatter + boxplot figure for MEP
-numPCs=5
+numPCs=6
 celltype <- "MEP"
 traitstoplot <- c("HCT","PLT_COUNT")
-compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=traitstoplot,
-                       numPCs=5)
+plots <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=traitstoplot,
+                       numPCs=numPCs)
+
+ggmatrix(plots,nrow=2,ncol=length(traitstoplot),
+         xAxisLabels = traitstoplot,
+         legend=c(1,1))+ 
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.justification = c("right", "top"))
+
+ggmatrix(plots,nrow=2,ncol=length(traitstoplot),
+         xAxisLabels = traitstoplot)
+
+library(gridExtra)
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  legend
+}
+legend <- g_legend(plots[[1]])
+p <- grid.arrange(legend, ncol=1, nrow=1)
 
 ################################################################################################################################
 # Check if scATAC sub-populations stratify by TF z-scores
@@ -295,15 +310,16 @@ colnames(enrichments) <- remove_smooth(colnames(enrichments))
 enrichments <- enrichments[,c("name",traitstoplot,"kmeans")]
 
 # Merge with TF zscores
-TF_zscores <- fread("../data/singlecell/scATAC/tfDeviationsTable.tsv")
+TF_zscores <- fread("../../data/singlecell/scATAC/tfDeviationsTable.tsv")
 TFs_of_interest <- c("GATA1","KLF1","CEBPA","IRF8")
+
 TFplots <- lapply(TFs_of_interest, function(TF){
   idx <- grep(TF,colnames(TF_zscores),value=TRUE)[1]
   zscores <- TF_zscores %>% dplyr::select(cellnames,idx)
   colnames(zscores) <- c("cellnames",TF)
   merged <- merge(enrichments,zscores,by.x="name",by.y="cellnames")
-  p <- ggplot(merged, aes_string(x="kmeans", y=colnames(merged)[ncol(merged)],fill="kmeans")) + 
-    geom_boxplot(outlier.shape=NA) + pretty_plot() + 
+  p <- ggplot(merged, aes_string(x="kmeans", y=colnames(merged)[ncol(merged)],fill="kmeans")) +
+    geom_boxplot(outlier.shape=NA) + pretty_plot() +
     geom_quasirandom(varwidth = TRUE,alpha=0.35,size=0.5)+
     theme(axis.title.x = element_blank())
   return(p)
@@ -313,9 +329,12 @@ TFplots <- lapply(TFs_of_interest, function(TF){
 ggmatrix(TFplots,1,length(TFs_of_interest),
          xAxisLabels = TFs_of_interest,
          legend=c(1,1)) + 
-  ggtitle("TF z-scores")+
   theme(plot.title = element_text(hjust = 0.5))
 
+ggmatrix(TFplots,1,length(TFs_of_interest),
+         xAxisLabels = TFs_of_interest)
+
+TFplots <- readRDS("../../data/singlecell/scATAC/CMP_kmeans_TFdifferences.rds")
 # Calculate pvalues for all TFs between CMP sub-populations
 # TFplots <- lapply(colnames(TF_zscores)[2:ncol(TF_zscores)], function(TF){
 #   # idx <- grep(TF,colnames(TF_zscores),value=TRUE)[1]
@@ -325,14 +344,13 @@ ggmatrix(TFplots,1,length(TFs_of_interest),
 #   return(p)
 # })
 #saveRDS(TFplots,"/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/scATAC/CMP_kmeans_TFdifferences.rds")
-TFplots <- readRDS("../data/singlecell/scATAC/CMP_kmeans_TFdifferences.rds")
 
 # Calculate p-value of TF zscores difference between clusters
 TF_differences <- as.data.frame(unlist(TFplots))
 TF_differences$TF <- colnames(TF_zscores)[2:ncol(TF_zscores)]
 colnames(TF_differences) <- c("pval","TF")
 TF_differences <- arrange(TF_differences,pval)
-TF_differences$logp <- -1*log10(TF_differences$pval)
+TF_differences$FDR <- p.adjust(TF_differences$pval)
 TF_differences$rank <- seq(1,nrow(TF_differences),1)
 TF_differences$TF_name <- str_split_fixed(TF_differences$TF, "_",n=4)[,3]
 TF_differences$toLabel <- "F"
@@ -343,15 +361,31 @@ TF_differences$highlight<- "F"
 TF_differences[idx,"highlight"] <- "T"
 
 # TF Rank order plot
-ggplot(TF_differences,aes(x=rank,y=logp)) + geom_point(aes(color=highlight)) +
+ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) + 
+  geom_point(shape=21,size=3.5,aes(fill=highlight)) +
   pretty_plot() +
-  scale_color_manual(values = jdb_palette("brewer_spectra")) +
-  theme(legend.position="none") +
+  scale_fill_manual(values = c("cyan","orange"),
+                    labels=c("Other TFs", "GATA TFs")) +
+  labs(x="Rank",y="-log10(FDR)") + 
+  theme(legend.position = c(.95, .95),
+        legend.justification = c("right", "top"),
+        legend.margin = margin(6, 6, 6, 6),
+        legend.title = element_blank(),
+        legend.key = element_rect(fill = "white", colour = "black")) +
+  guides(fill=guide_legend(reverse=TRUE)) +
   geom_text_repel(
     data = subset(TF_differences, toLabel!="F"),
     aes(label = toLabel),
-    size = 3,
-    box.padding = unit(0.35, "lines"),
-    point.padding = unit(0.35, "lines"),
-    nudge_y = 0.1
-  )
+    size = 2.5,
+    nudge_y =2,
+    nudge_x=30,
+    point.padding=0.5,
+    min.segment.length=0,
+    segment.alpha=0.3,
+    direction="both")
++
+# theme(legend.position="none") +
+
+
+
+ggsave(p, file="CMP_TFs_rankorderplot.pdf")
