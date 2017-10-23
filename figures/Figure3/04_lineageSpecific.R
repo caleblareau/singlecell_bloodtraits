@@ -64,19 +64,21 @@ permuted <- sapply(1:10000, function(i) sum(1:dim(df)[1] * sample(df$lineageSpec
 ldscore_ranksum <- sum(1:dim(df)[1]*df[order(df$ldscore_pvalue, decreasing = FALSE), "lineageSpecific"])
 chromVAR_ranksum <- sum(1:dim(df)[1]*df[order(df$chromVAR_pvalue, decreasing = FALSE), "lineageSpecific"])
 weighted_ranksum <- sum(1:dim(df)[1]*df[order(df$weighted_pvalue, decreasing = FALSE), "lineageSpecific"])
+goShifter_ranksum <- sum(1:dim(df)[1]*df[order(df$goShifter_pvalue, decreasing = FALSE), "lineageSpecific"])
 
 allstats <- data.frame(
-  Yes = c(sum(df$lineageSpecific& df$hit_ldscore), sum(df$lineageSpecific& df$hit_chromVAR), sum(df$lineageSpecific& df$hit_weighted)),
-  No = c(sum(!df$lineageSpecific& df$hit_ldscore), sum(!df$lineageSpecific& df$hit_chromVAR), sum(!df$lineageSpecific& df$hit_weighted)),
+  Yes = c(sum(df$lineageSpecific& df$hit_ldscore), sum(df$lineageSpecific& df$hit_chromVAR), sum(df$lineageSpecific& df$hit_weighted), sum(df$lineageSpecific& df$hit_goShifter)),
+  No = c(sum(!df$lineageSpecific& df$hit_ldscore), sum(!df$lineageSpecific& df$hit_chromVAR), sum(!df$lineageSpecific& df$hit_weighted), sum(!df$lineageSpecific& df$hit_goShifter)),
   pval = c(pnorm((mean(permuted) - ldscore_ranksum)/sd(permuted), lower.tail = FALSE),
            pnorm((mean(permuted) - chromVAR_ranksum)/sd(permuted), lower.tail = FALSE),
-           pnorm((mean(permuted) - weighted_ranksum)/sd(permuted), lower.tail = FALSE)
+           pnorm((mean(permuted) - weighted_ranksum)/sd(permuted), lower.tail = FALSE),
+           pnorm((mean(permuted) - goShifter_ranksum)/sd(permuted), lower.tail = FALSE)
   )
 )
-allstats$method <- c("LDscore", "chromVAR", "g-chromVAR")
+allstats$method <- c("LDscore", "chromVAR", "g-chromVAR", "goShifter")
 
 ggplot(allstats[,c(3,4),drop=FALSE], aes(x = method, y = -1*log10(pval))) +
-  geom_histogram(stat = "identity", color = "black", fill = c("blue", "red", "green")) +
+  geom_histogram(stat = "identity", color = "black", fill = c("blue", "red", "green", "pink")) +
   labs(x = "", y = "Lineage-Specific Enrichment -log10(p)") + coord_flip() +
   pretty_plot()
 
