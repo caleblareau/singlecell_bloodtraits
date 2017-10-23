@@ -30,7 +30,7 @@ pdf("../Figure3/methods_qq.pdf")
 pvector <- df$weighted_pvalue
 o = -log10(sort(pvector,decreasing=FALSE))
 e = -log10( ppoints(length(pvector)))
-plot(e,o,pch=20); abline(0,1,col="red")
+plot(e,o,pch=20,ylim=c(0,60)); abline(0,1,col="red")
 pvector <- df$ldscore_pvalue
 o = -log10(sort(pvector,decreasing=FALSE))
 e = -log10( ppoints(length(pvector)))
