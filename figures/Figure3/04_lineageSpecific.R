@@ -44,13 +44,19 @@ rowCheck <- function(df1, df2){
 df <- read.table("../../data/bulk/GWAS-Bulk/compare3.tsv", header = TRUE)               
 df$weighted_pvalue <- pnorm(df$weighted_Zscore, lower.tail = FALSE)
 df$chromVAR_pvalue <- pnorm(df$chromVAR_Zscore, lower.tail = FALSE)
+gs <- readRDS("../Figure1/OR_Heme.rds")
+df_gs <- as.data.frame(gs,stringsAsFactors=F)
+names(df_gs) <- c("i","j","cell","trait","obs","perm","z")
+df_gs$pvalue <- 2*pnorm(-abs(as.numeric(df_gs$z)))
+df$goShifter_pvalue <- df_gs$pvalue
 
 df$hit_ldscore <- df$ldscore_pvalue < 0.05/288
 df$hit_chromVAR <- df$chromVAR_pvalue < 0.05/288
 df$hit_weighted <- df$weighted_pvalue < 0.05/288
+df$hit_goShifter <- df$goShifter_pvalue < 0.05/288
 
 df$lineageSpecific <- rowCheck(df[,c("Celltype", "Trait")], lineageSpecificDF)
-odf <- df[,c(1,2,5:11)] 
+odf <- df[,c(1,2,5:12)] 
 #write.table(odf, file = "../../supplemental_tables/Bulk_Enrichments.tsv", 
 #            quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
