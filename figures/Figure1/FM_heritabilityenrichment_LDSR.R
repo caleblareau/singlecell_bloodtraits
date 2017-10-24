@@ -41,6 +41,22 @@ h2$PP01_enrichment_se <- sapply(PP01_snps, function(y){
   return(y[,Enrichment_std_error][1])
 })
 
+# FM PP10 Heritability Enrichments
+PP10_snps <- vector("list",length=16)
+PP10_enrichment <- NULL
+celltypes <- paste0(traits,".",traits,".PP10")
+
+dir="/Volumes/broad_sankaranlab/ebao/LDscore/herit/FM_PP10/"
+for (i in 1:length(ctHeme)){
+  PP10_snps[[i]]<-fread(paste0(dir,celltypes[i],".results"))
+  PP10_enrichment[i] <- PP10_snps[[i]]$Enrichment[1]
+}
+h2$PP10_enrichment <- PP10_enrichment
+h2$PP10_enrichment_se <- sapply(PP10_snps, function(y){
+  return(y[,Enrichment_std_error][1])
+})
+
+
 # GWAS significant SNPs heritability
 gwas_snps <- vector("list",length=16)
 GWAS_enrichment <- NULL
@@ -58,25 +74,27 @@ h2$gwas_enrichment_se <- sapply(gwas_snps, function(y){
 
 ################################################################################################
 # Compare FM Enrichment to GWAS Enrichment
-melted <- melt(h2[,c("trait","gwas_enrichment","PP001_enrichment","PP01_enrichment")],
+melted <- melt(h2[,c("trait","gwas_enrichment","PP001_enrichment","PP01_enrichment","PP10_enrichment")],
                id.vars = "trait",
-               measure.vars = list(c("gwas_enrichment","PP001_enrichment","PP01_enrichment")))
+               measure.vars = list(c("gwas_enrichment","PP001_enrichment","PP01_enrichment","PP10_enrichment")))
 
-melted$se <- melt(h2[,c("trait","gwas_enrichment_se","PP001_enrichment_se","PP01_enrichment_se")],
+melted$se <- melt(h2[,c("trait","gwas_enrichment_se","PP001_enrichment_se","PP01_enrichment_se","PP10_enrichment_se")],
                id.vars = "trait",
-               measure.vars = list(c("gwas_enrichment_se","PP001_enrichment_se","PP01_enrichment_se")))$value
+               measure.vars = list(c("gwas_enrichment_se","PP001_enrichment_se","PP01_enrichment_se","PP10_enrichment_se")))$value
 
-melted$variable <- factor(melted$variable,levels=(c("PP01_enrichment","PP001_enrichment","gwas_enrichment")))
+melted$variable <- factor(melted$variable,levels=(c("PP10_enrichment","PP001_enrichment","gwas_enrichment")))
+melted$value <- factor(melted$value,levels=(c("PP10_enrichment_se","PP001_enrichment_se","gwas_enrichment_se")))
 melted$trait <- factor(melted$trait,levels=traits)
   
 # Plot figure
 sz=4
-p1 <-ggplot(data=melted, aes(x=trait,y=value,fill=variable)) +
+ggplot(data=subset(melted,variable %in% c("PP10_enrichment","PP001_enrichment","gwas_enrichment")),
+                   aes(x=trait,y=value,fill=variable)) +
   geom_bar(stat="identity",position="dodge") +
   theme_bw() + 
   coord_flip() + 
   scale_fill_manual(values=jdb_palette("Zissou")[c(5,3,1)],
-                    labels=c("PP01 Variants", "PP001 Variants", "GW-Significant Variants")) +
+                    labels=c("PP10 Variants", "PP001 Variants", "GW-Significant Variants")) +
   guides(fill=guide_legend(title="",reverse=TRUE)) + 
   labs(y="Pr(h2g)/Pr(SNPs)") +
   theme(plot.title = element_text(size=10,hjust = 0.5,face="bold"), 
