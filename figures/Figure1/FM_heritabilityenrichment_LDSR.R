@@ -56,6 +56,21 @@ h2$PP10_enrichment_se <- sapply(PP10_snps, function(y){
   return(y[,Enrichment_std_error][1])
 })
 
+# GWAS LD80 to Sentinel Heritability Enrichments
+LD80_snps <- vector("list",length=16)
+LD80_enrichment <- NULL
+celltypes <- paste0(traits,".",traits,".LD80")
+
+dir="/Volumes/broad_sankaranlab/ebao/LDscore/herit/LD80/"
+for (i in 1:length(ctHeme)){
+  LD80_snps[[i]]<-fread(paste0(dir,celltypes[i],".results"))
+  LD80_enrichment[i] <- LD80_snps[[i]]$Enrichment[1]
+}
+h2$LD80_enrichment <- LD80_enrichment
+h2$LD80_enrichment_se <- sapply(LD80_snps, function(y){
+  return(y[,Enrichment_std_error][1])
+})
+
 
 # GWAS significant SNPs heritability
 gwas_snps <- vector("list",length=16)
@@ -74,27 +89,34 @@ h2$gwas_enrichment_se <- sapply(gwas_snps, function(y){
 
 ################################################################################################
 # Compare FM Enrichment to GWAS Enrichment
-melted <- melt(h2[,c("trait","gwas_enrichment","PP001_enrichment","PP01_enrichment","PP10_enrichment")],
+melted <- melt(h2[,c("trait","gwas_enrichment","PP001_enrichment","PP01_enrichment","PP10_enrichment","LD80_enrichment")],
                id.vars = "trait",
-               measure.vars = list(c("gwas_enrichment","PP001_enrichment","PP01_enrichment","PP10_enrichment")))
+               measure.vars = list(c("gwas_enrichment","PP001_enrichment","PP01_enrichment","PP10_enrichment","LD80_enrichment")))
 
-melted$se <- melt(h2[,c("trait","gwas_enrichment_se","PP001_enrichment_se","PP01_enrichment_se","PP10_enrichment_se")],
+melted$se <- melt(h2[,c("trait","gwas_enrichment_se","PP001_enrichment_se","PP01_enrichment_se","PP10_enrichment_se","LD80_enrichment_se")],
                id.vars = "trait",
-               measure.vars = list(c("gwas_enrichment_se","PP001_enrichment_se","PP01_enrichment_se","PP10_enrichment_se")))$value
+               measure.vars = list(c("gwas_enrichment_se","PP001_enrichment_se","PP01_enrichment_se","PP10_enrichment_se","LD80_enrichment_se")))$value
 
-melted$variable <- factor(melted$variable,levels=(c("PP10_enrichment","PP001_enrichment","gwas_enrichment")))
-melted$value <- factor(melted$value,levels=(c("PP10_enrichment_se","PP001_enrichment_se","gwas_enrichment_se")))
-melted$trait <- factor(melted$trait,levels=traits)
-  
+#melted$value <- factor(melted$value,levels=(c("PP10_enrichment_se","PP001_enrichment_se","gwas_enrichment_se","LD80_enrichment_se","PP01_enrichment_se")))
+
+bedsizes <- fread("../../data/Finemap/bedsizes.txt")
+melted$size <- melt(bedsizes[,c("trait","all_gwas","PP001","PP01","PP10","LD80")],id.vars="trait")$value
+
+
 # Plot figure
+toplot <-c("PP10_enrichment","PP01_enrichment","LD80_enrichment")
+melted$variable <- factor(melted$variable,levels=(toplot))
+melted$trait <- factor(melted$trait,levels=traits)
+
 sz=4
-ggplot(data=subset(melted,variable %in% c("PP10_enrichment","PP001_enrichment","gwas_enrichment")),
+wd = 6.5
+p1 <- ggplot(data=subset(melted,variable %in% toplot),
                    aes(x=trait,y=value,fill=variable)) +
   geom_bar(stat="identity",position="dodge") +
   theme_bw() + 
   coord_flip() + 
   scale_fill_manual(values=jdb_palette("Zissou")[c(5,3,1)],
-                    labels=c("PP10 Variants", "PP001 Variants", "GW-Significant Variants")) +
+                    labels=c("PP10 Variants","PP01 Variants","R2 > 0.80 Variants")) +
   guides(fill=guide_legend(title="",reverse=TRUE)) + 
   labs(y="Pr(h2g)/Pr(SNPs)") +
   theme(plot.title = element_text(size=10,hjust = 0.5,face="bold"), 
@@ -103,19 +125,21 @@ ggplot(data=subset(melted,variable %in% c("PP10_enrichment","PP001_enrichment","
         panel.grid.minor = element_blank(), 
         axis.title.y=element_blank(),
         axis.text = element_text(size=sz),
-        axis.title.x=element_text(size=sz,margin = margin(t = 3, r = 0, b = 0, l = 0)),
+        axis.title.x=element_text(size=sz*1.3,margin = margin(t = 4, r = 0, b = 0, l = 0)),
         legend.position = c(.95, .98),
         legend.justification = c("right", "top"),
         legend.box.just = "right",
         legend.margin = margin(1, 1, 1, 1),
         legend.direction = "vertical",
-        legend.key.size = unit(width/30, "in"),
-        legend.text = element_text(size=sz))  +
-  geom_errorbar(aes(ymin=value-se, ymax=value+se),width=.2,position=position_dodge(.9),color="black")
+        legend.key.size = unit(wd/30, "in"),
+        legend.text = element_text(size=sz*1.2))  +
+  scale_y_continuous(expand = c(0.04, 0))+
+  geom_errorbar(aes(ymin=value-se, ymax=value+se),width=.2,position=position_dodge(.9),color="black") + 
+  geom_text(position=position_dodge(.9),aes(label=size,y=value+se), hjust=-0.5, color="black", size=sz/2.5)
+  
 
 dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/LDSR/Heritabilities"
-wd = 6.5
-ggsave("LDSR_heritabilityenrichments.pdf", plot = p1, device = NULL, path = dir,
+ggsave("LDSR_heritabilityenrichments_LD80_PP01_PP10.pdf", plot = p1, device = NULL, path = dir,
        scale = 1, width = wd, height=wd/1.5, units = "in",
        dpi = 300, limitsize = TRUE)
 
@@ -181,3 +205,18 @@ wd = 6.5
 ggsave("LDSR_prop_h2.pdf", plot = p1, device = NULL, path = dir,
        scale = 1, width = wd, height=wd, units = "in",
        dpi = 300, limitsize = TRUE)
+
+
+# Make bed file for LD80 variants
+# LD80 <- readRDS("/Volumes/broad_sankaranlab/ebao/singlecell_bloodtraits/data/Finemap/LD80.rds")
+# for (i in 1:16){
+#   nonsentinel <- as.data.frame(LD80[[i]])[,c("chromosome","nonsentinel")]
+#   colnames(nonsentinel) <- c("chromosome","start")
+#   sentinel <- as.data.frame(LD80[[i]])[,c("chromosome","sentinel")]
+#   colnames(sentinel) <- c("chromosome","start")
+#   merged <- bind_rows(nonsentinel,sentinel)[!duplicated(bind_rows(nonsentinel,sentinel)),] %>% arrange(chromosome)
+#   merged$chromosome <- paste0("chr",merged$chromosome)
+#   merged$end <- merged$start + 1
+#   write.table(merged,paste0("/Volumes/broad_sankaranlab/ebao/LDscore/beds/LD80/",traits[i],".LD80.bed"),quote = FALSE, sep = "\t", col.names = F, row.names = F)
+# }
+# LD80[1]
