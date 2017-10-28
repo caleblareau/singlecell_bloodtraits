@@ -16,7 +16,7 @@ SE <- SummarizedExperiment(assays = list(counts = counts),
                                rowData = peaks, 
                                colData = DataFrame(names = colnames(counts)))
 SE <- addGCBias(SE, genome = BSgenome.Hsapiens.UCSC.hg19)
-ukbb <- importBedScore(rowRanges(SE), list.files("../../data/UKBB_BC_PP001/", full.names = TRUE))
+ukbb <- importBedScore(rowRanges(SE), list.files("../../data/UKBB_BC_PP001/", full.names = TRUE, pattern = "*.bed$"))
 
 # Compute weighted deviation scores
 ukbb_wDEV <- computeWeightedDeviations(SE, ukbb)
