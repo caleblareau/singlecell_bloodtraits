@@ -5,7 +5,7 @@ source("boostrapSplineFunctions.R")
 
 # Import observed 
 observed <- read.table("../../data/singlecell/scATAC/weightedSingleCellScores-shuffled.txt", sep = "\t", header = TRUE)
-observeddf <- observed[,c(1,2,13:28)]
+observeddf <- observed[,c(1:5,13:28)]
 colnames(observeddf) <- gsub("raw_", "", colnames(observeddf))
 
 # Load pseudotime DFs
@@ -35,3 +35,13 @@ lapply(c("ery", "lym", "myel"), function(traj){
   p1
 })
 
+# Make PC2 / PC3 Plot
+
+p1 <- ggplot(observeddf, aes(PC2, PC3, color = type)) +
+  geom_point() +
+  pretty_plot() + theme(legend.position="none") + 
+  labs(list( x = "PC2", y = "PC3")) +
+  scale_colour_manual(values = ejc_color_maps, name = "Cell Type")
+
+ggsave(p1, file = "PC2_PC3_sorted.pdf", width = 5, height = 5,useDingbats=FALSE)
+ 
