@@ -35,33 +35,3 @@ lapply(c("ery", "lym", "myel"), function(traj){
   p1
 })
 
-
-# One master plot
-p1 <- ggplot(meltdf, aes(pseudotime, value, color = type)) +
-  stat_smooth(se = TRUE, inherit.aes = FALSE, aes(pseudotime, value)) +
-  facet_wrap(trajectory ~ variable, scales = "free", nrow = 4, ncol = 16) +
-  pretty_plot() + theme(legend.position="bottom") + 
-  labs(list(title = "GWAS in scHeme", x = "Pseudotime", y = "Zscore")) +
-  scale_colour_manual(values = jdb_color_maps2, name = "Cell Type") +
-  theme(legend.key = element_blank(), strip.background = element_rect(colour="black", fill = "white") )
-ggsave(p1, file = paste0("ps_plots/", "allPseudotime.pdf"), width = 30, height = 10)
-
-
-# Do bootstrap estimates to get CIs and then plot per trajectory with fixed axes for proper comparison
-dummyOut <- lapply(unique(meltdf$trajectory), function(traj){
-  sdf <- meltdf[meltdf$trajectory == traj, ]
-  ldf <- lapply(unique(sdf$variable), function(gwas){
-    print(paste0(traj, "_", gwas))
-    spline.cis(sdf[sdf$variable == gwas, c(2,6)], B=1000,alpha=0.05)
-  })
-  names(ldf) <- unique(sdf$variable)
-  meltdfTrait <- melt(ldf, id.vars = c("x", "lower.ci", "upper.ci", "main.curve"))
-  
-  p1 <- ggplot(meltdfTrait) + pretty_plot() + 
-    labs(list(title = traj, x = "Pseudotime", y = "GWAS Z Score"))  +  facet_wrap(~ L1, nrow = 4, ncol = 4) + 
-    geom_linerange(data = meltdfTrait, aes(x=x, ymin=lower.ci, ymax=upper.ci), inherit.aes = FALSE, alpha=0.03) + 
-    geom_line(data = meltdfTrait, aes(x=x, y=main.curve), inherit.aes = FALSE) + theme(legend.position="none") +
-    theme(legend.key = element_blank(), strip.background = element_rect(colour="black", fill = "white") )
-  ggsave(p1, file = paste0("ps_plots/", traj,"FixedAxes.pdf"), width = 10, height = 10)
-  traj
-})
