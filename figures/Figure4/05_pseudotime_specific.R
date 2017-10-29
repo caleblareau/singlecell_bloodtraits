@@ -26,7 +26,7 @@ lapply(c("ery", "lym", "myel"), function(traj){
   
   p1 <- ggplot(meltdf[meltdf$trajectory == traj & meltdf$variable == trait,], aes(pseudotime, value, color = type)) +
     geom_point() +
-    stat_smooth(se = FALSE, inherit.aes = FALSE, aes(pseudotime, value), span = 0.4) +
+    stat_smooth(se = FALSE, inherit.aes = FALSE, aes(pseudotime, value), span = 0.6) +
     pretty_plot() + theme(legend.position="bottom") + 
     labs(list( x = "Pseudotime", y = "Zscore")) +
     scale_colour_manual(values = ejc_color_maps, name = "Cell Type") +
