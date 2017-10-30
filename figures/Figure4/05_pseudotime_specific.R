@@ -31,7 +31,7 @@ lapply(c("ery", "lym", "myel"), function(traj){
     labs(list( x = "Pseudotime", y = "Zscore")) +
     scale_colour_manual(values = ejc_color_maps, name = "Cell Type") +
     theme(legend.key = element_blank(), strip.background = element_rect(colour="black", fill = "white") )
-  ggsave(p1, file = paste0("PLT_pseudotime/",trait,".", traj,".pseudotime.pdf"), width = 5, height = 5)
+  ggsave(p1, file = paste0("PLT_pseudotime/",trait,".", traj,".pseudotime.pdf"), width = 5, height = 5, useDingbats=FALSE)
   p1
 })
 

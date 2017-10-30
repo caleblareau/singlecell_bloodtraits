@@ -51,7 +51,9 @@ p1 <- ggplot(shuf(mergedf), aes(x = ZscoreSum, y = ZscoreBulk, color = Celltype)
   labs(x = "Sum of Single Cells Z-score", y = "Bulk Z-score", color = "") +
   geom_point() +
   scale_color_manual(values = ejc_color_maps) +
-  pretty_plot() + theme(legend.position = "bottom")
+  pretty_plot() + theme(legend.position = "bottom") + 
+  geom_abline(intercept = 0, slope = 1, linetype = 2) + xlim(-6,10) + ylim(-6,10)
+p1
 ggsave(p1, file = "bulk_singleCellSum.gchromVAR.pdf", width = 4, height = 5)
 
 
