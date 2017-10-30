@@ -54,8 +54,9 @@ dummyOut <- lapply(unique(meltdf$trajectory), function(traj){
   p1 <- ggplot(meltdfTrait) + pretty_plot() + 
     labs(list(title = traj, x = "Pseudotime", y = "GWAS Z Score"))  +  facet_wrap(~ L1, nrow = 4, ncol = 4) + 
     geom_linerange(data = meltdfTrait, aes(x=x, ymin=lower.ci, ymax=upper.ci), inherit.aes = FALSE, alpha=0.03) + 
+    scale_y_continuous(limits = c(-1, 2.5)) +
     geom_line(data = meltdfTrait, aes(x=x, y=main.curve), inherit.aes = FALSE) + theme(legend.position="none") +
     theme(legend.key = element_blank(), strip.background = element_rect(colour="black", fill = "white") )
-  ggsave(p1, file = paste0("ps_plots/", traj,"FixedAxes.pdf"), width = 10, height = 10)
+  ggsave(p1, file = paste0("ps_plots/", traj,"FixedAxes_n1_p25.pdf"), width = 10, height = 10)
   traj
 })

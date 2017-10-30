@@ -57,6 +57,7 @@ write.table(df, file = "peakGeneCorrelation.tsv",
 # Make RDS
 dt <- data.frame(fread(paste0("zcat < ","peakGeneCorrelation.tsv.gz")))
 dt$V1 <- factor(dt$V1, levels = unique(dt$V1))
-dt$V4 <- factor(dt$V1, levels = unique(dt$V4))
+dt$V4 <- factor(dt$V4, levels = unique(dt$V4))
+dt <- dt[dt$V6 < 0.01, ]
 colnames(dt) <- c("chr", "start", "end", "gene", "correlation", "p-value")
 saveRDS(dt, "peakGeneCorrelation.rds")
