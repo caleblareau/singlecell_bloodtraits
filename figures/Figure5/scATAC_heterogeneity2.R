@@ -130,7 +130,7 @@ remove_smooth <- function(cols){
   return(gsub("_PP001","",gsub("smooth_","",cols)))
 }
 
-compare_subgroups_plot <- function(allcells,celltype,traitstoplot,numPCs=5,graph=TRUE){
+compare_subgroups_plot <- function(allcells,celltype,traitstoplot,numPCs=5,graph=TRUE,colors=c("Mono","Ery")){
   set.seed(42)
   enrichments <- as.data.frame(allcells)[allcells$type %in% celltype,1:12]
   enrichments$kmeans <- as.character(kmeans(scale(as.matrix(enrichments[,3:(3+numPCs-1)])),2)$cluster)
@@ -143,7 +143,7 @@ compare_subgroups_plot <- function(allcells,celltype,traitstoplot,numPCs=5,graph
     for (i in 1:(ncol(enrichments)-1)){
       boxplots[[i]] <- ggplot(enrichments, aes_string(x="kmeans", y=colnames(enrichments)[i],fill="kmeans")) + 
         geom_boxplot(outlier.shape=NA) + pretty_plot() + 
-        scale_fill_manual(values=as.character(jdb_color_maps2[c("Mono","Ery")])) +
+        scale_fill_manual(values=as.character(jdb_color_maps2[colors])) +
         geom_quasirandom(varwidth = TRUE,alpha=0.35,size=0.5)+
         theme(axis.title.x = element_blank()) 
     }
@@ -302,8 +302,10 @@ meptraits=c("RBC_COUNT","HCT","PLT_COUNT","MPV")
 enrichments <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=traitstoplot,
                                       numPCs=5,graph=FALSE)
 plots  <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=traitstoplot,
-                                 numPCs=5,graph=TRUE)
-ggmatrix(plots,1,length(meptraits),xAxisLabels = meptraits)
+                                 numPCs=5,graph=TRUE,colors=c("Ery","Mega"))
+mep_atac_plots <- ggmatrix(plots,1,length(meptraits),xAxisLabels = meptraits)
+ggsave(mep_atac_plots, file="MEP_ATAC_Clustering.pdf",
+       width=6,height=3)
 
 # Cluster MEP population by g-chromVAR
 mep_chromvar <- ggallyplot(allcells,celltype="MEP",traitstoplot=meptraits,smoothed=FALSE)
