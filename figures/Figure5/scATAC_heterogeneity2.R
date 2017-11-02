@@ -4,7 +4,6 @@ library(BuenColors)
 library(ggrepel)
 library(SummarizedExperiment)
 library(ggbeeswarm)
-library(chromVAR)
 library(irlba)
 library(data.table)
 library(dplyr)
@@ -323,7 +322,7 @@ grid.arrange(legend, ncol=1, nrow=1)
 enrichments <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=meptraits,
                                       numPCs=5,graph=FALSE)
 
-TFs_of_interest <- c("KLF1","GATA1","MEF2C")
+TFs_of_interest <- c("GATA1","KLF1","MEF2C")
 
 # For the TFs of interest, extract their z-scores for all single cells of a cell type and plot k-means cluster vs. z-score
 TFplots <- lapply(TFs_of_interest, function(TF){
@@ -345,29 +344,11 @@ mep_TFs <- ggmatrix(TFplots,1,length(TFs_of_interest),
          xAxisLabels = TFs_of_interest) + 
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(mep_TFs, file="5D_MEP_TFzscores.pdf",
+ggsave(mep_TFs, file="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Figure 5 - scATAC heterogeneity/5D_MEP_TFzscores.pdf",
        width=6,height=3)
 
-# Calculate pvalues for all TFs
-TFplots <- lapply(colnames(TF_zscores)[2:ncol(TF_zscores)], function(TF){
-  # idx <- grep(TF,colnames(TF_zscores),value=TRUE)[1]
-  zscores <- TF_zscores %>% dplyr::select(cellnames,TF)
-  merged <- merge(enrichments,zscores,by.x="name",by.y="cellnames")
-  p <- t.test(merged[merged$kmeans %in% 1,TF], merged[merged$kmeans %in% 2,TF])$p.value
-  return(p)
-})
-
 # MEP TF rank order plot
-#TF_differences <- readRDS("/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/scATAC/MEP_TFzscore_differences.rds")
-
-TF_differences <- as.data.frame(unlist(TFplots))
-TF_differences$TF <- colnames(TF_zscores)[2:ncol(TF_zscores)]
-colnames(TF_differences) <- c("pval","TF")
-TF_differences <- arrange(TF_differences,pval)
-TF_differences$logp <- -1*log10(TF_differences$pval)
-TF_differences$rank <- seq(1,nrow(TF_differences),1)
-TF_differences$TF_name <- str_split_fixed(TF_differences$TF, "_",n=4)[,3]
-TF_differences$FDR <- qvalue(TF_differences$pval)$qvalues
+TF_differences <- readRDS("../../data/singlecell/scATAC/MEP_gChromVAR_TFzscore_differences.rds")
 
 # Color the GATA TFs
 idx <- grep("GATA",TF_differences$TF_name)
@@ -381,9 +362,8 @@ labelidx <- sapply(TFs_of_interest, function(y) {
 TF_differences$toLabel <- "F"
 TF_differences[labelidx,"toLabel"] <- TF_differences[labelidx,"TF_name"]
 
-#saveRDS(TF_differences,"/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/scATAC/MEP_gChromVAR_TFzscore_differences.rds")
 # Rank order plot
-ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) + 
+p <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) + 
   geom_point(shape=21,size=3.5,aes(fill=highlight)) +
   pretty_plot() +
   scale_fill_manual(values = as.character(jdb_color_maps2[c("Mono","Ery")]),
@@ -406,104 +386,4 @@ ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) +
     segment.alpha=0.3,
     direction="both")
 
-ggsave(p, file="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Figure 5 - scATAC heterogeneity/5D_CMP_TFs_rankorderplot.pdf",
-       width=6,height=6)
-
-
-########################################################################################
-# Corrplot of chromVAR enrichments
-
-M<- cor(CMP_enrichments[,c(1:16)])
-corrplot(M,method="square",order="hclust",hclust.method = "complete", tl.cex=0.5,
-         cl.lim=c(-1,1),cl.cex=0.8,mar=c(0,0,2,0),tl.col="black",tl.srt=45,title="ChromVAR Correlations")
-
-# Read unix files into R lists
-setwd("/Volumes/broad_sankaranlab/ebao/LDscore/gen.correlations/constrained_UK10K/")
-constrained_gencors <- vector(mode = "list", length = length(traits))
-
-traits=c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
-
-constrained_gencors <- lapply(traits, function(y) read.table(paste0(y,"_UK10K_constrained.gcsummary.txt"),header=TRUE,row.names=NULL))
-
-make.gc.matrix <- function(list_of_gcs,traits){
-  allgencors <- bind_rows(list_of_gcs)
-  allgencors$rg <- as.numeric(as.character(allgencors$rg))
-  
-  gc.matrix <- matrix(ncol = 16, nrow = 16, dimnames=list(traits,traits))
-  pv.matrix <- matrix(ncol = 16, nrow = 16, dimnames=list(traits,traits))
-  
-  for (i in traits) {
-    for (j in traits) {
-      if (i == j){
-        gc.matrix[i,j]=1
-      } else {
-        gc.matrix[i,j] <- allgencors[allgencors$p1 == i & allgencors$p2 == j,'rg']
-        if (gc.matrix[i,j]>1) gc.matrix[i,j]=1
-        pv.matrix[i,j]<- allgencors[allgencors$p1 == i & allgencors$p2 == j,'p']
-      }
-    }
-  }
-  return(list(gc.matrix,pv.matrix))
-}
-
-output <- make.gc.matrix(constrained_gencors,traits)[[1]]
-constrained.pv.matrix <- make.gc.matrix(constrained_gencors,traits)[[2]]
-p.adjust(constrained.pv.matrix[lower.tri(constrained.pv.matrix)],"fdr")
-
-par(mfrow=c(1,2))
-# Genetic correlations
-reorderedtraits<- dimnames(corrplot(output,method="square",order="hclust",hclust.method = "complete", tl.cex=0.5,
-                                    cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,2,0),title="Genetic Correlations"))[[1]]
-celltypes <- unique(allcells$type)
-# ChromVAR
-M<- cor(allcells[,29:ncol(allcells)])
-rownames(M)=colnames(M)=traits
-corrplot(M[reorderedtraits,reorderedtraits],method="square", tl.cex=0.5,
-         cl.lim=c(-1,1),cl.cex=0.6,mar=c(1,0,2,0),tl.col="black",tl.srt=45,title="ChromVAR Correlations")
-
-
-M<- cor(CMP_enrichments[,1:16])
-M<- cor(allcells[allcells$type %in% "MEP",29:ncol(allcells)])
-rownames(M)=colnames(M)=traits
-reorderedtraits<- dimnames(corrplot(M,method="square",order="hclust",hclust.method = "complete", tl.cex=0.5,
-                                    cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,2,0),title="ChromVAR Correlations"))[[1]]
-
-celltype <- "CMP"
-CMP<- cor(allcells[allcells$type %in% celltype,29:ncol(allcells)])
-rownames(CMP)=colnames(CMP)=traits
-reorderedtraits<- dimnames(corrplot(CMP,method="square",order="hclust",hclust.method = "complete", tl.cex=0.5,
-                                    cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,2,0),title=celltype))[[1]]
-
-corrplot(M[reorderedtraits,reorderedtraits],method="square", tl.cex=0.5,
-         cl.lim=c(-1,1),cl.cex=0.6,mar=c(1,0,2,0),tl.col="black",tl.srt=45,title="MEP")
-
-par(mfrow=c(1,4))
-celltype <- "HSC"
-cormat<- cor(allcells[allcells$type %in% celltype,29:ncol(allcells)])
-rownames(cormat)=colnames(cormat)=traits
-corrplot(cormat[reorderedtraits,reorderedtraits],method="square", tl.cex=0.5,
-         cl.lim=c(-1,1),cl.cex=0.6,mar=c(1,0,2,0),tl.col="black",tl.srt=45,title=celltype)
-
-reorderedtraits<- dimnames(corrplot(cormat,method="square",order="hclust",hclust.method = "complete", tl.cex=0.5,
-                                    cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,2,0),title=celltype))[[1]]
-
-celltype <- "MPP"
-cormat<- cor(allcells[allcells$type %in% celltype,29:ncol(allcells)])
-rownames(cormat)=colnames(cormat)=traits
-corrplot(cormat[reorderedtraits,reorderedtraits],method="square", tl.cex=0.5,
-         cl.lim=c(-1,1),cl.cex=0.6,mar=c(1,0,2,0),tl.col="black",tl.srt=45,title=celltype)
-
-
-par(mfrow=c(1,2))
-celltype <- "CMP"
-cormat<- cor(allcells[allcells$type %in% celltype,29:ncol(allcells)])
-rownames(cormat)=colnames(cormat)=traits
-reorderedtraits<- dimnames(corrplot(cormat,method="square",order="hclust",hclust.method = "complete", tl.cex=0.5,
-                                    cl.lim=c(-1,1),cl.cex=0.6,tl.col="black",tl.srt=45,mar=c(1,0,2,0),title=celltype))[[1]]
-
-celltype <- "MEP"
-cormat<- cor(allcells[allcells$type %in% celltype,29:ncol(allcells)])
-rownames(cormat)=colnames(cormat)=traits
-corrplot(cormat[reorderedtraits,reorderedtraits],method="square", tl.cex=0.5,
-         cl.lim=c(-1,1),cl.cex=0.6,mar=c(1,0,2,0),tl.col="black",tl.srt=45,title=celltype)
-
+ggsave(p, file="5E_MEP_TFs_rankorderplot.pdf",width=6,height=6)
