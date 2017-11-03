@@ -73,11 +73,11 @@
 \author{(Caleb, Erik, Jacob), Will?, Hilary, Joel, (Martin, Jason, Vijay)}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 \maketitle
 \section*{Overview of UK Biobank data}
 \begin{enumerate}[label=(\Alph*)]
 \item 
-a
 
 
 
@@ -117,7 +117,7 @@ a
 
 }
 
-\caption[Heritiability estimates from LD Score Regression across 16 hematopoetic traits]{Heritiability estimates from LD Score Regression across 16 hematopoetic traits. The estimates of the narrow-sense SNP heritabilities are plotted with their corresponding standard erors.}\label{fig:heritabilityPlots}
+\caption[Heritability estimates from LD Score Regression across 16 hematopoetic traits]{Heritability estimates from LD Score Regression across 16 hematopoetic traits. The estimates of the narrow-sense SNP heritabilities are plotted in gray with their corresponding standard erors. Heritability estimates for all variants with fine mapped posterior probability > 0.001 are plotted in blue for each trait, and the proportions of total narrow-sense heritability captured by these fine mapped variants (blue bar / gray bar) are indicated by the numbered labels.}\label{fig:heritabilityPlots}
 \end{figure}
 
 

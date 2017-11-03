@@ -205,6 +205,8 @@ g_legend<-function(a.gplot){
 ######################################################################################################
 # setwd("/Volumes/broad_sankaranlab/ebao/singlecell_bloodtraits/figures/Figure5/")
 
+jdb_color_maps2 <- c(jdb_color_maps, "Mega" = "#FF347E", "UNK" = "#8D91AD", "mDC"= "#FFD700", "MCP" = "#C390D4")
+names(jdb_color_maps2)[9] <- "Mono"
 #CMPs
 allcells <- fread("../../data/singlecell/scATAC/sc_traitenrichments_11aug.txt")
 
@@ -312,9 +314,9 @@ ggsave(p, file="5D_CMP_TFs_rankorderplot.pdf",
 meptraits=c("RBC_COUNT","HCT","PLT_COUNT","MPV")
 
 # K-means cluster by ATAC PCs
-enrichments <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=traitstoplot,
+enrichments <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=meptraits,
                                       numPCs=5,graph=FALSE)
-plots  <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=traitstoplot,
+plots  <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=meptraits,
                                  numPCs=5,graph=TRUE,colors=c("Ery","Mega"))
 mep_atac_plots <- ggmatrix(plots,1,length(meptraits),xAxisLabels = meptraits)
 ggsave(mep_atac_plots, file="MEP_ATAC_Clustering_4traits.pdf",
@@ -337,7 +339,10 @@ grid.arrange(legend, ncol=1, nrow=1)
 enrichments <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=meptraits,
                                       numPCs=5,graph=FALSE)
 
-TFs_of_interest <- c("GATA1","KLF1","MEF2C")
+enrichments <- ggallyplot(allcells,celltype="MEP",traitstoplot=meptraits,smoothed=FALSE,graph=FALSE)
+enrichments$name <- rownames(enrichments)
+
+TFs_of_interest <- c("GATA1","KLF1","MEF2C","RUNX1")
 
 # For the TFs of interest, extract their z-scores for all single cells of a cell type and plot k-means cluster vs. z-score
 TFplots <- lapply(TFs_of_interest, function(TF){

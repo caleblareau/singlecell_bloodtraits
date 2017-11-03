@@ -24,11 +24,11 @@
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 \maketitle
 \section*{Overview of UK Biobank data}
 \begin{enumerate}[label=(\Alph*)]
 \item 
-a
 
 <<loadLibraries, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, eval = TRUE, cache = FALSE, results="hide">>=
 library(corrplot)
@@ -36,6 +36,7 @@ library(BuenColors)
 library(dplyr)
 library(reshape2)
 library(cowplot)
+library(data.table)
 @
 
 <<correlationPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Phenotypic and genetic correlations across the 16 traits examined. ", eval = TRUE, cache = TRUE, results="hide">>=
@@ -187,31 +188,54 @@ pleioplot2 <- ggplot(data = mdf[mdf$variable == "opposite", ], aes(x=short1, y=s
  plot_grid(pleioplot1, pleioplot2, labels = c('A', 'B'))
 @
 
-<<heritabilityPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Heritiability estimates from LD Score Regression across 16 hematopoetic traits. The estimates of the narrow-sense SNP heritabilities are plotted with their corresponding standard erors.", eval = TRUE, cache = FALSE, results="hide">>=
- 
-# Narrow-Sense Heritability Estimates Obtained from Genetic Correlations
- 
-reorderedtraits=traits=c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
-heritability <- data.frame(row.names=traits)
-allgencors <- bind_rows(constrained_gencors)
-nodups <- allgencors[!(duplicated(allgencors$p2)),]
+<<heritabilityPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Heritability estimates from LD Score Regression across 16 hematopoetic traits. The estimates of the narrow-sense SNP heritabilities are plotted in gray with their corresponding standard erors. Heritability estimates for all variants with fine mapped posterior probability > 0.001 are plotted in blue for each trait, and the proportions of total narrow-sense heritability captured by these fine mapped variants (blue bar / gray bar) are indicated by the numbered labels.", eval = TRUE, cache = FALSE, results="hide">>=
 
-for (i in traits){
-  heritability[i,"h_obs"] <- nodups[nodups$p2 == i,'h2_obs']
-  heritability[i,"h_obs_se"] <- nodups[nodups$p2 == i,'h2_obs_se']
+library(scales)
+# Narrow-Sense Heritability Estimated Obtained from LDSC
+h2 <-fread("../data/LDSC_heritability/trait_h2.txt")
+colnames(h2) <- c("trait","h_obs","h_obs_se")
+
+# Read in enrichments for FM PP001 variants
+reorderedtraits=traits=c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
+
+ctHeme <- vector("list",length=16)
+ct_enrichment <- vector("list",length=length(ctHeme))
+celltypes <- paste0(traits,"_PP001L2")
+
+FM_h2 <- NULL
+FM_enrichment <- NULL
+dir="../data/LDSC_heritability/FM_PP001/"
+for (i in 1:length(ctHeme)){
+  ctHeme[[i]]<-fread(paste0(dir,traits[i],".",celltypes[i],".results"))
+  FM_h2[i] <- ctHeme[[i]]$Prop._h2[1]
+  FM_enrichment[i] <- ctHeme[[i]]$Enrichment[1]
 }
 
-heritability$trait <- rownames(heritability)
-heritability$trait <- factor(heritability$trait,levels=reorderedtraits)
+h2$fm_herit <- FM_h2*h2$h_obs
+h2$fm_h2 <- FM_h2
 
-ggplot(data=heritability, aes(x=trait,y=h_obs)) +
-  geom_bar(stat="identity",fill="steel blue") + ggtitle("Trait Heritability") + 
-  pretty_plot()+
-          geom_errorbar(aes(ymin=h_obs-h_obs_se, ymax=h_obs+h_obs_se),
-                        width=.2,position=position_dodge(.9),color="black") +
-  theme(plot.subtitle = element_text(vjust = 1), 
-    plot.caption = element_text(vjust = 1), 
-    axis.text.x = element_text(angle = 90)) +labs(x = NULL, y = "Narrow sense heritability")
+legendtitle <- "Fine mapped heritability"
+ggplot(data=h2, aes(x=trait,y=fm_herit)) +
+  geom_bar(aes(y=h_obs), fill="light gray",stat="identity",position = position_stack(reverse = TRUE)) +
+  geom_bar(aes(y=fm_herit,fill=legendtitle),stat="identity") +
+  geom_text(aes(label=percent(FM_h2)), hjust=-0.25, color="black", size=3.25) +
+  scale_fill_manual(values = c(jdb_palette("GrandBudapest2")[c(4)],jdb_palette("Zissou")[1:5])) +
+  ggtitle("Finemapped Trait Heritabilities") + theme_bw() + 
+  coord_flip() + 
+  labs(fill="") + 
+  scale_y_continuous(expand = c(0.01, 0.0)) +
+  theme(plot.subtitle = element_text(vjust = 1),
+        panel.background = element_rect(fill = "white", colour = "grey50"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.title.y=element_blank(),
+        axis.title.x=element_blank(),
+        legend.position = c(.98, 0.99),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(1, 1, 1, 1),
+        legend.direction = "vertical",
+        legend.key.size = unit(0.15, "in"))  +
+  geom_errorbar(aes(ymin=h_obs-h_obs_se, ymax=h_obs+h_obs_se),width=.2,position=position_dodge(.9),color="black")
 
 @
 
