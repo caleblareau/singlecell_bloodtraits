@@ -216,8 +216,8 @@ plots <- compare_subgroups_plot(allcells,celltype="CMP",traitstoplot=traitstoplo
                                 numPCs=5,graph=TRUE)
 CMP_boxplots <- ggmatrix(plots[1:4],nrow=1,ncol=length(traitstoplot),
                          xAxisLabels = traitstoplot)
-ggsave(CMP_boxplots, file="5B_CMP_kmeans.pdf",
-       width=6,height=3)
+ggsave(CMP_boxplots, file="5Ca_CMP_kmeans.pdf",
+       width=6,height=3, useDingbats=F)
 
 # Extract legend and save separately
 legend <- g_legend(plots[[1]])
@@ -230,7 +230,7 @@ cmp_chromvar_plots <- ggmatrix(cmp_chromvar,1,length(traitstoplot),
   theme(plot.title = element_text(hjust = 0.5))
 
 ggsave(cmp_chromvar_plots, file="CMP_gChromVAR_Clustering.pdf",
-       width=6,height=3)
+       width=6,height=3,useDingbats=F)
 
 # Extract dataframe with annotation for k-means cluster by ATAC PCs
 enrichments <- compare_subgroups_plot(allcells,celltype="CMP",traitstoplot=traitstoplot,
@@ -257,11 +257,11 @@ TFplots <- lapply(TFs_of_interest, function(TF){
 })
 
 # Plot differential z-scores for TFs of interest
-ggmatrix(TFplots,1,length(TFs_of_interest),
+TFs <- ggmatrix(TFplots,1,length(TFs_of_interest),
          xAxisLabels = TFs_of_interest) + 
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(TFs, file="5B_CMP_TFzscores.pdf",width=6,height=3)
+ggsave(TFs, file="5Cb_CMP_TFzscores.pdf",width=6,height=3, useDingbats=F)
 
 # CMP TF rank order plot
 TF_differences <- readRDS("../../data/singlecell/scATAC/CMP_TFzscore_differences.rds")
@@ -304,8 +304,8 @@ p <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) +
     segment.alpha=0.3,
     direction="both")
 
-ggsave(p, file="5C_CMP_TFs_rankorderplot.pdf",
-       width=6,height=6)
+ggsave(p, file="5D_CMP_TFs_rankorderplot.pdf",
+       width=6,height=6, useDingbats=F)
 
 ####################################################################################################  
 # MEP k-means clustering
@@ -318,7 +318,7 @@ plots  <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=traitstopl
                                  numPCs=5,graph=TRUE,colors=c("Ery","Mega"))
 mep_atac_plots <- ggmatrix(plots,1,length(meptraits),xAxisLabels = meptraits)
 ggsave(mep_atac_plots, file="MEP_ATAC_Clustering_4traits.pdf",
-       width=6,height=3)
+       width=6,height=3, useDingbats=F)
 
 # Cluster MEP population by g-chromVAR
 mep_chromvar <- ggallyplot(allcells,celltype="MEP",traitstoplot=meptraits,smoothed=FALSE)
@@ -326,8 +326,8 @@ mep_chromvar_plots <- ggmatrix(mep_chromvar,1,length(meptraits),
                                xAxisLabels = meptraits) + 
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(mep_chromvar_plots, file="5D_MEP_gChromVAR_Clustering.pdf",
-       width=6,height=3)
+ggsave(mep_chromvar_plots, file="5Ea_MEP_gChromVAR_Clustering.pdf",
+       width=6,height=3, useDingbats=F)
 
 legend <- g_legend(mep_chromvar[[1]])
 grid.arrange(legend, ncol=1, nrow=1)
@@ -359,8 +359,8 @@ mep_TFs <- ggmatrix(TFplots,1,length(TFs_of_interest),
          xAxisLabels = TFs_of_interest) + 
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(mep_TFs, file="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Figure 5 - scATAC heterogeneity/5D_MEP_TFzscores.pdf",
-       width=6,height=3)
+ggsave(mep_TFs, file="5Eb_MEP_TFzscores.pdf",
+       width=6,height=3, useDingbats=F)
 
 # MEP TF rank order plot
 TF_differences <- readRDS("../../data/singlecell/scATAC/MEP_gChromVAR_TFzscore_differences.rds")
@@ -401,4 +401,4 @@ p <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) +
     segment.alpha=0.3,
     direction="both")
 
-ggsave(p, file="5E_MEP_TFs_rankorderplot.pdf",width=6,height=6)
+ggsave(p, file="5F_MEP_TFs_rankorderplot.pdf",width=6,height=6, useDingbats=F)
