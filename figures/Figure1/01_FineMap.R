@@ -100,7 +100,7 @@ for (i in seq(1,5,1)) {
   }
 }
 
-#local <- localZScore(CS.PP.gr, gr.list[[2]], pt=perm[[paste0(2,6)]], window=1500000,step=1000, mc.set.seed=FALSE, mc.cores=32)
+# local <- localZScore(CS.PP.gr, gr.list[[2]], pt=perm[[paste0(2,6)]], window=1500000,step=1000, mc.set.seed=FALSE, mc.cores=32)
 
 saveRDS(perm,"Perm_Annots.rds")
 saveRDS(OR,"OR_Annots.rds")
