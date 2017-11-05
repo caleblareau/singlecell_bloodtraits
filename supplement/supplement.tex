@@ -73,7 +73,6 @@
 \author{(Caleb, Erik, Jacob), Will?, Hilary, Joel, (Martin, Jason, Vijay)}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 \maketitle
 \section*{Overview of UK Biobank data}
 \begin{enumerate}[label=(\Alph*)]
@@ -176,10 +175,10 @@
 \end{knitrout}
 
 \item
-\begin{figure}[H]
+\begin{figure}
 \centering
 \includegraphics[width=\linewidth]{staticFigures/UKBB_PP50_bulk.pdf}
-\caption{Side-by-side heatmaps showing overlap of hematopoietic nucleosome-depleted regions by cell type with fine-mapped variants (PP>0.50) by trait. The two heatmaps share a common y-axis of specific variants.}
+\caption{Side-by-side heatmaps showing overlap of hematopoietic nucleosome-depleted regions by cell type with fine-mapped variants ($PP>0.50$) by trait. The two heatmaps share a common y-axis of specific variants.}
 \end{figure} 
 
 \begin{knitrout}
@@ -246,8 +245,21 @@
 
 
 \end{knitrout}
-\item
 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\maxwidth]{figure/tfRankOrderPlots-1} 
+
+}
+
+\caption[Two subpopulations of CMP and MEP cells were obtained by k-means clustering on ATAC principal components or g-ChromVAR enrichments, respectively]{Two subpopulations of CMP and MEP cells were obtained by k-means clustering on ATAC principal components or g-ChromVAR enrichments, respectively. Rank-order plots showing transcription factor binding sites ranked by difference in chromVAR enrichment between the two clusters of (A) CMP and (B) MEP populations}\label{fig:tfRankOrderPlots}
+\end{figure}
+
+
+\end{knitrout}
+
+\item
 \begin{figure}[H]
 \centering
 \includegraphics[width=\linewidth]{staticFigures/LDtoSentinel_PPcomparison.pdf}

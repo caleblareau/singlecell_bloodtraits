@@ -24,7 +24,6 @@
 
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 \maketitle
 \section*{Overview of UK Biobank data}
 \begin{enumerate}[label=(\Alph*)]
@@ -452,7 +451,7 @@ ggplot(OR.df,aes(y=OR,x=i,group=j)) +
 @
 
 \item
-\begin{figure}[H]
+\begin{figure}
 \centering
 \includegraphics[width=\linewidth]{staticFigures/UKBB_PP50_bulk.pdf}
 \caption{Side-by-side heatmaps showing overlap of hematopoietic nucleosome-depleted regions by cell type with fine-mapped variants ($PP>0.50$) by trait. The two heatmaps share a common y-axis of specific variants.}
@@ -560,8 +559,100 @@ ggplot(zscoreWeighted, aes(x = PP, y = -log10(pnorm(value,lower.tail = FALSE))))
   geom_hline(yintercept = -log10(0.05 / (16*17)), linetype = 2) 
 
 @
-\item
 
+<<tfRankOrderPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=4, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Two subpopulations of CMP and MEP cells were obtained by k-means clustering on ATAC principal components or g-ChromVAR enrichments, respectively. Rank-order plots showing transcription factor binding sites ranked by difference in chromVAR enrichment between the two clusters of (A) CMP and (B) MEP populations", eval = TRUE, cache = FALSE, results="hide">>=
+
+library(qvalue)
+library(ggrepel)
+jdb_color_maps2 <- c(jdb_color_maps, "Mega" = "#FF347E", "UNK" = "#8D91AD", "mDC"= "#FFD700", "MCP" = "#C390D4")
+names(jdb_color_maps2)[9] <- "Mono"
+
+TF_differences <- readRDS("../data/singlecell/scATAC/CMP_TFzscore_differences.rds")
+TF_differences$TF_name <- str_split_fixed(TF_differences$TF, "_",n=4)[,3]
+TF_differences$FDR <- qvalue(TF_differences$pval)$qvalues
+
+# Color the GATA TFs
+idx <- grep("GATA",TF_differences$TF_name)
+TF_differences$highlight<- "F"
+TF_differences[idx,"highlight"] <- "T"
+
+# Take the top TFs from TFs of interest
+TFs_of_interest <- c("GATA1","KLF1","CEBPA","IRF8")
+labelidx <- sapply(TFs_of_interest, function(y) {
+  grep(paste("^",y,"$", sep=""), TF_differences$TF_name)[1]
+})
+TF_differences$toLabel <- "F"
+TF_differences[labelidx,"toLabel"] <- TF_differences[labelidx,"TF_name"]
+
+# Rank order plot
+CMP <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) + 
+  geom_point(shape=21,size=3.5,aes(fill=highlight)) +
+  pretty_plot() +
+  scale_fill_manual(values = as.character(jdb_color_maps2[c("Mono","Ery")]),
+                    labels=c("Other TFs", "GATA TFs")) +
+  labs(x="Rank",y="-log10(FDR)") + 
+  theme(legend.position = c(.95, .95),
+        legend.justification = c("right", "top"),
+        legend.margin = margin(6, 6, 6, 6),
+        legend.title = element_blank(),
+        legend.key = element_rect(fill = "white", colour = "black")) +
+  guides(fill=guide_legend(reverse=TRUE)) +
+  geom_text_repel(
+    data = subset(TF_differences, toLabel!="F"),
+    aes(label = toLabel),
+    size = 2.5,
+    nudge_y =2,
+    nudge_x=35,
+    point.padding=0.50,
+    min.segment.length=0,
+    segment.alpha=0.3,
+    direction="both")
+
+# MEPs
+TFs_of_interest <- c("GATA1","KLF1","MEF2C","RUNX1")
+
+TF_differences <- readRDS("../data/singlecell/scATAC/MEP_gChromVAR_TFzscore_differences.rds")
+
+# Color the GATA TFs
+idx <- grep("GATA",TF_differences$TF_name)
+TF_differences$highlight<- "F"
+TF_differences[idx,"highlight"] <- "T"
+
+# Take the top TFs from TFs of interest
+labelidx <- sapply(TFs_of_interest, function(y) {
+  grep(paste("^",y,"$", sep=""), TF_differences$TF_name)[1]
+})
+TF_differences$toLabel <- "F"
+TF_differences[labelidx,"toLabel"] <- TF_differences[labelidx,"TF_name"]
+
+# Rank order plot
+MEP <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) + 
+  geom_point(shape=21,size=3.5,aes(fill=highlight)) +
+  pretty_plot() +
+  scale_fill_manual(values = as.character(jdb_color_maps2[c("Mega","Ery")]),
+                    labels=c("Other TFs", "GATA TFs")) +
+  labs(x="Rank",y="-log10(FDR)") + 
+  theme(legend.position = c(.95, .95),
+        legend.justification = c("right", "top"),
+        legend.margin = margin(6, 6, 6, 6),
+        legend.title = element_blank(),
+        legend.key = element_rect(fill = "white", colour = "black")) +
+  guides(fill=guide_legend(reverse=TRUE)) +
+  geom_text_repel(
+    data = subset(TF_differences, toLabel!="F"),
+    aes(label = toLabel),
+    size = 2.5,
+    nudge_y =1,
+    nudge_x=35,
+    point.padding=0.50,
+    min.segment.length=0,
+    segment.alpha=0.3,
+    direction="both")
+
+plot_grid(CMP, MEP, labels = c('A', 'B'), nrow = 1, rel_heights = c(1,1))
+@
+
+\item
 \begin{figure}[H]
 \centering
 \includegraphics[width=\linewidth]{staticFigures/LDtoSentinel_PPcomparison.pdf}
