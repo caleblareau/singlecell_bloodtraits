@@ -83,6 +83,19 @@
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
+{\centering \includegraphics[width=\maxwidth]{figure/heritabilityPlots-1} 
+
+}
+
+\caption[Heritability estimates from LD Score Regression across 16 hematopoetic traits]{Heritability estimates from LD Score Regression across 16 hematopoetic traits. The estimates of the narrow-sense SNP heritabilities are plotted in gray with their corresponding standard erors. Heritability estimates for all variants with fine-mapped posterior probability > 0.001 are plotted in blue for each trait, and the proportions of total narrow-sense heritability captured by these fine-mapped variants (blue bar / gray bar) are indicated by the numbered labels.}\label{fig:heritabilityPlots}
+\end{figure}
+
+
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
 {\centering \includegraphics[width=\maxwidth]{figure/correlationPlots-1} 
 
 }
@@ -92,7 +105,6 @@
 
 
 \end{knitrout}
-
 
 
 
@@ -112,28 +124,22 @@
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
-{\centering \includegraphics[width=\maxwidth]{figure/heritabilityPlots-1} 
+{\centering \includegraphics[width=\maxwidth]{figure/ccnd3UK10KLD-1} 
 
 }
 
-\caption[Heritability estimates from LD Score Regression across 16 hematopoetic traits]{Heritability estimates from LD Score Regression across 16 hematopoetic traits. The estimates of the narrow-sense SNP heritabilities are plotted in gray with their corresponding standard erors. Heritability estimates for all variants with fine-mapped posterior probability > 0.001 are plotted in blue for each trait, and the proportions of total narrow-sense heritability captured by these fine-mapped variants (blue bar / gray bar) are indicated by the numbered labels.}\label{fig:heritabilityPlots}
+\caption[Fine-mapped log10(Bayes factor) values for CCND3 variants, with LD estimated from a reference panel of 3,677 individuals from the UK10K cohort]{Fine-mapped log10(Bayes factor) values for CCND3 variants, with LD estimated from a reference panel of 3,677 individuals from the UK10K cohort.}\label{fig:ccnd3UK10KLD}
 \end{figure}
 
 
 \end{knitrout}
 
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=\maxwidth]{figure/ccnd3Piechart-1} 
-
-}
-
-\caption[Haplotypes frequencies of the CCND3 variants rs2408955 and rs112233623 in the UKBB Population]{Haplotypes frequencies of the CCND3 variants rs2408955 and rs112233623 in the UKBB Population. Haplotype labels are formatted as rs2408955/rs112233623.}\label{fig:ccnd3Piechart}
+\item
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{staticFigures/rs9349205_rs112233623_conditional_piechart.pdf}
+\caption{Haplotypes frequencies of the CCND3 variants rs2408955 and rs112233623 in the UKBB Population. Haplotype labels are formatted as rs2408955/rs112233623.}
 \end{figure}
-
-
-\end{knitrout}
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -148,31 +154,19 @@
 
 \end{knitrout}
 
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\item
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{staticFigures/FINEMAP_PP10_localzscore_10000.pdf}
+\caption{Local z-scores for enrichment of hematopoietic nucleosome-depleted regions in the set of fine-mapped variants with posterior probability $> 0.10$.}
+\end{figure} 
 
-{\centering \includegraphics[width=\maxwidth]{figure/goshifterLocalZscore-1} 
-
-}
-
-\caption[Local z-scores for enrichment of hematopoietic nucleosome-depleted regions in the set of fine-mapped variants with posterior probability $> 0.10$]{Local z-scores for enrichment of hematopoietic nucleosome-depleted regions in the set of fine-mapped variants with posterior probability $> 0.10$.}\label{fig:goshifterLocalZscore}
-\end{figure}
-
-
-\end{knitrout}
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=\maxwidth]{figure/fmSecondaryEnrichments-1} 
-
-}
-
-\caption[Local annotation enrichments for fine-mapped variants, excluding all fine-map variants with $R^2>0.80$ to the sentinel variant of any region]{Local annotation enrichments for fine-mapped variants, excluding all fine-map variants with $R^2>0.80$ to the sentinel variant of any region.}\label{fig:fmSecondaryEnrichments}
-\end{figure}
-
-
-\end{knitrout}
+\item
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{staticFigures/FINEMAP_enrichments_ExcludingSentinels.pdf}
+\caption{Local annotation enrichments for fine-mapped variants, excluding all fine-map variants with $R^2>0.80$ to the sentinel variant of any region.}
+\end{figure} 
 
 \item
 \begin{figure}
@@ -193,6 +187,7 @@
 
 
 \end{knitrout}
+
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -259,13 +254,5 @@
 
 \end{knitrout}
 
-\item
-\begin{figure}[H]
-\centering
-\includegraphics[width=\linewidth]{staticFigures/LDtoSentinel_PPcomparison.pdf}
-\caption{Sample embedding of figure in document.}
-\end{figure} 
-
 \end{enumerate}
-
 \end{document}

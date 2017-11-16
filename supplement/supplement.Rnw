@@ -22,7 +22,6 @@
 \date{Supplemental Information}
 \author{(Caleb, Erik, Jacob), Will?, Hilary, Joel, (Martin, Jason, Vijay)}
 
-
 \begin{document}
 \maketitle
 \section*{Overview of UK Biobank data}
@@ -37,6 +36,58 @@ library(reshape2)
 library(cowplot)
 library(data.table)
 library(plotly)
+library(stringr)
+@
+
+<<heritabilityPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Heritability estimates from LD Score Regression across 16 hematopoetic traits. The estimates of the narrow-sense SNP heritabilities are plotted in gray with their corresponding standard erors. Heritability estimates for all variants with fine-mapped posterior probability > 0.001 are plotted in blue for each trait, and the proportions of total narrow-sense heritability captured by these fine-mapped variants (blue bar / gray bar) are indicated by the numbered labels.", eval = TRUE, cache = FALSE, results="hide">>=
+
+library(scales)
+# Narrow-Sense Heritability Estimated Obtained from LDSC
+h2 <-fread("../data/LDSC_heritability/trait_h2.txt")
+colnames(h2) <- c("trait","h_obs","h_obs_se")
+
+# Read in enrichments for FM PP001 variants
+reorderedtraits=traits=c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
+
+ctHeme <- vector("list",length=16)
+ct_enrichment <- vector("list",length=length(ctHeme))
+celltypes <- paste0(traits,"_PP001L2")
+
+FM_h2 <- NULL
+FM_enrichment <- NULL
+dir="../data/LDSC_heritability/FM_PP001/"
+for (i in 1:length(ctHeme)){
+  ctHeme[[i]]<-fread(paste0(dir,traits[i],".",celltypes[i],".results"))
+  FM_h2[i] <- ctHeme[[i]]$Prop._h2[1]
+  FM_enrichment[i] <- ctHeme[[i]]$Enrichment[1]
+}
+
+h2$fm_herit <- FM_h2*h2$h_obs
+h2$fm_h2 <- FM_h2
+
+legendtitle <- "fine-mapped heritability"
+ggplot(data=h2, aes(x=trait,y=fm_herit)) +
+  geom_bar(aes(y=h_obs), fill="light gray",stat="identity",position = position_stack(reverse = TRUE)) +
+  geom_bar(aes(y=fm_herit,fill=legendtitle),stat="identity") +
+  geom_text(aes(label=percent(FM_h2)), hjust=-0.25, color="black", size=3.25) +
+  scale_fill_manual(values = c(jdb_palette("GrandBudapest2")[c(4)],jdb_palette("Zissou")[1:5])) +
+  ggtitle("Finemapped Trait Heritabilities") + theme_bw() + 
+  coord_flip() + 
+  labs(fill="") + 
+  scale_y_continuous(expand = c(0.01, 0.0)) +
+  theme(plot.subtitle = element_text(vjust = 1),
+        panel.background = element_rect(fill = "white", colour = "grey50"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.title.y=element_blank(),
+        axis.title.x=element_blank(),
+        legend.position = c(.98, 0.99),
+        legend.justification = c("right", "top"),
+        legend.box.just = "right",
+        legend.margin = margin(1, 1, 1, 1),
+        legend.direction = "vertical",
+        legend.key.size = unit(0.15, "in"))  +
+  geom_errorbar(aes(ymin=h_obs-h_obs_se, ymax=h_obs+h_obs_se),width=.2,position=position_dodge(.9),color="black")
+
 @
 
 <<correlationPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Phenotypic and genetic correlations across the 16 traits examined. ", eval = TRUE, cache = TRUE, results="hide">>=
@@ -129,7 +180,6 @@ p3 <- ggplot(merged,aes(x=GenoCor,y=PhenoCor,pairs=traitpairs)) + geom_point(aes
  plot_grid(p1, p2, labels = c('A', 'B'))
 @
 
-
 <<pleiotropyImport, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Numbers of pleiotropic variants", eval = TRUE, cache = FALSE, results="hide">>=
  library(ggplot2)
  library(BuenColors)
@@ -188,60 +238,69 @@ pleioplot2 <- ggplot(data = mdf[mdf$variable == "opposite", ], aes(x=short1, y=s
  plot_grid(pleioplot1, pleioplot2, labels = c('A', 'B'))
 @
 
-<<heritabilityPlots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Heritability estimates from LD Score Regression across 16 hematopoetic traits. The estimates of the narrow-sense SNP heritabilities are plotted in gray with their corresponding standard erors. Heritability estimates for all variants with fine-mapped posterior probability > 0.001 are plotted in blue for each trait, and the proportions of total narrow-sense heritability captured by these fine-mapped variants (blue bar / gray bar) are indicated by the numbered labels.", eval = TRUE, cache = FALSE, results="hide">>=
+<<ccnd3UK10KLD, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Fine-mapped log10(Bayes factor) values for CCND3 variants, with LD estimated from a reference panel of 3,677 individuals from the UK10K cohort.", eval = TRUE, cache = TRUE, results="hide">>=
+library(ggrepel)
 
-library(scales)
-# Narrow-Sense Heritability Estimated Obtained from LDSC
-h2 <-fread("../data/LDSC_heritability/trait_h2.txt")
-colnames(h2) <- c("trait","h_obs","h_obs_se")
+rsid <- "rs9349205"
+trait <- "RBC_COUNT"
+locuszoom <- read.table("../data/examples/CCND3.final_locuslist.RBC_COUNT.txt",header=TRUE)
 
-# Read in enrichments for FM PP001 variants
-reorderedtraits=traits=c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
+hardcallregion<-36
+FM_hardcall_region <- read.table("../data/examples/region36.snp",header=TRUE)
+FM_hardcall_region$POS <- str_split_fixed(str_split_fixed(FM_hardcall_region$snp,":",2)[,2],"_",2)[,1]
+FM_hardcall_region$POS <- as.integer(as.character(FM_hardcall_region$POS))
+FM_hardcall_region <- merge(locuszoom,FM_hardcall_region,by="POS")
+FM_hardcall_region[FM_hardcall_region$snp_log10bf < 0,"snp_log10bf"] <- 0 
+FM_hardcall_region$sentinel <- ifelse(FM_hardcall_region$RSQR ==1 | 
+                                        FM_hardcall_region$SNP =="rs112233623", "yes", "no")
 
-ctHeme <- vector("list",length=16)
-ct_enrichment <- vector("list",length=length(ctHeme))
-celltypes <- paste0(traits,"_PP001L2")
+sz <- 1.5
+width=3
+locustheme <-  theme(plot.title = element_text(size=sz*4,hjust = 0.50,face="bold"),
+                     text=element_text(size=sz*4),
+                     axis.title.x = element_blank(),
+                     axis.text.x = element_blank(),
+                     axis.ticks.x = element_blank(),
+                     legend.position = c(.05, .9),
+                     legend.justification = c("left", "top"),
+                     legend.box.just = "left",
+                     legend.margin = margin(1, 1, 1, 1),
+                     legend.direction = "horizontal",
+                     legend.key.size = unit(width/30, "in"),
+                     legend.text = element_text(size=sz*2),
+                     legend.title = element_text(face="bold",size=sz*2))
 
-FM_h2 <- NULL
-FM_enrichment <- NULL
-dir="../data/LDSC_heritability/FM_PP001/"
-for (i in 1:length(ctHeme)){
-  ctHeme[[i]]<-fread(paste0(dir,traits[i],".",celltypes[i],".results"))
-  FM_h2[i] <- ctHeme[[i]]$Prop._h2[1]
-  FM_enrichment[i] <- ctHeme[[i]]$Enrichment[1]
-}
-
-h2$fm_herit <- FM_h2*h2$h_obs
-h2$fm_h2 <- FM_h2
-
-legendtitle <- "fine-mapped heritability"
-ggplot(data=h2, aes(x=trait,y=fm_herit)) +
-  geom_bar(aes(y=h_obs), fill="light gray",stat="identity",position = position_stack(reverse = TRUE)) +
-  geom_bar(aes(y=fm_herit,fill=legendtitle),stat="identity") +
-  geom_text(aes(label=percent(FM_h2)), hjust=-0.25, color="black", size=3.25) +
-  scale_fill_manual(values = c(jdb_palette("GrandBudapest2")[c(4)],jdb_palette("Zissou")[1:5])) +
-  ggtitle("Finemapped Trait Heritabilities") + theme_bw() + 
-  coord_flip() + 
-  labs(fill="") + 
-  scale_y_continuous(expand = c(0.01, 0.0)) +
-  theme(plot.subtitle = element_text(vjust = 1),
-        panel.background = element_rect(fill = "white", colour = "grey50"),
-        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        axis.title.y=element_blank(),
-        axis.title.x=element_blank(),
-        legend.position = c(.98, 0.99),
-        legend.justification = c("right", "top"),
-        legend.box.just = "right",
-        legend.margin = margin(1, 1, 1, 1),
-        legend.direction = "vertical",
-        legend.key.size = unit(0.15, "in"))  +
-  geom_errorbar(aes(ymin=h_obs-h_obs_se, ymax=h_obs+h_obs_se),width=.2,position=position_dodge(.9),color="black")
+# Plot FM log10bf with hard called variants labeled
+ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
+  geom_point(aes(fill=RSQR),shape=21,size=sz)  +
+  pretty_plot()+
+  scale_y_continuous(expand = c(0.05, 0))+
+  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1],name="R2") +
+  guides(fill=guide_colorbar(title.vjust=0.75))+
+  locustheme+
+  labs(x="Position on Chromosome 6 (Mb)",y="log10(Bayes factor)") + 
+  geom_point(data=subset(FM_hardcall_region,sentinel=="yes"),
+             aes(x=POS/(10^6),y=snp_log10bf),
+             fill="yellow",shape=21,size=sz)+
+  geom_text_repel(data = subset(FM_hardcall_region, sentinel=="yes"),
+                   aes(label = paste(SNP,"(PP = 0.0)",sep="\n")),
+                   size = sz,
+                   force=TRUE,
+                   nudge_x = 0.75,
+                   nudge_y=3) 
 
 @
 
-<<ccnd3Piechart, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Haplotypes frequencies of the CCND3 variants rs2408955 and rs112233623 in the UKBB Population. Haplotype labels are formatted as rs2408955/rs112233623.", eval = TRUE, cache = FALSE, results="hide">>=
+\item
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{staticFigures/rs9349205_rs112233623_conditional_piechart.pdf}
+\caption{Haplotypes frequencies of the CCND3 variants rs2408955 and rs112233623 in the UKBB Population. Haplotype labels are formatted as rs2408955/rs112233623.}
+\end{figure}
 
-### Moderating alleles
+<<ccnd3Boxplots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Moderating effects of CCND3 haplotypes on red blood cell count.", eval = TRUE, cache = FALSE, results="hide">>=
+
+ ### Moderating alleles
 trait <- "RBC_COUNT"
 unit <- "10^6 cells/uL"
 rs_alleles <- readRDS("../data/examples/CCND3.haplotypes.rds")
@@ -267,7 +326,7 @@ rs_alleles_onlyabsolutes[grep(1,rs_alleles_onlyabsolutes[,allelecol2]),"rs2_A"] 
 rs_alleles_onlyabsolutes[grep(2,rs_alleles_onlyabsolutes[,allelecol2]),"rs2_A"] <- "CC"
 rs_alleles_onlyabsolutes$rs2_A <- factor(rs_alleles_onlyabsolutes$rs2_A, levels = c("CC","CT","TT"))
 
-# Make column for all haplotype combinations
+# Make column for all haplotype combinations present in the population
 #rs_alleles_onlyabsolutes$con_rs1 <- ifelse(rs_alleles_onlyabsolutes$rs1_A =="GG" & rs_alleles_onlyabsolutes$rs2_A =="CT", "GG/CT", "")
 rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes$rs1_A=="AA" & rs_alleles_onlyabsolutes$rs2_A=="CT","con_rs1"] <- "AA/CT"
 rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes$rs1_A=="AG" & rs_alleles_onlyabsolutes$rs2_A=="CT","con_rs1"] <- "AG/CT"
@@ -279,28 +338,6 @@ rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes$rs1_A=="AA" & rs_alleles_onlya
 rs_alleles_onlyabsolutes$con_rs1 <- factor(rs_alleles_onlyabsolutes$con_rs1, 
                                            levels = c("GG/CC","AG/CC","AA/CC",
                                                       "AG/CT","AA/CT","AA/TT"))
-
-# Pie chart of allele frequencies
-proportions <- data.frame(table(rs_alleles_onlyabsolutes$con_rs1))
-colnames(proportions) <- c("Genotype","Freq")
-proportions$Percent <- proportions$Freq / sum(proportions$Freq)
-
-m <- list(
-  l = 50,
-  r = 50,
-  b = 70,
-  t = 25,
-  pad = 1
-)
-plot_ly(proportions, labels = ~Genotype, values = ~Freq, type = 'pie',textposition = 'outside',textinfo = 'label+percent',width = 600, height = 700) %>%
-  layout(xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE), autosize = F,  margin = m)
-# tmpFile <- tempfile(fileext = ".pdf")
-# export(p, file = "/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/rs9349205_rs112233623.conditional_piechart.pdf")
-
-@
-
-<<ccnd3Boxplots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Moderating effects of CCND3 haplotypes on red blood cell count.", eval = TRUE, cache = FALSE, results="hide">>=
 
 # The baseline is the homozygous ref/ref haplotypes.
 baseline <- as.data.frame(rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes[,"con_rs1"] %in% "GG/CC",trait])[,1] %>% median()
@@ -327,128 +364,19 @@ ggplot(subset(rs_alleles_onlyabsolutes,rs2_A=="CC" | rs2_A=="CT"),
 
 @
 
-<<goshifterLocalZscore, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Local z-scores for enrichment of hematopoietic nucleosome-depleted regions in the set of fine-mapped variants with posterior probability $> 0.10$.", eval = TRUE, cache = FALSE, results="hide">>=
+\item
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{staticFigures/FINEMAP_PP10_localzscore_10000.pdf}
+\caption{Local z-scores for enrichment of hematopoietic nucleosome-depleted regions in the set of fine-mapped variants with posterior probability $> 0.10$.}
+\end{figure} 
 
-library(rtracklayer)
-library(preprocessCore)
-library(ggjoy)
-library(regioneR)
-library(stringr)
-
-#' Read in count matrix 
-#+ cache = FALSE, message = FALSE, warning = FALSE, echo = FALSE, eval = TRUE
-counts.df <- read.table("../data/bulk/ATAC/26August2017_EJCsamples_allReads_250bp.counts.txt",header=T)
-names(counts.df) <- c("B","CD4","CD8","CLP","CMP","Ery","GMP-A","GMP-B","GMP-C","HSC","LMPP","mDC","Mega","MEP","mono","MPP","NK","pDC")
-# Remove "weak" peaks that aren't in top n% for at least one cell type
-n=0.8
-counts.df[1:dim(counts.df)[1],1:dim(counts.df)[2]] <- normalize.quantiles(as.matrix(counts.df))
-keep <- apply(counts.df,1,max) > mean(apply(counts.df,2,function(x) {quantile(x,n)}))
-
-#' Read in consensus bed file of peaks and add count metadata
-#+ cache = FALSE, message = FALSE, warning = FALSE, echo = FALSE, eval = TRUE
-peaks.gr <- import("../data/bulk/ATAC/26August2017_EJCsamples_allReads_250bp.bed",format="bed")
-values(peaks.gr) <- counts.df
-peaks.gr <- peaks.gr[keep,]
-
-# Read in Finemap variants
-CS.df <- read.table("../data/Finemap/UKBB_BC_v3.bed")
-names(CS.df) <- c("seqnames","end","start","annotation","PP")
-CS.df[,c("trait","var","region")] <- str_split_fixed(CS.df$annotation, "-", 3)
-CS.df <- CS.df %>% dplyr::select(-annotation)
-CS.df$seqnames <- paste0("chr",CS.df$seqnames)
-CS.gr <- makeGRangesFromDataFrame(CS.df, keep.extra.columns=TRUE, ignore.strand=TRUE, starts.in.df.are.0based=TRUE)
-
-perm <- NULL
-bins = c(0.001,0.01,0.05,0.1,0.25,0.75,1)
-
-randomizeLocalRegions2 <- function(A, ...) {
-  A <- toGRanges(A)
-  rand <- ceiling(runif(1,-1500000,1500000))
-  B <- GenomicRanges::shift(A,rand)
-  return(B)
-}
-
-for (j in seq(4,4,1)) {
-  #CS.PP.gr <- subset(CS.gr,PP > bins[j] & PP <= bins[j+1]) 
-  CS.PP.gr <- subset(CS.gr,PP > bins[j]) 
-  perm[[j]] <- permTest(A=CS.PP.gr, B=peaks.gr, ntimes=1000, alternative="auto", randomize.function=randomizeLocalRegions2, evaluate.function=numOverlaps, force.parallel=FALSE, mc.set.seed=TRUE, mc.cores=2)
-}
-
-local <- localZScore(CS.PP.gr, peaks.gr, pt=perm[[4]], window=1500000,step=1000, mc.set.seed=TRUE, mc.cores=2)
-plot(local, main="Local Shifted Enrichments for Fine-mapped PP>0.10 Variants")
-
-@
-
-<<fmSecondaryEnrichments, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Local annotation enrichments for fine-mapped variants, excluding all fine-map variants with $R^2>0.80$ to the sentinel variant of any region.", eval = TRUE, cache = FALSE, results="hide">>=
-
-# Exclude LD80 variants from CS
-LD80 <- readRDS("../data/Finemap/LD80.rds")
-LD80.gr <- GRanges()
-for (i in 1:16){
-  temp <- as.data.frame(LD80[[i]])[,c("chromosome","sentinel","nonsentinel")]
-  temp <- melt(temp,id.vars=c("chromosome"))
-  temp$chromosome <- paste0("chr",temp$chromosome)
-  temp$end <- temp$value
-  temp.gr <- makeGRangesFromDataFrame(temp, keep.extra.columns=F,
-                                   ignore.strand=TRUE, 
-                                   starts.in.df.are.0based=F,
-                                   start.field="value",
-                                   end.field="end")
-  
-  LD80.gr <- mergeRegions(LD80.gr, temp.gr)
-}  
-
-#' Read in other annotations
-#+ cache = FALSE, message = FALSE, warning = FALSE, echo = FALSE, eval = TRUE
-coding.gr <- import("../data/annotations/Coding_UCSC.bed",format="bed")
-intron.gr <- import("../data/annotations/Intron_UCSC.bed",format="bed")
-promoter.gr <- import("../data/annotations/Promoter_UCSC.fixed.bed",format="bed")
-UTR.gr <- import("../data/annotations/UTR_3_UCSC.bed",format="bed")
-
-randomizeLocalRegions2 <- function(A, ...) {
-  A <- toGRanges(A)
-  rand <- ceiling(runif(1,-1500000,1500000))
-  B <- GenomicRanges::shift(A,rand)
-  return(B)
-}
-
-OR <- NULL
-perm <- NULL
-trait <- unique(CS.gr@elementMetadata$trait)
-gr.list <- list(peaks.gr,coding.gr,promoter.gr,intron.gr,UTR.gr)
-bins = c(0.001,0.01,0.05,0.1,0.25,0.75,1)
-for (i in seq(1,5,1)) {
-  for (j in seq(1,6,1)) {
-    CS.PP.gr <- subset(CS.gr,PP > bins[j] & PP <= bins[j+1]) 
-    CS.PP.gr <- subtractRegions(CS.PP.gr,LD80.gr)
-    perm[[paste0(i,j)]] <- permTest(A=CS.PP.gr, B=gr.list[[i]], ntimes=100, alternative="auto", randomize.function=randomizeLocalRegions2, evaluate.function=numOverlaps, force.parallel=FALSE, mc.set.seed=FALSE, mc.cores=4)
-    OR <- rbind(OR,c(i,j,perm[[paste0(i,j)]]$numOverlaps$observed / length(CS.PP.gr), mean(perm[[paste0(i,j)]]$numOverlaps$permuted) / length(CS.PP.gr), perm[[paste0(i,j)]]$numOverlaps$zscore))
-  print(c(i,j))
-  }
-}
-
-OR.df <- as.data.frame(OR)
-names(OR.df) <- c("i","j","obs","perm")
-OR.df$i <- as.factor(OR.df$i)
-OR.df$j <- as.factor(OR.df$j)
-OR.df$OR <- OR.df$obs / OR.df$perm
-OR.df <- OR.df %>% dplyr::select(i,j,OR)
-
-ggplot(OR.df,aes(y=OR,x=i,group=j)) + 
-  geom_bar(stat="identity",aes(fill=j),position = position_dodge(0.9)) +
-  geom_hline(yintercept=1, colour="grey3", linetype =3) +
-  theme_bw() +
-  pretty_plot() +
-  scale_y_continuous(expand = c(0.01, 0.0)) +
-  scale_x_discrete(labels=c("heme NDRs","coding","promoter","intron","UTR"))+
-  scale_fill_manual(values = c(jdb_palette("GrandBudapest2")[c(4)],jdb_palette("Zissou")[1:5]), 
-                    name = "top posterior",
-                    labels=c("(0.001,0.01]", "(0.01,0.05]", "(0.05,0.1]","(0.1,0.25]","(0.25,0.75]","(0.75,1]")) +
-  labs(y="odds ratio") +
-  theme(axis.title.x=element_blank(),
-        axis.ticks.x =element_blank())
-
-@
+\item
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{staticFigures/FINEMAP_enrichments_ExcludingSentinels.pdf}
+\caption{Local annotation enrichments for fine-mapped variants, excluding all fine-map variants with $R^2>0.80$ to the sentinel variant of any region.}
+\end{figure} 
 
 \item
 \begin{figure}
@@ -491,6 +419,7 @@ pEnrich2 <- ggplot(plotdfEnrich2[plotdfEnrich2$Trait == "MEAN_RETIC_VOL", ],
 
 plot_grid(pEnrich1, pEnrich2, labels = c('A', 'B'), nrow = 2, rel_heights = c(1,1.3))
 @
+
 
 <<allGchromvar, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="All enrichments from g-chromVAR. The horizontal line shows a Bonferonni multiple testing adjusted threshold for statistical significance of enrichment.", eval = TRUE, cache = FALSE, results="hide">>=
 
@@ -564,10 +493,11 @@ ggplot(zscoreWeighted, aes(x = PP, y = -log10(pnorm(value,lower.tail = FALSE))))
 
 library(qvalue)
 library(ggrepel)
+library(stringr)
 jdb_color_maps2 <- c(jdb_color_maps, "Mega" = "#FF347E", "UNK" = "#8D91AD", "mDC"= "#FFD700", "MCP" = "#C390D4")
 names(jdb_color_maps2)[9] <- "Mono"
 
-TF_differences <- readRDS("../data/singlecell/scATAC/CMP_TFzscore_differences.rds")
+TF_differences <- readRDS("../data/singlecell/scATAC/CMP_ATAC_TFzscore_differences_kmedoids.rds")
 TF_differences$TF_name <- str_split_fixed(TF_differences$TF, "_",n=4)[,3]
 TF_differences$FDR <- qvalue(TF_differences$pval)$qvalues
 
@@ -601,17 +531,17 @@ CMP <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) +
     data = subset(TF_differences, toLabel!="F"),
     aes(label = toLabel),
     size = 2.5,
-    nudge_y =2,
-    nudge_x=35,
+    nudge_y =3,
+    nudge_x=150,
     point.padding=0.50,
     min.segment.length=0,
     segment.alpha=0.3,
     direction="both")
 
 # MEPs
-TFs_of_interest <- c("GATA1","KLF1","MEF2C","RUNX1")
+TFs_of_interest <- c("GATA1","KLF1","MEF2C")
 
-TF_differences <- readRDS("../data/singlecell/scATAC/MEP_gChromVAR_TFzscore_differences.rds")
+TF_differences <- readRDS("../data/singlecell/scATAC/MEP_ATAC_TFzscore_differences_kmedoids.rds")
 
 # Color the GATA TFs
 idx <- grep("GATA",TF_differences$TF_name)
@@ -642,8 +572,8 @@ MEP <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) +
     data = subset(TF_differences, toLabel!="F"),
     aes(label = toLabel),
     size = 2.5,
-    nudge_y =1,
-    nudge_x=35,
+    nudge_y =0.5,
+    nudge_x=100,
     point.padding=0.50,
     min.segment.length=0,
     segment.alpha=0.3,
@@ -652,13 +582,5 @@ MEP <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) +
 plot_grid(CMP, MEP, labels = c('A', 'B'), nrow = 1, rel_heights = c(1,1))
 @
 
-\item
-\begin{figure}[H]
-\centering
-\includegraphics[width=\linewidth]{staticFigures/LDtoSentinel_PPcomparison.pdf}
-\caption{Sample embedding of figure in document.}
-\end{figure} 
-
 \end{enumerate}
-
 \end{document}
