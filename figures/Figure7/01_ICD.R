@@ -1,8 +1,10 @@
 library(data.table)
-library(qqman)
+library(dplyr)
 
-icd <- fread(paste0('zcat < ', "data/ICD10all_PP5_summaryTable.txt.gz"))
+icd <- data.frame(fread(paste0('zcat < ', "data/ICD10all_PP5_summaryTable.txt.gz")))
 
-png("qqPlot_ICD10.png", width = 6, height = 6)
-qq(icd[["pval"]])
-dev.off()
+lapply(unique(icd$trait), function(trait){
+  tdf <- icd[icd$trait == trait, ]
+  odf <- tdf[tdf$pval < 0.05/(dim(tdf)[1]),]
+  odf
+}) %>% rbindlist() %>% as.data.frame() -> traitSignificant
