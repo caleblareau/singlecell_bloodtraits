@@ -1,5 +1,5 @@
 library(chromVAR)
-library(chromVARxx)
+library(gchromVAR)
 library(SummarizedExperiment)
 library(data.table)
 library(GenomicRanges)
@@ -18,7 +18,7 @@ SE <- SummarizedExperiment(assays = list(counts = counts),
 SE <- addGCBias(SE, genome = BSgenome.Hsapiens.UCSC.hg19)
 ukbb <- importBedScore(rowRanges(SE), list.files("../../data/UKBB_BC_PP001/", full.names = TRUE, pattern = "*.bed$"))
 
-# Compute weighted deviation scores
+# Compute weighted deviation scores using gchromVAR
 ukbb_wDEV <- computeWeightedDeviations(SE, ukbb)
 zscoreWeighted <- melt(t(assays(ukbb_wDEV)[["z"]]))
 zscoreWeighted[,2] <- gsub("_PP001", "", zscoreWeighted[,2])

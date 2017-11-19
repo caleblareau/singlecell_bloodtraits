@@ -62,7 +62,7 @@ makeCVplot <- function(plottrait, method){
 }
 
 chromvarout <- lapply(unique(chromvar$V2), makeCVplot, "chromVAR")
-weightedout <- lapply(unique(wchromvar$V2), makeCVplot, "wChromVAR")
+weightedout <- lapply(unique(wchromvar$V2), makeCVplot, "gchromVAR")
 ldscoreout <- lapply(unique(ldscore$trait), makeLDScorePlot)
 
 # Make combined table

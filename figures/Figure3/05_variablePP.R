@@ -1,5 +1,5 @@
  library(chromVAR)
-library(chromVARxx)
+library(gchromVAR)
 library(SummarizedExperiment)
 library(data.table)
 library(GenomicRanges)

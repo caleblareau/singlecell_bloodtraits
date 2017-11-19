@@ -42,18 +42,26 @@ rowCheck <- function(df1, df2){
 }
 
 df <- read.table("../../data/bulk/GWAS-Bulk/compare3.tsv", header = TRUE)               
-df$weighted_pvalue <- pnorm(df$weighted_Zscore, lower.tail = FALSE)
+df$gchromVAR_pvalue <- pnorm(df$weighted_Zscore, lower.tail = FALSE)
 df$chromVAR_pvalue <- pnorm(df$chromVAR_Zscore, lower.tail = FALSE)
+df <- df[,c(1,2,5:7)] # drop z score column 
 gs <- readRDS("../Figure1/OR_Heme.rds")
 df_gs <- as.data.frame(gs,stringsAsFactors=F)
 names(df_gs) <- c("i","j","cell","trait","obs","perm","z")
 df_gs$pvalue <- 2*pnorm(-abs(as.numeric(df_gs$z)))
+# manually verified that df_gs and df have the same order of cell type and traits so we good
 df$goShifter_pvalue <- df_gs$pvalue
+ldscradjust <- read.table("../../data/bulk/GWAS-Bulk/bulkHeme_baseline_panheme.txt", header = TRUE)
+colnames(ldscradjust) <- c("Celltype", "Trait", "panHemeLDSR_pvalue")
+odf <- merge(df, ldscradjust)
+df <- odf
 
 df$hit_ldscore <- df$ldscore_pvalue < 0.05/288
 df$hit_chromVAR <- df$chromVAR_pvalue < 0.05/288
-df$hit_weighted <- df$weighted_pvalue < 0.05/288
+df$hit_gchromVAR <- df$gchromVAR_pvalue < 0.05/288
 df$hit_goShifter <- df$goShifter_pvalue < 0.05/288
+df$hit_panHemeLDSR <- df$panHemeLDSR_pvalue < 0.05/288
+
 
 df$lineageSpecific <- rowCheck(df[,c("Celltype", "Trait")], lineageSpecificDF)
 odf <- df[,c(1,2,5:12)] 
@@ -63,22 +71,26 @@ odf <- df[,c(1,2,5:12)]
 permuted <- sapply(1:10000, function(i) sum(1:dim(df)[1] * sample(df$lineageSpecific, length(df$lineageSpecific))))
 ldscore_ranksum <- sum(1:dim(df)[1]*df[order(df$ldscore_pvalue, decreasing = FALSE), "lineageSpecific"])
 chromVAR_ranksum <- sum(1:dim(df)[1]*df[order(df$chromVAR_pvalue, decreasing = FALSE), "lineageSpecific"])
-weighted_ranksum <- sum(1:dim(df)[1]*df[order(df$weighted_pvalue, decreasing = FALSE), "lineageSpecific"])
+gchromVAR_ranksum <- sum(1:dim(df)[1]*df[order(df$gchromVAR_pvalue, decreasing = FALSE), "lineageSpecific"])
 goShifter_ranksum <- sum(1:dim(df)[1]*df[order(df$goShifter_pvalue, decreasing = FALSE), "lineageSpecific"])
+panHemeLDSR_ranksum <- sum(1:dim(df)[1]*df[order(df$panHemeLDSR_pvalue, decreasing = FALSE), "lineageSpecific"])
 
 allstats <- data.frame(
-  Yes = c(sum(df$lineageSpecific& df$hit_ldscore), sum(df$lineageSpecific& df$hit_chromVAR), sum(df$lineageSpecific& df$hit_weighted), sum(df$lineageSpecific& df$hit_goShifter)),
-  No = c(sum(!df$lineageSpecific& df$hit_ldscore), sum(!df$lineageSpecific& df$hit_chromVAR), sum(!df$lineageSpecific& df$hit_weighted), sum(!df$lineageSpecific& df$hit_goShifter)),
+  Yes = c(sum(df$lineageSpecific& df$hit_ldscore), sum(df$lineageSpecific& df$hit_chromVAR), sum(df$lineageSpecific& df$hit_gchromVAR),
+          sum(df$lineageSpecific& df$hit_goShifter), sum(df$lineageSpecific& df$hit_panHemeLDSR)),
+  No = c(sum(!df$lineageSpecific& df$hit_ldscore), sum(!df$lineageSpecific& df$hit_chromVAR), sum(!df$lineageSpecific& df$hit_gchromVAR),
+         sum(!df$lineageSpecific& df$hit_goShifter), sum(!df$lineageSpecific& df$hit_panHemeLDSR)),
   pval = c(pnorm((mean(permuted) - ldscore_ranksum)/sd(permuted), lower.tail = FALSE),
            pnorm((mean(permuted) - chromVAR_ranksum)/sd(permuted), lower.tail = FALSE),
-           pnorm((mean(permuted) - weighted_ranksum)/sd(permuted), lower.tail = FALSE),
-           pnorm((mean(permuted) - goShifter_ranksum)/sd(permuted), lower.tail = FALSE)
+           pnorm((mean(permuted) - gchromVAR_ranksum)/sd(permuted), lower.tail = FALSE),
+           pnorm((mean(permuted) - goShifter_ranksum)/sd(permuted), lower.tail = FALSE),
+            pnorm((mean(permuted) - panHemeLDSR_ranksum)/sd(permuted), lower.tail = FALSE)
   )
 )
-allstats$method <- c("LDscore", "chromVAR", "g-chromVAR", "goShifter")
+allstats$method <- c("LDscore", "chromVAR", "g-chromVAR", "goShifter", "LDscore\nHeme Adj.")
 
 ggplot(allstats[,c(3,4),drop=FALSE], aes(x = method, y = -1*log10(pval))) +
-  geom_histogram(stat = "identity", color = "black", fill = c("blue", "red", "green", "pink")) +
+  geom_histogram(stat = "identity", color = "black", fill = c("blue", "red", "green", "pink", "black")) +
   labs(x = "", y = "Lineage-Specific Enrichment -log10(p)") + coord_flip() +
   pretty_plot()
 
@@ -90,4 +102,4 @@ ggplot(tfdf, aes(x = method, y = value, fill = variable)) +
   scale_fill_manual(values = c("firebrick","green4")) +
   pretty_plot() +  theme(legend.position = "bottom")
 
-
+write.table(df, file = "../../supplemental_tables/SupplementalTable2.tsv", row.names = FALSE, col.names = TRUE, sep = "\t", quote = FALSE)
