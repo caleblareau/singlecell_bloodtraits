@@ -102,4 +102,4 @@ ggplot(tfdf, aes(x = method, y = value, fill = variable)) +
   scale_fill_manual(values = c("firebrick","green4")) +
   pretty_plot() +  theme(legend.position = "bottom")
 
-write.table(df, file = "../../supplemental_tables/SupplementalTable2.tsv", row.names = FALSE, col.names = TRUE, sep = "\t", quote = FALSE)
+#write.table(df, file = "../../supplemental_tables/SupplementalTable2.tsv", row.names = FALSE, col.names = TRUE, sep = "\t", quote = FALSE)
