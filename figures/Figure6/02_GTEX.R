@@ -18,8 +18,6 @@ lapply(list.files("../../data/UKBB_BC_PP001/", pattern = "*.bed$", full.names = 
 
 
 allVars$trait <- gsub("_PP001.bed", "", gsub("../../data/UKBB_BC_PP001//", "", allVars$trait))
-filt <- allVars[allVars$V5 > 0.5,]
-
 mdf <- merge(allVars, gtex, by.x = c("V1", "V2"), by.y = c("chr", "bp"))
 cleandf <- mdf[,c("V1", "V2", "trait", "V5", "gene_id", "tss_distance", "pval_nominal", "ref", "alt", "slope")]
 var <- stringr::str_split_fixed(cleandf$gene_id, "[.]", n = 2)
