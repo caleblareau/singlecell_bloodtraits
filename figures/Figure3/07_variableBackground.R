@@ -21,8 +21,9 @@ SE <- addGCBias(SE, genome = BSgenome.Hsapiens.UCSC.hg19)
 ukbb <- importBedScore(rowRanges(SE), list.files("../../data/UKBB_BC_PP001/", full.names = TRUE, pattern = "*.bed$"))
 
 # Compute weighted deviation scores using gchromVAR for variable numbers of background peaks
-excessive <- c(1:5,seq(10,100,5), seq(110,500,10))
-lo <- lapply(excessive, function(bgn){
+#excessive <- c(5,seq(10,100,5), seq(110,500,10))
+big <- seq(550, 1000, 50)
+lo <- lapply(big, function(bgn){
   bg <- getBackgroundPeaks(SE, bs = bgn)
   ukbb_wDEV <- computeWeightedDeviations(SE, ukbb, background_peaks = bg)
   zscoreWeighted <- melt(t(assays(ukbb_wDEV)[["z"]]))
