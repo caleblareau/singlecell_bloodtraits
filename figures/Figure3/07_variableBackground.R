@@ -1,5 +1,3 @@
-set.seed(14651)
-
 library(chromVAR)
 library(gchromVAR)
 library(SummarizedExperiment)
@@ -24,7 +22,7 @@ ukbb <- importBedScore(rowRanges(SE), list.files("../../data/UKBB_BC_PP001/", fu
 
 # Compute weighted deviation scores using gchromVAR for variable numbers of background peaks
 excessive <- c(5,seq(10,100,5), seq(110,250,10))
-lo <- lapply(big, function(bgn){
+lo <- lapply(excessive, function(bgn){
   bg <- getBackgroundPeaks(SE, bs = bgn)
   ukbb_wDEV <- computeWeightedDeviations(SE, ukbb, background_peaks = bg)
   zscoreWeighted <- melt(t(assays(ukbb_wDEV)[["z"]]))

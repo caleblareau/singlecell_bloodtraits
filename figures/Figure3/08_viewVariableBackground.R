@@ -3,11 +3,20 @@ library(magrittr)
 library(data.table)
 
 all <- c(5,seq(10,100,5), seq(110,250,10))
+makeDF1 <- function(n){
 lodf <- lapply(all, function(bgn){
-  df <- readRDS(paste0("variableBG/variableBGpeak_", as.character(bgn), ".rds"))
+  fn <- paste0("variableBG/variableBGpeak_", as.character(bgn), "_", "iteration_", as.character(n), ".rds")
+  df <- readRDS(fn)
   df$BackgroundPeaksN <- bgn
+  df$iteration <- n
   df
 }) %>% rbindlist() %>% as.data.frame()
+return(lodf)
+}
+
+alldf <- lapply(1:100, makeDF1) %>% rbindlist %>% as.data.frame
+saveRDS(alldf, file = "allIterationsAllPeaks.rds")
+
 
 
 ggplot(lodf, aes(x = BackgroundPeaksN, y = -log10(pnorm(value,lower.tail = FALSE)))) +
