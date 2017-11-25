@@ -2,35 +2,17 @@ library(data.table)
 library(BuenColors)
 library(viridis)
 
-dt <- fread("../../data/singlecell/scATAC/weightedSingleCellScores-shuffled.txt")
-
-# Cell Labels plot setup
-write.table(data.frame(dt[["colvec"]]), file = "raw3Dplot/cell_label/cellTypes.txt", 
-            row.names = FALSE, col.names = FALSE, quote = FALSE)
-
-write.table(data.frame(dt[,c(3,4,5)]), file = "raw3Dplot/cell_label/PC123.txt", 
-            row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
+dt <- fread("../../data/singlecell/scATAC/scGWASenrichments_average.tsv")
+coords <- fread("../../data/singlecell/scATAC/scHeme_meta.txt")
 
 # Spit out raw scores
-lapply(13:28, function(i){
-  name <- colnames(dt)[i]
-  name <- gsub("raw_", "", name)
-  df <- data.frame(dt)[,c(3,4,5,i)]
-  df[,4] <- scale(df[,4])
+lapply(unique(dt[["V2"]]), function(name){
+  df1 <- data.frame(coords)[,c(1,3,4,5)]
+  df <- merge(df1, dt[dt$V2 == name, ], by.x = "name", by.y = "V1")
+  df <- df[,c(2,3,4,6)]
   df[df[,4] > 1.645, 4] <- 1.645
   df[df[,4] < - 1.645, 4] <- -1.645
-  write.table(df, file = paste0("raw3Dplot/scores/dfs/raw/", name, ".txt"), 
-            row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
-})
-
-lapply(29:44, function(i){
-  name <- colnames(dt)[i]
-  name <- gsub("smooth_raw_", "", name)
-  df <- data.frame(dt)[,c(3,4,5,i)]
-  df[,4] <- scale(df[,4])
-  df[df[,4] > 1.645, 4] <- 1.645
-  df[df[,4] < - 1.645, 4] <- -1.645
-  write.table(df, file = paste0("raw3Dplot/scores/dfs/smooth/", name, ".txt"), 
+  write.table(shuf(df), file = paste0("raw3Dplot/scores/dfs/raw/", name, ".txt"), 
             row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
 })
 
