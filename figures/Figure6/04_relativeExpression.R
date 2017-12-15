@@ -1,7 +1,7 @@
 library(data.table)
 library(BuenColors)
 
-gene <- "IKZF1"
+gene <- "AK3"
 
 rna <- data.frame(fread(paste0("../../data/bulk/RNA/16populations_RNAcounts.txt")))
 genes <- rna[,1]
