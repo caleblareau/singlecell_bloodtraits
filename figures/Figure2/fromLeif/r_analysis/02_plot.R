@@ -1,8 +1,10 @@
 library(BuenColors)
 library(dplyr)
+library(lme4)
 source("summarySE.R")
 
-df <- read.table("reporter_experiments_both.txt", header = TRUE)
+df <- read.table("reporter_experiments_both.txt", header = TRUE, stringsAsFactors = FALSE)
+df$Experiment <- ifelse(df$Experiment == "Exp1", 0, 1)
 
 ## A/A is reference
 # rs409950 alt is C; rs12005199 alt is G
@@ -13,13 +15,14 @@ AK3r <- df %>% filter(type %in% c("AK3_AA", "AK3_AG", "AK3_CA", "AK3_CG"))
 AK3r$XG <- ifelse(AK3r$type %in% c("AK3_AG", "AK3_CG"),1,0)
 AK3r$CX <- ifelse(AK3r$type %in% c("AK3_CA", "AK3_CG"),1,0)
 AK3mod <- lm(value ~ Experiment + XG + CX + XG*CX, data = AK3r)
+AK3_mmod <- lmer(value ~  XG + CX + XG*CX + (1 | Experiment), data = AK3r)
 
 # Get empty promoter
 pGL <- df %>% filter(type %in% c("pGL")) %>% summarySE(measurevar="value")
 
 # Evaluate at the different haplotyeps
 eval_AK3 <- function(rs409950, rs409950_l, rs12005199, rs12005199_l){
-  v <- predict(AK3mod, data.frame(Experiment = "Exp1", XG = rs12005199, CX = rs409950), se.fit = TRUE)
+  v <- predict(AK3mod, data.frame(Experiment = 0, XG = rs12005199, CX = rs409950), se.fit = TRUE)
   data.frame(name = paste0("rs409950: ", rs409950_l, "\nrs12005199: ", rs12005199_l), estimate = unname(v$fit), se = v$se.fit)
 }
 
