@@ -288,75 +288,98 @@ ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)
                    nudge_y=1.5) 
 @
 
-\begin{figure}
-\centering
-\includegraphics[width=\linewidth]{staticFigures/rs9349205_rs112233623_conditional_piechart.pdf}
-\caption{Haplotypes frequencies of the CCND3 variants rs2408955 and rs112233623 in the UKBB Population. Haplotype labels are formatted as rs2408955/rs112233623.}
-\end{figure}
+<<ak3Phenos/Reporter, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Effects of AK3 variants rs409950 and rs12005199 on platelet count. (A) rs409950/rs12005199 haplotypes exert additive effects on platelet count amongst individuals from the UKBB GWAS. (B) Luciferase reporter assay corroborates additive effects of the two SNPs on transcription.", eval = TRUE, cache = FALSE, results="hide">>=
 
-<<ccnd3Boxplots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Moderating effects of CCND3 haplotypes on red blood cell count.", eval = TRUE, cache = FALSE, results="hide">>=
+# Bar plots
+rs_alleles <- fread("../data/examples/rawphenos_mixed.rs12005199_rs409950.txt")
+trait <- "PLT_COUNT"
+# Round imputed genotypes to nearest integer
+rs_alleles_onlyabsolutes <- as.data.frame(rs_alleles)
+rs_alleles_onlyabsolutes$alleleA.rs12005199 <- round(rs_alleles_onlyabsolutes$alleleA.rs12005199,0)
+rs_alleles_onlyabsolutes$alleleB.rs12005199 <- 2-rs_alleles_onlyabsolutes$alleleA.rs12005199
+rs_alleles_onlyabsolutes$alleleA.rs409950 <- round(rs_alleles_onlyabsolutes$alleleA.rs409950,0)
+rs_alleles_onlyabsolutes$alleleB.rs409950 <- 2-rs_alleles_onlyabsolutes$alleleA.rs409950
 
- ### Moderating alleles
-trait <- "RBC_COUNT"
-unit <- "10^6 cells/uL"
-rs_alleles <- readRDS("../data/examples/CCND3.haplotypes.rds")
+rs_alleles_onlyabsolutes <- rs_alleles_onlyabsolutes[,c("alleleB.rs12005199","alleleB.rs409950",trait)]
 
-# Only look at the imputed genotypes with 0, 1, or 2 for boxplots
-rs_alleles_onlyabsolutes <- as.data.frame(rs_alleles[rs_alleles$alleleA.rs112233623 == 0 |
-                                                       rs_alleles$alleleA.rs112233623 == 1 | 
-                                                       rs_alleles$alleleA.rs112233623 == 2,])
+# Make bar plot with mean and se of RBC_COUNT
+eval_AK3 <- function(rs409950, rs409950_l, rs12005199, rs12005199_l,trait="PLT_COUNT"){
+  v <- subset(rs_alleles_onlyabsolutes,alleleB.rs409950==rs409950 & alleleB.rs12005199==rs12005199)
+  if (nrow(v)<10){
+    v <- NULL
+  }
+  data.frame(name = paste0(rs409950_l, "\n", rs12005199_l), estimate = mean(v[,trait]), se = sd(v[,trait])/sqrt(length(v[,trait])))
+}
 
-# Write out genotypes for rs1
-allelecol1 <- "alleleA.rs2408955"
-rs_alleles_onlyabsolutes$rs1_A <- "AA"
-rs_alleles_onlyabsolutes[grep(0,rs_alleles_onlyabsolutes[,allelecol1]),"rs1_A"] <- "AA"
-rs_alleles_onlyabsolutes[grep(1,rs_alleles_onlyabsolutes[,allelecol1]),"rs1_A"] <- "AG"
-rs_alleles_onlyabsolutes[grep(2,rs_alleles_onlyabsolutes[,allelecol1]),"rs1_A"] <- "GG"
-rs_alleles_onlyabsolutes$rs1_A <- factor(rs_alleles_onlyabsolutes$rs1_A, levels = c("GG","AG","AA"))
+AK3phenos <- rbind(
+  eval_AK3(rs409950 = 2, rs409950_l = "AA", rs12005199 = 2, rs12005199_l = "AA"),
+  eval_AK3(rs409950 = 1, rs409950_l = "AC", rs12005199 = 2, rs12005199_l = "AA"),
+  eval_AK3(rs409950 = 0, rs409950_l = "CC", rs12005199 = 2, rs12005199_l = "AA"),
+  eval_AK3(rs409950 = 2, rs409950_l = "AA", rs12005199 = 1, rs12005199_l = "AG"),
+  eval_AK3(rs409950 = 1, rs409950_l = "AC", rs12005199 = 1, rs12005199_l = "AG"),
+  eval_AK3(rs409950 = 0, rs409950_l = "CC", rs12005199 = 1, rs12005199_l = "AG"),
+  eval_AK3(rs409950 = 2, rs409950_l = "AA", rs12005199 = 0, rs12005199_l = "GG"),
+  eval_AK3(rs409950 = 1, rs409950_l = "AC", rs12005199 = 0, rs12005199_l = "GG"),
+  eval_AK3(rs409950 = 0, rs409950_l = "CC", rs12005199 = 0, rs12005199_l = "GG")
+)
 
-# Write out genotypes for rs2
-allelecol2 <- "alleleA.rs112233623"
-rs_alleles_onlyabsolutes$rs2_A <- "TT"
-rs_alleles_onlyabsolutes[grep(0,rs_alleles_onlyabsolutes[,allelecol2]),"rs2_A"] <- "TT"
-rs_alleles_onlyabsolutes[grep(1,rs_alleles_onlyabsolutes[,allelecol2]),"rs2_A"] <- "CT"
-rs_alleles_onlyabsolutes[grep(2,rs_alleles_onlyabsolutes[,allelecol2]),"rs2_A"] <- "CC"
-rs_alleles_onlyabsolutes$rs2_A <- factor(rs_alleles_onlyabsolutes$rs2_A, levels = c("CC","CT","TT"))
+AK3phenos <- AK3phenos[complete.cases(AK3phenos),]
 
-# Make column for all haplotype combinations present in the population
-#rs_alleles_onlyabsolutes$con_rs1 <- ifelse(rs_alleles_onlyabsolutes$rs1_A =="GG" & rs_alleles_onlyabsolutes$rs2_A =="CT", "GG/CT", "")
-rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes$rs1_A=="AA" & rs_alleles_onlyabsolutes$rs2_A=="CT","con_rs1"] <- "AA/CT"
-rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes$rs1_A=="AG" & rs_alleles_onlyabsolutes$rs2_A=="CT","con_rs1"] <- "AG/CT"
-#rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes$rs1_A=="GG" & rs_alleles_onlyabsolutes$rs2_A=="CT","con_rs1"] <- "GG/CT"
-rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes$rs1_A=="AA" & rs_alleles_onlyabsolutes$rs2_A=="CC","con_rs1"] <- "AA/CC"
-rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes$rs1_A=="AG" & rs_alleles_onlyabsolutes$rs2_A=="CC","con_rs1"] <- "AG/CC"
-rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes$rs1_A=="GG" & rs_alleles_onlyabsolutes$rs2_A=="CC","con_rs1"] <- "GG/CC"
-rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes$rs1_A=="AA" & rs_alleles_onlyabsolutes$rs2_A=="TT","con_rs1"] <- "AA/TT"
-rs_alleles_onlyabsolutes$con_rs1 <- factor(rs_alleles_onlyabsolutes$con_rs1, 
-                                           levels = c("GG/CC","AG/CC","AA/CC",
-                                                      "AG/CT","AA/CT","AA/TT"))
+limits <- c(as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.3)),
+            as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.7)))
 
-# The baseline is the homozygous ref/ref haplotypes.
-baseline <- as.data.frame(rs_alleles_onlyabsolutes[rs_alleles_onlyabsolutes[,"con_rs1"] %in% "GG/CC",trait])[,1] %>% median()
+phenos <- ggplot(AK3phenos, aes(x = name, y = estimate)) + 
+  geom_bar(stat = "identity", color = "black", fill = "firebrick")+ 
+  pretty_plot() +
+  geom_errorbar(aes(ymin=estimate-se, ymax=estimate+se), width=.1) +
+  labs(x = "rs409950\nrs12005199", y = "Platelet Count (10^6 cells/uL)") +   coord_cartesian(ylim = limits) 
 
-# Calculate median phenotype value for each haplotype. 
-meds <- rs_alleles_onlyabsolutes %>% group_by(con_rs1) %>% summarise(median = median(RBC_COUNT, na.rm = TRUE))
-meds <- meds[1:5,]
 
-# Set y-axis bounds
-limits <- c(as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.001)),
-            as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.999)))
+###
+library(BuenColors)
+library(dplyr)
+library(lme4)
+source("../figures/Figure2/fromLeif/r_analysis/summarySE.R")
 
-ggplot(subset(rs_alleles_onlyabsolutes,rs2_A=="CC" | rs2_A=="CT"), 
-              aes_string(x="con_rs1", trait)) + 
-  geom_boxplot() + pretty_plot() +
-  geom_boxplot(outlier.colour=NA) + 
-  labs(x="Haplotype (rs2408955/rs112233623)",
-       y=paste0("RBC Count (",unit,")")) +
-  ggtitle("rs2408955/rs112233623 Haplotype Effects") +
-  geom_hline(yintercept = baseline,linetype="dashed") +
-  geom_text(data = meds, aes(x = con_rs1, y = baseline, label = paste(round(median,3))), size = 3, vjust = -1.8) +
-  coord_cartesian(ylim = limits)+
-    theme(plot.subtitle = element_text(vjust = 1))
+df <- read.table("../figures/Figure2/fromLeif/r_analysis/reporter_experiments_both.txt", header = TRUE, stringsAsFactors = FALSE)
+df$Experiment <- ifelse(df$Experiment == "Exp1", 0, 1)
+
+## A/A is reference
+# rs409950 alt is C; rs12005199 alt is G
+
+AK3 <- df %>% filter(type %in% c("pGL","AK3_AA", "AK3_AG", "AK3_CA", "AK3_CG"))
+
+AK3r <- df %>% filter(type %in% c("AK3_AA", "AK3_AG", "AK3_CA", "AK3_CG"))
+AK3r$XG <- ifelse(AK3r$type %in% c("AK3_AG", "AK3_CG"),1,0)
+AK3r$CX <- ifelse(AK3r$type %in% c("AK3_CA", "AK3_CG"),1,0)
+AK3mod <- lm(value ~ Experiment + XG + CX + XG*CX, data = AK3r)
+AK3_mmod <- lmer(value ~  XG + CX + XG*CX + (1 | Experiment), data = AK3r)
+
+# Get empty promoter
+pGL <- df %>% filter(type %in% c("pGL")) %>% summarySE(measurevar="value")
+
+# Evaluate at the different haplotyeps
+eval_AK3 <- function(rs409950, rs409950_l, rs12005199, rs12005199_l){
+  v <- predict(AK3mod, data.frame(Experiment = 0, XG = rs12005199, CX = rs409950), se.fit = TRUE)
+  data.frame(name =  paste0(rs409950_l, "\n", rs12005199_l), estimate = unname(v$fit), se = v$se.fit)
+}
+
+AK3plotdf <- rbind(
+  data.frame(name = "pGL", estimate = pGL$value, se = pGL$se),
+  eval_AK3(rs409950 = 0, rs409950_l = "A", rs12005199 = 0, rs12005199_l = "A"),
+  eval_AK3(rs409950 = 1, rs409950_l = "C", rs12005199 = 0, rs12005199_l = "A"),
+  eval_AK3(rs409950 = 0, rs409950_l = "A", rs12005199 = 1, rs12005199_l = "G"),
+  eval_AK3(rs409950 = 1, rs409950_l = "C", rs12005199 = 1, rs12005199_l = "G")
+)
+
+ak3gg <- ggplot(AK3plotdf, aes(x = name, y = estimate)) + 
+  geom_bar(stat = "identity", color = "black", fill = "firebrick") + pretty_plot() +
+  geom_errorbar(aes(ymin=estimate-se, ymax=estimate+se), width=.1) +
+  labs (x = "rs409950\nrs12005199", y = "Luciferase Activity (A.U.)") +
+  scale_y_continuous(expand = c(0.05, 0))
+
+
+ plot_grid(phenos, ak3gg, labels = c('A', 'B'))
 
 @
 
