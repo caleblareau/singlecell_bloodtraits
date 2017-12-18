@@ -288,7 +288,7 @@ ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)
                    nudge_y=1.5) 
 @
 
-<<ak3Phenos/Reporter, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Effects of AK3 variants rs409950 and rs12005199 on platelet count. (A) rs409950/rs12005199 haplotypes exert additive effects on platelet count amongst individuals from the UKBB GWAS. (B) Luciferase reporter assay corroborates additive effects of the two SNPs on transcription.", eval = TRUE, cache = FALSE, results="hide">>=
+<<ak3Phenos_Reporter, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, fig.cap="Effects of AK3 variants rs409950 and rs12005199 on platelet count. (A) rs409950/rs12005199 haplotypes exert additive effects on platelet count amongst individuals from the UKBB GWAS. (B) Luciferase reporter assay corroborates additive effects of the two SNPs on transcription.", eval = TRUE, cache = FALSE, results="hide">>=
 
 # Bar plots
 rs_alleles <- fread("../data/examples/rawphenos_mixed.rs12005199_rs409950.txt")

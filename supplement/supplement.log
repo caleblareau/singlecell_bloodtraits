@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  18 DEC 2017 16:15
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  18 DEC 2017 16:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -467,11 +467,11 @@ Package pdftex.def Info: figure/ccnd3UK10KLD-1.pdf used on input line 115.
  [2 <./figure/correlationPlots-1.pdf>]
 Package color Info: Redefining color shadecolor on input line 126.
 
-<figure/ak3Phenos/Reporter-1.pdf, id=29, 578.16pt x 361.35pt>
-File: figure/ak3Phenos/Reporter-1.pdf Graphic file (type pdf)
+<figure/ak3Phenos_Reporter-1.pdf, id=29, 578.16pt x 361.35pt>
+File: figure/ak3Phenos_Reporter-1.pdf Graphic file (type pdf)
 
-<use figure/ak3Phenos/Reporter-1.pdf>
-Package pdftex.def Info: figure/ak3Phenos/Reporter-1.pdf used on input line 128
+<use figure/ak3Phenos_Reporter-1.pdf>
+Package pdftex.def Info: figure/ak3Phenos_Reporter-1.pdf used on input line 128
 .
 (pdftex.def)             Requested size: 469.75499pt x 293.59616pt.
  [3 <./figure/ccnd3UK10KLD-1.pdf>]
@@ -510,7 +510,7 @@ File: figure/barplots-1.pdf Graphic file (type pdf)
 <use figure/barplots-1.pdf>
 Package pdftex.def Info: figure/barplots-1.pdf used on input line 159.
 (pdftex.def)             Requested size: 469.75499pt x 528.47307pt.
- [4 <./figure/ak3Phenos/Reporter-1.pdf>] [5 <./staticFigures/FINEMAP_PP10_local
+ [4 <./figure/ak3Phenos_Reporter-1.pdf>] [5 <./staticFigures/FINEMAP_PP10_local
 zscore_10000.pdf>] [6 <./staticFigures/FINEMAP_enrichments_ExcludingSentinels.p
 df>] [7 <./staticFigures/UKBB_PP50_bulk.pdf>]
 Package color Info: Redefining color shadecolor on input line 171.
@@ -588,8 +588,8 @@ Package pdftex.def Info: figure/tfRankOrderPlots-1.pdf used on input line 268.
  [15 <./figure/roadmapPlot-1.pdf>] [16 <./figure/tfRankOrderPlots-1.pdf>] (./su
 pplement.aux) ) 
 Here is how much of TeX's memory you used:
- 5570 strings out of 492995
- 84590 string characters out of 6132704
+ 5569 strings out of 492995
+ 84583 string characters out of 6132704
  148529 words of memory out of 5000000
  9013 multiletter control sequences out of 15000+600000
  10888 words of font info for 43 fonts, out of 8000000 for 9000
@@ -602,7 +602,7 @@ m/cmmi10.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm
 mr12.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
 17.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.
 pfb>
-Output written on supplement.pdf (16 pages, 762531 bytes).
+Output written on supplement.pdf (16 pages, 762530 bytes).
 PDF statistics:
  210 PDF objects out of 1000 (max. 8388607)
  140 compressed objects within 2 object streams
