@@ -97,3 +97,27 @@ ak3_phenos <- ggplot(AK3plotdf, aes(x = name, y = estimate)) +
   geom_errorbar(aes(ymin=estimate-se, ymax=estimate+se), width=.1) +
   labs(x = "", y = "Platelet Count (10^6 cells/uL)") + coord_cartesian(ylim = limits)
 cowplot::ggsave(ak3_phenos, file = "AK3_gwas_phenotypes.pdf", height = 5, width = 10)
+
+
+#########
+# Piechart of haplotype frequencies for the two AK3 SNPs
+rs_alleles_onlyabsolutes$con_rs1 <- paste(rs_alleles_onlyabsolutes$alleleB.rs409950,rs_alleles_onlyabsolutes$alleleB.rs12005199,sep="/")
+map <- setNames(c("AA/AA","AC/AA","CC/AA",
+                  "AA/AG","AC/AG","CC/AG",
+                  "AA/GG", "AC/GG", "CC/GG"),
+                c("2/2", "1/2", "0/2",
+                  "2/1","1/1","0/1",
+                  "2/0","1/0","0/0"))
+rs_alleles_onlyabsolutes$haps <- map[rs_alleles_onlyabsolutes$con_rs1]
+proportions <- data.frame(table(rs_alleles_onlyabsolutes$haps))
+colnames(proportions) <- c("Genotype","Freq")
+
+proportions$Percent <- proportions$Freq / sum(proportions$Freq)
+
+p <- plot_ly(proportions, labels = ~Genotype, values = ~Freq, type = 'pie',textposition = 'outside',textinfo = 'label+percent') %>%
+  layout(title = '',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+tmpFile <- tempfile(fileext = ".pdf")
+export(p, file = "AK3.haplotype_piechart.pdf")

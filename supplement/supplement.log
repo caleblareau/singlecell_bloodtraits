@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  16 NOV 2017 14:32
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  18 DEC 2017 16:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -465,142 +465,133 @@ File: figure/ccnd3UK10KLD-1.pdf Graphic file (type pdf)
 Package pdftex.def Info: figure/ccnd3UK10KLD-1.pdf used on input line 115.
 (pdftex.def)             Requested size: 469.75499pt x 293.59616pt.
  [2 <./figure/correlationPlots-1.pdf>]
-<staticFigures/rs9349205_rs112233623_conditional_piechart.pdf, id=29, 1076.02pt
- x 827.09pt>
-File: staticFigures/rs9349205_rs112233623_conditional_piechart.pdf Graphic file
- (type pdf)
+Package color Info: Redefining color shadecolor on input line 126.
 
-<use staticFigures/rs9349205_rs112233623_conditional_piechart.pdf>
-Package pdftex.def Info: staticFigures/rs9349205_rs112233623_conditional_piecha
-rt.pdf used on input line 127.
-(pdftex.def)             Requested size: 469.75499pt x 361.08113pt.
-Package color Info: Redefining color shadecolor on input line 132.
+<figure/ak3Phenos_Reporter-1.pdf, id=29, 578.16pt x 361.35pt>
+File: figure/ak3Phenos_Reporter-1.pdf Graphic file (type pdf)
 
-<figure/ccnd3Boxplots-1.pdf, id=30, 578.16pt x 361.35pt>
-File: figure/ccnd3Boxplots-1.pdf Graphic file (type pdf)
-
-<use figure/ccnd3Boxplots-1.pdf>
-Package pdftex.def Info: figure/ccnd3Boxplots-1.pdf used on input line 134.
+<use figure/ak3Phenos_Reporter-1.pdf>
+Package pdftex.def Info: figure/ak3Phenos_Reporter-1.pdf used on input line 128
+.
 (pdftex.def)             Requested size: 469.75499pt x 293.59616pt.
- [3 <./figure/ccnd3UK10KLD-1.pdf>] [4 <./staticFigures/rs9349205_rs112233623_co
-nditional_piechart.pdf>]
-<staticFigures/FINEMAP_PP10_localzscore_10000.pdf, id=63, 794.97pt x 614.295pt>
+ [3 <./figure/ccnd3UK10KLD-1.pdf>]
+<staticFigures/FINEMAP_PP10_localzscore_10000.pdf, id=40, 794.97pt x 614.295pt>
 File: staticFigures/FINEMAP_PP10_localzscore_10000.pdf Graphic file (type pdf)
 <use staticFigures/FINEMAP_PP10_localzscore_10000.pdf>
 Package pdftex.def Info: staticFigures/FINEMAP_PP10_localzscore_10000.pdf used 
-on input line 146.
+on input line 140.
 (pdftex.def)             Requested size: 469.75499pt x 363.00267pt.
 
-<staticFigures/FINEMAP_enrichments_ExcludingSentinels.pdf, id=64, 794.97pt x 61
+<staticFigures/FINEMAP_enrichments_ExcludingSentinels.pdf, id=41, 794.97pt x 61
 4.295pt>
 File: staticFigures/FINEMAP_enrichments_ExcludingSentinels.pdf Graphic file (ty
 pe pdf)
  <use staticFigures/FINEMAP_enrichments_ExcludingSentinels.pdf>
 Package pdftex.def Info: staticFigures/FINEMAP_enrichments_ExcludingSentinels.p
-df used on input line 152.
+df used on input line 146.
 (pdftex.def)             Requested size: 469.75499pt x 363.00267pt.
 
 
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./staticFigures/UKBB_PP50_bu
 lk.pdf): PDF inclusion: found PDF version <1.6>, but at most version <1.5> allo
 wed
-<staticFigures/UKBB_PP50_bulk.pdf, id=65, 924.55655pt x 687.67755pt>
+<staticFigures/UKBB_PP50_bulk.pdf, id=42, 924.55655pt x 687.67755pt>
 File: staticFigures/UKBB_PP50_bulk.pdf Graphic file (type pdf)
 
 <use staticFigures/UKBB_PP50_bulk.pdf>
 Package pdftex.def Info: staticFigures/UKBB_PP50_bulk.pdf used on input line 15
-8.
+2.
 (pdftex.def)             Requested size: 469.75499pt x 349.39926pt.
-Package color Info: Redefining color shadecolor on input line 163.
+Package color Info: Redefining color shadecolor on input line 157.
 
-<figure/barplots-1.pdf, id=66, 578.16pt x 650.43pt>
+<figure/barplots-1.pdf, id=43, 578.16pt x 650.43pt>
 File: figure/barplots-1.pdf Graphic file (type pdf)
 
 <use figure/barplots-1.pdf>
-Package pdftex.def Info: figure/barplots-1.pdf used on input line 165.
+Package pdftex.def Info: figure/barplots-1.pdf used on input line 159.
 (pdftex.def)             Requested size: 469.75499pt x 528.47307pt.
- [5 <./figure/ccnd3Boxplots-1.pdf>] [6 <./staticFigures/FINEMAP_PP10_localzscor
-e_10000.pdf>] [7 <./staticFigures/FINEMAP_enrichments_ExcludingSentinels.pdf>] 
-[8 <./staticFigures/UKBB_PP50_bulk.pdf>]
-Package color Info: Redefining color shadecolor on input line 177.
+ [4 <./figure/ak3Phenos_Reporter-1.pdf>] [5 <./staticFigures/FINEMAP_PP10_local
+zscore_10000.pdf>] [6 <./staticFigures/FINEMAP_enrichments_ExcludingSentinels.p
+df>] [7 <./staticFigures/UKBB_PP50_bulk.pdf>]
+Package color Info: Redefining color shadecolor on input line 171.
 
-<figure/allGchromvar-1.pdf, id=124, 578.16pt x 578.16pt>
+<figure/allGchromvar-1.pdf, id=102, 578.16pt x 578.16pt>
 File: figure/allGchromvar-1.pdf Graphic file (type pdf)
 
 <use figure/allGchromvar-1.pdf>
-Package pdftex.def Info: figure/allGchromvar-1.pdf used on input line 179.
+Package pdftex.def Info: figure/allGchromvar-1.pdf used on input line 173.
 (pdftex.def)             Requested size: 469.75499pt x 469.75385pt.
- [9 <./figure/barplots-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 190.
+ [8 <./figure/barplots-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 184.
 
-<figure/allchromVAR-1.pdf, id=134, 578.16pt x 578.16pt>
+<figure/allchromVAR-1.pdf, id=112, 578.16pt x 578.16pt>
 File: figure/allchromVAR-1.pdf Graphic file (type pdf)
 
 <use figure/allchromVAR-1.pdf>
-Package pdftex.def Info: figure/allchromVAR-1.pdf used on input line 192.
+Package pdftex.def Info: figure/allchromVAR-1.pdf used on input line 186.
 (pdftex.def)             Requested size: 469.75499pt x 469.75385pt.
- [10 <./figure/allGchromvar-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 203.
+ [9 <./figure/allGchromvar-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 197.
 
-<figure/allLDscore-1.pdf, id=143, 578.16pt x 578.16pt>
+<figure/allLDscore-1.pdf, id=121, 578.16pt x 578.16pt>
 File: figure/allLDscore-1.pdf Graphic file (type pdf)
 
 <use figure/allLDscore-1.pdf>
-Package pdftex.def Info: figure/allLDscore-1.pdf used on input line 205.
+Package pdftex.def Info: figure/allLDscore-1.pdf used on input line 199.
 (pdftex.def)             Requested size: 469.75499pt x 469.75385pt.
- [11 <./figure/allchromVAR-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 216.
+ [10 <./figure/allchromVAR-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 210.
 
-<figure/panhemeLDscore-1.pdf, id=152, 578.16pt x 578.16pt>
+<figure/panhemeLDscore-1.pdf, id=130, 578.16pt x 578.16pt>
 File: figure/panhemeLDscore-1.pdf Graphic file (type pdf)
 
 <use figure/panhemeLDscore-1.pdf>
-Package pdftex.def Info: figure/panhemeLDscore-1.pdf used on input line 218.
+Package pdftex.def Info: figure/panhemeLDscore-1.pdf used on input line 212.
 (pdftex.def)             Requested size: 469.75499pt x 469.75385pt.
- [12 <./figure/allLDscore-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 229.
+ [11 <./figure/allLDscore-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 223.
 
-<figure/varyingPP-1.pdf, id=161, 578.16pt x 578.16pt>
+<figure/varyingPP-1.pdf, id=139, 578.16pt x 578.16pt>
 File: figure/varyingPP-1.pdf Graphic file (type pdf)
 
 <use figure/varyingPP-1.pdf>
-Package pdftex.def Info: figure/varyingPP-1.pdf used on input line 231.
+Package pdftex.def Info: figure/varyingPP-1.pdf used on input line 225.
 (pdftex.def)             Requested size: 469.75499pt x 469.75385pt.
- [13 <./figure/panhemeLDscore-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 246.
+ [12 <./figure/panhemeLDscore-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 240.
 
-<figure/binarizedPeakPlot-1.pdf, id=172, 578.16pt x 578.16pt>
+<figure/binarizedPeakPlot-1.pdf, id=148, 578.16pt x 578.16pt>
 File: figure/binarizedPeakPlot-1.pdf Graphic file (type pdf)
 
 <use figure/binarizedPeakPlot-1.pdf>
-Package pdftex.def Info: figure/binarizedPeakPlot-1.pdf used on input line 248.
+Package pdftex.def Info: figure/binarizedPeakPlot-1.pdf used on input line 242.
 
 (pdftex.def)             Requested size: 469.75499pt x 469.75385pt.
- [14 <./figure/varyingPP-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 259.
+ [13 <./figure/varyingPP-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 253.
 
-<figure/roadmapPlot-1.pdf, id=181, 361.35pt x 361.35pt>
+<figure/roadmapPlot-1.pdf, id=158, 361.35pt x 361.35pt>
 File: figure/roadmapPlot-1.pdf Graphic file (type pdf)
 
 <use figure/roadmapPlot-1.pdf>
-Package pdftex.def Info: figure/roadmapPlot-1.pdf used on input line 261.
+Package pdftex.def Info: figure/roadmapPlot-1.pdf used on input line 255.
 (pdftex.def)             Requested size: 361.34912pt x 361.34912pt.
- [15 <./figure/binarizedPeakPlot-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 272.
+ [14 <./figure/binarizedPeakPlot-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 266.
 
-<figure/tfRankOrderPlots-1.pdf, id=190, 578.16pt x 289.08pt>
+<figure/tfRankOrderPlots-1.pdf, id=168, 578.16pt x 289.08pt>
 File: figure/tfRankOrderPlots-1.pdf Graphic file (type pdf)
 
 <use figure/tfRankOrderPlots-1.pdf>
-Package pdftex.def Info: figure/tfRankOrderPlots-1.pdf used on input line 274.
+Package pdftex.def Info: figure/tfRankOrderPlots-1.pdf used on input line 268.
 (pdftex.def)             Requested size: 469.75499pt x 234.8769pt.
- [16 <./figure/roadmapPlot-1.pdf>] [17 <./figure/tfRankOrderPlots-1.pdf>] (./su
+ [15 <./figure/roadmapPlot-1.pdf>] [16 <./figure/tfRankOrderPlots-1.pdf>] (./su
 pplement.aux) ) 
 Here is how much of TeX's memory you used:
- 5574 strings out of 492995
- 84858 string characters out of 6132704
- 148531 words of memory out of 5000000
- 9017 multiletter control sequences out of 15000+600000
+ 5569 strings out of 492995
+ 84583 string characters out of 6132704
+ 148529 words of memory out of 5000000
+ 9013 multiletter control sequences out of 15000+600000
  10888 words of font info for 43 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  39i,6n,39p,637b,334s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -611,10 +602,10 @@ m/cmmi10.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm
 mr12.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
 17.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.
 pfb>
-Output written on supplement.pdf (17 pages, 803013 bytes).
+Output written on supplement.pdf (16 pages, 762530 bytes).
 PDF statistics:
- 232 PDF objects out of 1000 (max. 8388607)
- 157 compressed objects within 2 object streams
+ 210 PDF objects out of 1000 (max. 8388607)
+ 140 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 86 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 81 words of extra memory for PDF output out of 10000 (max. 10000000)
 
