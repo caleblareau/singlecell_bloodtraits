@@ -34,3 +34,6 @@ vignettes/*.pdf
 data/Shiny_Data/UKBB_sumstats/EO_COUNT
 data/Shiny_Data/UKBB_sumstats/BASO_COUNT
 data/Shiny_Data/RSIDs/
+
+# I hate DS store
+.DS_Store
