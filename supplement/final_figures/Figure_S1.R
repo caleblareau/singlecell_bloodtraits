@@ -113,8 +113,8 @@ p2 <- ggplot(data = melt_phenoLD, aes(x=Var1, y=Var2, fill=value)) + pretty_plot
   theme(legend.position="bottom")  + ggtitle("Genetic Correlation  ")
 
 
-bottom_row <- plot_grid(p1, p2, labels = c('B', 'C'), align = 'h', rel_widths = c(1, 1))
-final_plot <- plot_grid(p0, bottom_row, labels = c('A', ''), rel_heights = c(1,1.5), ncol = 1)
+bottom_row <- plot_grid(p1, p2, labels = c('b', 'c'), align = 'h', rel_widths = c(1, 1))
+final_plot <- plot_grid(p0, bottom_row, labels = c('a', ''), rel_heights = c(1,1.35), ncol = 1)
 
 cowplot::ggsave(final_plot, filename = "PDFs/FigureS1.pdf", width = 9, height = 10)
 

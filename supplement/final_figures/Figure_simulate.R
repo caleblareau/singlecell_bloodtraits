@@ -109,5 +109,5 @@ NullPlot <- ggplot(Nullsummdf, aes(x = Var1, y = mean, color = Var1, ymax = ymax
 
 bottom_row <- plot_grid(BCellp, Eryp, Megap, CMPp, CLPp, HSCp, labels = c('b', 'c', 'd', 'e', 'f', 'g'), ncol = 2)
 simFig <- plot_grid(NullPlot, bottom_row, labels = c('a', ''), ncol = 1, rel_heights = c(1, 3 ))
-cowplot::ggsave(simFig, file = "SimulationFigure.pdf", height = 11, width = 8)
+cowplot::ggsave(simFig, file = "PDFs/SimulationFigure.pdf", height = 11, width = 8)
 
