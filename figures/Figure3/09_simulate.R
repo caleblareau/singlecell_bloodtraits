@@ -10,6 +10,7 @@ library(Matrix)
 library(BuenColors)
 library(dplyr)
 library(matrixStats)
+library(cowplot)
 
 # Create bulk Summarized Experiment
 peaksdf <- fread("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.bed")
@@ -78,34 +79,35 @@ simEnrich <- function(causalCelleType){
   
   gp <- ggplot(summdf, aes(x = Var1, y = mean, color = Var1, ymax = ymax, ymin = ymin)) + geom_point() +
     scale_color_manual(values = ejc_color_maps) + pretty_plot() +
-    labs(x = "", y = "Enrichment Z-score") +  geom_errorbar(width = 0.2) +
+    labs(x = "", y = "Z-score") +  geom_errorbar(width = 0.2) +
     theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
     theme(legend.position = "none") +
     geom_point(data = data.frame(x = colnames(SE)[i] , y = max(summdf$ymax) + 0.3, stringsAsFactors = FALSE), 
-               inherit.aes = FALSE, aes(x = x, y = y, shape = "3"))
+               inherit.aes = FALSE, aes(x = x, y = y), shape = 8) + geom_hline(aes(yintercept=0), linetype = "dashed")
   
   return(gp)
 }
 
 # Simulated selected traits and make plot
-HSCp <- simEnrich(10)
-HSCp
+
 BCellp <- simEnrich(1)
-BCellp
 Eryp <- simEnrich(6)
-Eryp
+Megap <- simEnrich(13)
+
 CMPp <- simEnrich(5)
-CMPp
 CLPp <- simEnrich(4)
-CLPp
+HSCp <- simEnrich(10)
 
 # Make  null plot and collate
 NullPlot <- ggplot(Nullsummdf, aes(x = Var1, y = mean, color = Var1, ymax = ymax, ymin = ymin)) + geom_point() +
   scale_color_manual(values = ejc_color_maps) + pretty_plot() +
-  labs(x = "", y = "Enrichment Z-score") +  geom_errorbar(width = 0.2)
+  labs(x = "", y = "g-chromVAR \n Enrichment Z-score") +  geom_errorbar(width = 0.2) +
+  geom_hline(aes(yintercept=0), linetype = "dashed") + guides(color=guide_legend(title="Celltype", ncol = 3)) +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
 
 
 
-
-
+bottom_row <- plot_grid(BCellp, Eryp, Megap, CMPp, CLPp, HSCp, labels = c('b', 'c', 'd', 'e', 'f', 'g'), ncol = 2)
+simFig <- plot_grid(NullPlot, bottom_row, labels = c('a', ''), ncol = 1, rel_heights = c(1, 3 ))
+cowplot::ggsave(simFig, file = "SimulationFigure.pdf", height = 11, width = 8)
 
