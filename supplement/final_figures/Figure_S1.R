@@ -9,12 +9,17 @@ library(stringr)
 library(ggrepel)
 library(scales)
 
+texttt <- theme(text=element_text(size=12), plot.title = element_text(size = 12), legend.title = element_text(size = 12))
+
 # Narrow-Sense Heritability Estimated Obtained from LDSC
 h2 <-fread("../../data/LDSC_heritability/trait_h2.txt")
 colnames(h2) <- c("trait","h_obs","h_obs_se")
 
 # Read in enrichments for FM PP001 variants
 reorderedtraits=traits=c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
+tt <- c("basophil count", "eosinophil count", "hematocrit", "hemoglobin", "lymphocyte count", "MCH", "MCHC", "MCV", "reticulocyte volume", "monocyte count", "MPV", "neutrophil count", "platelet count", "RBC count", "reticulocyte count", "WBC count")
+h2$trait <- (tt)
+names(tt) <- traits
 
 ctHeme <- vector("list",length=16)
 ct_enrichment <- vector("list",length=length(ctHeme))
@@ -53,12 +58,17 @@ p0 <- ggplot(data=h2, aes(x=trait,y=fm_herit)) +
         legend.direction = "vertical",
         legend.key.size = unit(0.15, "in"))  +
   geom_errorbar(aes(ymin=h_obs-h_obs_se, ymax=h_obs+h_obs_se),width=.2,position=position_dodge(.9),color="black") +
-  ylab("Narrow Sense Heritability") + xlab("")
+  ylab("Narrow Sense Heritability") + xlab("") + texttt + theme(axis.title.x = element_text(colour = "black"),
+          axis.title.y = element_text(colour = "black"), axis.text.x=element_text(colour = "black"), axis.text.y=element_text(colour = "black"))
 
 phenocors <-read.table("../../data/phenotypeCorrelations/raw_phenotypes.txt",header=TRUE,row.names=1)
 dissimilarity <- 1 - cor(data.matrix(phenocors))
 distance <- as.dist(dissimilarity) 
-reorderedtraits=traits=rownames(phenocors)[hclust(distance)$order]
+reorderedtraits=traits=tt[rownames(phenocors)[hclust(distance)$order]]
+
+# Update names
+rownames(phenocors) <- tt[rownames(phenocors)]
+colnames(phenocors) <- tt[colnames(phenocors)]
 
 phenocors <- data.matrix(phenocors[reorderedtraits,reorderedtraits])
 melt_pheno <- reshape2::melt(phenocors)
@@ -69,14 +79,14 @@ p1 <- ggplot(data = melt_pheno, aes(x=Var1, y=Var2, fill=value)) + pretty_plot()
   geom_tile() + scale_fill_gradientn(colors = jdb_palette("solar_flare"), limits = c(-1,1)) +
   theme(plot.subtitle = element_text(vjust = 1), 
         plot.caption = element_text(vjust = 1), 
-        axis.text.x = element_text(angle = 90)) +labs(x = NULL, y = NULL, fill = "Pearson") +
-  theme(legend.position="bottom")  + ggtitle("Phenotype Correlation")
+        axis.text.x = element_text(angle = 90, hjust = 0.95, vjust=0.5)) +labs(x = NULL, y = NULL, fill = "Pearson") +
+  theme(legend.position="bottom")  + ggtitle("Phenotype Correlation") + texttt
 
 ### Constrained intercept genetic correlations
 constrained_gencors <- vector(mode = "list", length = length(traits))
 
 # Read unix files into R lists
-constrained_gencors <- lapply(traits, function(y) read.table(paste0("../../data/phenotypeCorrelations/ldscore/",y,"_UK10K_constrained.gcsummary.txt"),header=TRUE,row.names=NULL))
+constrained_gencors <- lapply(names(traits), function(y) read.table(paste0("../../data/phenotypeCorrelations/ldscore/",y,"_UK10K_constrained.gcsummary.txt"),header=TRUE,row.names=NULL))
 
 make.gc.matrix <- function(list_of_gcs,traits){
   allgencors <- bind_rows(list_of_gcs)
@@ -100,7 +110,11 @@ make.gc.matrix <- function(list_of_gcs,traits){
 }
 
 # Plot LD Score correlation
-ldscorecor <- make.gc.matrix(constrained_gencors,traits)[[1]]
+ldscorecor <- make.gc.matrix(constrained_gencors,names(traits))[[1]]
+# Update names
+rownames(ldscorecor) <- tt[rownames(ldscorecor)]
+colnames(ldscorecor) <- tt[colnames(ldscorecor)]
+
 melt_phenoLD <- reshape2::melt(ldscorecor)
 melt_phenoLD$Var1 <- ordered(as.character(melt_phenoLD$Var1), ordered(traits))
 melt_phenoLD$Var2 <- ordered(as.character(melt_phenoLD$Var2), ordered(rev((traits))))
@@ -109,8 +123,8 @@ p2 <- ggplot(data = melt_phenoLD, aes(x=Var1, y=Var2, fill=value)) + pretty_plot
   geom_tile() + scale_fill_gradientn(colors = jdb_palette("solar_flare"), limits = c(-1,1)) +
   theme(plot.subtitle = element_text(vjust = 1), 
         plot.caption = element_text(vjust = 1), 
-        axis.text.x = element_text(angle = 90)) +labs(x = NULL, y = NULL, fill = "LDScore Correlation  ") +
-  theme(legend.position="bottom")  + ggtitle("Genetic Correlation  ")
+        axis.text.x = element_text(angle = 90 , hjust = 0.95, vjust=0.5)) +labs(x = NULL, y = NULL, fill = "LDScore Correlation  ") +
+  theme(legend.position="bottom")  + ggtitle("Genetic Correlation  ") + texttt
 
 
 bottom_row <- plot_grid(p1, p2, labels = c('b', 'c'), align = 'h', rel_widths = c(1, 1))
