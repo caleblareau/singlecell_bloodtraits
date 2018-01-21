@@ -123,12 +123,12 @@ p2 <- ggplot(data = melt_phenoLD, aes(x=Var1, y=Var2, fill=value)) + pretty_plot
   geom_tile() + scale_fill_gradientn(colors = jdb_palette("solar_flare"), limits = c(-1,1)) +
   theme(plot.subtitle = element_text(vjust = 1), 
         plot.caption = element_text(vjust = 1), 
-        axis.text.x = element_text(angle = 90 , hjust = 0.95, vjust=0.5)) +labs(x = NULL, y = NULL, fill = "LDScore Correlation  ") +
+        axis.text.x = element_text(angle = 90 , hjust = 0.95, vjust=0.5)) +labs(x = NULL, y = NULL, fill = "LDScore  ") +
   theme(legend.position="bottom")  + ggtitle("Genetic Correlation  ") + texttt
 
 
 bottom_row <- plot_grid(p1, p2, labels = c('b', 'c'), align = 'h', rel_widths = c(1, 1))
 final_plot <- plot_grid(p0, bottom_row, labels = c('a', ''), rel_heights = c(1,1.35), ncol = 1)
 
-cowplot::ggsave(final_plot, filename = "PDFs/FigureS1.pdf", width = 9, height = 10)
+cowplot::ggsave(final_plot, filename = "PDFs/FigureS1.pdf", height = 8, width = 7.5)
 

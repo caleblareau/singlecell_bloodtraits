@@ -9,6 +9,8 @@ library(diffloop)
 library(Matrix)
  library(BuenColors)
 
+ n <- commandArgs(trailingOnly = TRUE)
+ 
 # Create bulk Summarized Experiment
 peaksdf <- fread("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.bed")
 peaks <- makeGRangesFromDataFrame(peaksdf, seqnames = "V1", start.field = "V2", end.field = "V3")
@@ -32,8 +34,8 @@ makePPthreshdf <- function(val){
 
 PPs <- c(1:10/1000, 2:9/10, 1)
 listres <- lapply(PPs, makePPthreshdf)
-
 zscoreWeighted <- rbindlist(listres)
-saveRDS(zscoreWeighted, "../../data/supplement_rds/varyingPPcutoff.rds")
+
+saveRDS(zscoreWeighted, paste0("variablePP/variablePPpeak_", "iteration_", as.character(n), ".rds"))
 
 

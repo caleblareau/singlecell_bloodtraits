@@ -634,7 +634,7 @@ ggplot(zscoreBinPeak, aes(x = Var1, y = logP)) +
 library(BuenColors)
 library(ggrepel)
 
-df <- readRDS("roadmap_dnase/deviationDataframe.rds")
+df <- readRDS("../roadmap_dnase/deviationDataframe.rds")
 df$Color <- (ifelse(df$celltype == "CD8_Memory_Primary_Cells",1,0) + 
   ifelse(df$celltype %in% c("HUES64_Cell_Line", "HUES6_Cell_Line", "HUES48_Cell_Line"),2,0) +
    ifelse(df$celltype == "IMR90_Cell_Line",3,0) ) * ifelse(df$P < 0.05/dim(df)[1],1,0) + 1
