@@ -1,0 +1,161 @@
+\documentclass{article}
+\usepackage{enumitem}
+\usepackage{ amssymb }
+\usepackage{ textcomp }
+\usepackage{longtable}
+\usepackage{amsmath,tabu}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage[figurename=Supplemental Figure]{caption}
+\usepackage{titling}
+\pagenumbering{gobble}
+
+\setlength{\droptitle}{-5em}  
+\topmargin=-0.4in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9in
+\headsep=0.25in
+
+\title{Interrogation of human hematopoiesis at single-cell and single-variant resolution}
+\date{Supplemental Information}
+\author{ }
+
+\begin{document}
+
+<<loadLibraries, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, eval = TRUE, cache = FALSE, results="hide">>=
+library(corrplot)
+library(BuenColors)
+library(dplyr)
+library(reshape2)
+library(cowplot)
+library(data.table)
+library(plotly)
+library(stringr)
+library(ggrepel)
+@
+
+<<barplots, message = FALSE, warning = FALSE, echo = FALSE, fig.height=9, fig.align='center', fig.pos='H', fig.width=8, fig.cap="", eval = TRUE, cache = FALSE, results="hide">>=
+df3 <- read.table("../../../data/bulk/GWAS-Bulk/compare3.tsv", header = TRUE)
+df3$LDScore <- -log10(df3$ldscore_pvalue)
+df3$`g-chromVAR` <- -log10(pnorm(df3$weighted_Zscore, lower.tail = FALSE))
+df3$chromVAR <- -log10(pnorm(df3$chromVAR_Zscore, lower.tail = FALSE))
+plotdfEnrich2 <- reshape2::melt(df3[df3$Trait %in% c("MEAN_RETIC_VOL", "MONO_COUNT"),c(1,2,6,8,7)],
+                                id.vars = c("Celltype", "Trait"))
+
+pEnrich1 <- ggplot(plotdfEnrich2[plotdfEnrich2$Trait == "MONO_COUNT", ],
+                   aes(x = Celltype, y = value)) +
+  geom_bar(width = 1, aes(fill = Celltype), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  pretty_plot() + labs(x = "", y = "Monocyte Count Enrichment (-log10 p)", fill = "") +
+  geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) +
+   scale_fill_manual(values = ejc_color_maps) + facet_grid(variable ~ ., scales = "free_y") +
+  theme(legend.position="none") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+pEnrich2 <- ggplot(plotdfEnrich2[plotdfEnrich2$Trait == "MEAN_RETIC_VOL", ],
+                   aes(x = Celltype, y = value)) +
+  geom_bar(width = 1, aes(fill = Celltype), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) +
+  pretty_plot() + labs(x = "", y = "Mean Retic Volume Enrichment (-log10 p)", fill = "") +
+   scale_fill_manual(values = ejc_color_maps) + facet_grid(variable ~ ., scales = "free_y") +
+  theme(legend.position="bottom") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot_grid(pEnrich1, pEnrich2, labels = c('a', 'b'), nrow = 2, rel_heights = c(1,1.3), label_size = 16)
+@
+
+
+
+<<allchromVAR, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="", eval = TRUE, cache = FALSE, results="hide">>=
+
+# Plot of all enrichments
+dfg <- read.table("../../../data/bulk/GWAS-Bulk/compare3.tsv", header = TRUE)
+dfg$chromVAR <- -log10(pnorm(dfg$chromVAR_Zscore, lower.tail = FALSE))
+plotdfEnrichg <- reshape2::melt(dfg[,c(1,2,6)],
+                                id.vars = c("Celltype", "Trait"))
+pcv <- ggplot(plotdfEnrichg, aes(x = Celltype, y = value)) +
+  geom_bar(width = 1, aes(fill = Celltype), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  pretty_plot() + labs(x = "", y = "chromVAR Enrichment (-log10 p)", fill = "") +
+   scale_fill_manual(values = ejc_color_maps) + facet_wrap(~Trait, scales = "free_y") +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot_grid(pcv, labels = c('c'), rel_heights = c(1), label_size = 16)
+
+@
+
+<<allLDscore, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="", eval = TRUE, cache = FALSE, results="hide">>=
+
+# Plot of all enrichments
+dfldscore <- read.table("../../../data/bulk/GWAS-Bulk/compare3.tsv", header = TRUE)
+dfldscore$ldscoreP<- -log10(dfldscore$ldscore_pvalue)
+plotdfEnrichLDscore <- reshape2::melt(dfldscore[,c(1,2,6)], id.vars = c("Celltype", "Trait"))
+pld <- ggplot(plotdfEnrichLDscore, aes(x = Celltype, y = value)) +
+  geom_bar(width = 1, aes(fill = Celltype), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  pretty_plot() + labs(x = "", y = "LD Score Enrichment (-log10 p)", fill = "") +
+   scale_fill_manual(values = ejc_color_maps) + facet_wrap(~Trait, scales = "free_y") +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+plot_grid(pld, labels = c('d'), rel_heights = c(1), label_size = 16)
+
+@
+
+<<panhemeLDscore, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="", eval = TRUE, cache = FALSE, results="hide">>=
+
+# Plot of all enrichments
+dfldscore <- read.table("../../../data/bulk/GWAS-Bulk/bulkHeme_baseline_panheme.txt", header = TRUE)
+dfldscore$pvalue <- as.numeric(dfldscore$pvalue)
+dfldscore$ldscoreP<- -log10(dfldscore$pvalue)
+
+plotdfEnrichLDscore <- reshape2::melt(dfldscore[,c(1,2,4)], id.vars = c("Category", "trait"))
+pld2 <- ggplot(plotdfEnrichLDscore, aes(x = Category, y = value)) +
+  geom_bar(width = 1, aes(fill = Category), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  pretty_plot() + labs(x = "", y = "LD Score w/ Pan Heme Adjustment Enrichment (-log10 p)", fill = "") +
+  scale_fill_manual(values = ejc_color_maps) + facet_wrap(~trait, scales = "free_y") +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+plot_grid(pld2, labels = c('e'), rel_heights = c(1), label_size = 16)
+@
+
+<<goshifter, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="", eval = TRUE, cache = FALSE, results="hide">>=
+
+# Plot of all enrichments
+df <- read.table("../../../supplemental_tables/SupplementalTable3.tsv", header = TRUE)
+df$pvalue <- as.numeric(df$goShifter_pvalue)
+df$P<- -log10(df$pvalue)
+
+dfp <- reshape2::melt(df[,c("Celltype", "Trait", "P")], id.vars = c("Celltype", "Trait"))
+gs <- ggplot(dfp, aes(x = Celltype, y = value)) +
+  geom_bar(width = 1, aes(fill = Celltype), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  pretty_plot() + labs(x = "", y = "GoShifter Enrichment (-log10 p)", fill = "") +
+  scale_fill_manual(values = ejc_color_maps) + facet_wrap(~Trait, scales = "free_y") +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+plot_grid(gs, labels = c('f'), rel_heights = c(1), label_size = 16)
+@
+
+\end{document}
