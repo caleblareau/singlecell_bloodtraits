@@ -267,16 +267,20 @@ ggsave("rs9349205_hardcall_fm_bfs.pdf", plot = hardcall, device = NULL, path = d
 ####################################################################################################################
 # UK10K LD finemap results
 hardcallregion<-36
+trait <- "RBC_COUNT"
 FM_hardcall_region <- fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/",trait,"/UK10Koutput/region",hardcallregion,".snp"))
 FM_hardcall_region$POS <- str_split_fixed(str_split_fixed(FM_hardcall_region$snp,":",2)[,2],"_",2)[,1]
 FM_hardcall_region$POS <- as.integer(as.character(FM_hardcall_region$POS))
+
+# Check if there are any SNPs with the same position (this would affect the merging)
+locuszoom$POS %>% duplicated %>% unique
 FM_hardcall_region <- merge(locuszoom,FM_hardcall_region,by="POS")
 FM_hardcall_region[FM_hardcall_region$snp_log10bf < 0,"snp_log10bf"] <- 0 
 #FM_hardcall_region <- subset(FM_hardcall_region,snp_log10bf > -Inf)
 FM_hardcall_region$sentinel <- ifelse(FM_hardcall_region$RSQR ==1 | 
                                         FM_hardcall_region$SNP =="rs112233623", "yes", "no")
 
-# Plot FM log10bf with hard called variants labeled
+# Plot FM log10bf with UK10K variants labeled
 uk10k <- ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
   geom_point(aes(fill=RSQR),shape=21,size=sz)  +
   pretty_plot()+
