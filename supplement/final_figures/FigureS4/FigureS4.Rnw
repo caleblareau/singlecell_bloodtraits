@@ -76,16 +76,16 @@ plot_grid(pnp, labels = c('b'), nrow = 1, rel_heights = c(1), label_size = 16)
 @
 
 <<varyingPP, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="", eval = TRUE, cache = FALSE, results="hide">>=
-zscoreWeighted <- readRDS("../../../data/supplement_rds/varyingPPcutoff.rds")
-zscoreWeighted$Var2 <- gsub("_PP001", "", zscoreWeighted$Var2)
-p2 <- ggplot(zscoreWeighted, aes(x = PP, y = -log10(pnorm(value,lower.tail = FALSE)))) +
-  geom_line(aes(color = Var1)) +
-  pretty_plot() + labs(x = "Posterior Probability Threshold", y = "g-chromVAR Enrichment (-log10 p)", color = "") +
-   scale_color_manual(values = ejc_color_maps) + facet_wrap(~Var2, scales = "free_y") +
-  theme(legend.position="bottom") +
+meanDF <- readRDS("variedPP_meanDF.rds")
+ppp <- ggplot(meanDF, aes(x = PP, y = -log10(pnorm(zscore,lower.tail = FALSE)))) +
+  geom_line(aes(color = Var1)) + geom_point(aes(color = Var1)) +
+  pretty_plot() + labs(x = "Posterior Probability Cutoff", y = "g-chromVAR Enrichment (-log10 p)", color = "") +
+  facet_wrap(~Var2, scales = "free_y") +
+  theme(legend.position="bottom") + scale_color_manual(values = ejc_color_maps) +
   geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) 
+#  geom_hline(yintercept = 0, linetype = 2) 
 
-plot_grid(p2, labels = c('c'), nrow = 1, rel_heights = c(1), label_size = 16)
+plot_grid(ppp, labels = c('c'), nrow = 1, rel_heights = c(1), label_size = 16)
 
 
 @
