@@ -684,7 +684,7 @@ TF_differences[labelidx,"toLabel"] <- TF_differences[labelidx,"TF_name"]
 
 # Rank order plot
 CMP <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) + 
-  geom_point(shape=21,size=3.5,aes(fill=highlight)) +
+  geom_point(shape=21,size=3.5,aes(fill=highlight), stroke = 0) +
   pretty_plot() +
   scale_fill_manual(values = as.character(jdb_color_maps2[c("Mono","Ery")]),
                     labels=c("Other TFs", "GATA TFs")) +
@@ -725,9 +725,9 @@ TF_differences[labelidx,"toLabel"] <- TF_differences[labelidx,"TF_name"]
 
 # Rank order plot
 MEP <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) + 
-  geom_point(shape=21,size=3.5,aes(fill=highlight)) +
+  geom_point(shape=21,size=3.5,aes(fill=highlight), stroke = 0) +
   pretty_plot() +
-  scale_fill_manual(values = as.character(jdb_color_maps2[c("Mega","Ery")]),
+  scale_fill_manual(values = c("lightgrey", as.character(jdb_color_maps2[c("Ery")])),
                     labels=c("Other TFs", "GATA TFs")) +
   labs(x="Rank",y="-log10(FDR)") + 
   theme(legend.position = c(.95, .95),
@@ -747,7 +747,7 @@ MEP <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) +
     segment.alpha=0.3,
     direction="both")
 
-plot_grid(CMP, MEP, labels = c('A', 'B'), nrow = 1, rel_heights = c(1,1))
+cowplot::ggsave(plot_grid(CMP, MEP, labels = c('', ''), nrow = 1, rel_heights = c(1,1)), width = 7.5, height = 4, filename = "final_figures/PDFs/TFs.pdf")
 @
 
 \end{document}

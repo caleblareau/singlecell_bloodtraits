@@ -1,0 +1,109 @@
+\documentclass{article}
+\usepackage{enumitem}
+\usepackage{ amssymb }
+\usepackage{ textcomp }
+\usepackage{longtable}
+\usepackage{amsmath,tabu}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage[figurename=Supplemental Figure]{caption}
+\usepackage{titling}
+\pagenumbering{gobble}
+
+\setlength{\droptitle}{-5em}  
+\topmargin=-0.4in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9in
+\headsep=0.25in
+
+\title{Interrogation of human hematopoiesis at single-cell and single-variant resolution}
+\date{Supplemental Information}
+\author{ }
+
+\begin{document}
+
+<<loadLibraries, message = FALSE, warning = FALSE, echo = FALSE, fig.height=5, fig.align='center', fig.pos='H', fig.width=8, eval = TRUE, cache = FALSE, results="hide">>=
+library(corrplot)
+library(BuenColors)
+library(dplyr)
+library(reshape2)
+library(cowplot)
+library(data.table)
+library(plotly)
+library(stringr)
+library(ggrepel)
+@
+
+<<allGchromVAR, message = FALSE, warning = FALSE, echo = FALSE, fig.height=9, fig.align='center', fig.pos='H', fig.width=8, fig.cap="", eval = TRUE, cache = FALSE, results="hide">>=
+
+# Plot of all enrichments
+dfg <- read.table("../../../data/bulk/GWAS-Bulk/compare3.tsv", header = TRUE)
+dfg$`g-chromVAR` <- -log10(pnorm(dfg$weighted_Zscore, lower.tail = FALSE))
+plotdfEnrichg <- reshape2::melt(dfg[,c(1,2,6)],
+                                id.vars = c("Celltype", "Trait"))
+p1 <- ggplot(plotdfEnrichg, aes(x = Celltype, y = value)) +
+  geom_bar(width = 1, aes(fill = Celltype), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  pretty_plot() + labs(x = "", y = "g-chromVAR Enrichment (-log10 p)", fill = "") +
+   scale_fill_manual(values = ejc_color_maps) + facet_wrap(~Trait, scales = "free_y") +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot_grid(p1, labels = c('a'), nrow = 1, rel_heights = c(1), label_size = 16)
+@
+
+<<variableBGpn, message = FALSE, warning = FALSE, echo = FALSE, fig.height=9, fig.align='center', fig.pos='H', fig.width=8, fig.cap="", eval = TRUE, cache = FALSE, results="hide">>=
+library(BuenColors)
+library(dplyr)
+library(data.table)
+
+df <- readRDS("../../../figures/Figure3/allIterations.rds")
+df %>% group_by(Var1, Var2, npeaks) %>% summarize(zscore = mean(value)) -> meanDF
+
+pnp <- ggplot(meanDF, aes(x = npeaks, y = -log10(pnorm(zscore,lower.tail = FALSE)))) +
+  geom_line(aes(color = Var1)) + geom_point(aes(color = Var1)) +
+  pretty_plot() + labs(x = "Number of Background Peaks", y = "g-chromVAR Enrichment (-log10 p)", color = "") +
+  facet_wrap(~Var2, scales = "free_y") +
+  theme(legend.position="bottom") + scale_color_manual(values = ejc_color_maps) +
+  geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) 
+plot_grid(pnp, labels = c('b'), nrow = 1, rel_heights = c(1), label_size = 16)
+@
+
+<<varyingPP, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="", eval = TRUE, cache = FALSE, results="hide">>=
+zscoreWeighted <- readRDS("../../../data/supplement_rds/varyingPPcutoff.rds")
+zscoreWeighted$Var2 <- gsub("_PP001", "", zscoreWeighted$Var2)
+p2 <- ggplot(zscoreWeighted, aes(x = PP, y = -log10(pnorm(value,lower.tail = FALSE)))) +
+  geom_line(aes(color = Var1)) +
+  pretty_plot() + labs(x = "Posterior Probability Threshold", y = "g-chromVAR Enrichment (-log10 p)", color = "") +
+   scale_color_manual(values = ejc_color_maps) + facet_wrap(~Var2, scales = "free_y") +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) 
+
+plot_grid(p2, labels = c('c'), nrow = 1, rel_heights = c(1), label_size = 16)
+
+
+@
+
+<<binPeak, message = FALSE, warning = FALSE, echo = FALSE, fig.height=8, fig.align='center', fig.pos='H', fig.width=8, fig.cap="", eval = TRUE, cache = FALSE, results="hide">>=
+
+zscoreBinPeak <- readRDS("../../othertempdata/binaryPeakZscore.rds")
+pz <- ggplot(zscoreBinPeak, aes(x = Var1, y = logP)) +
+  geom_bar(width = 1, aes(fill = Var1), colour="black",
+           stat = "identity", position = position_dodge(width=1)) +
+  pretty_plot() + labs(x = "", y = "Binarized Peak Enrichment (-log10 p)", fill = "") +
+   scale_fill_manual(values = ejc_color_maps) + facet_wrap(~Var2, scales = "free_y") +
+  theme(legend.position="bottom") +
+  geom_hline(yintercept = -log10(0.05 / (16*18)), linetype = 2) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+plot_grid(pz, labels = c('d'), nrow = 1, rel_heights = c(1), label_size = 16)
+@
+
+\end{document}
