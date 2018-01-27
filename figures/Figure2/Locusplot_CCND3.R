@@ -266,25 +266,24 @@ ggsave("rs9349205_hardcall_fm_bfs.pdf", plot = hardcall, device = NULL, path = d
 
 ####################################################################################################################
 # UK10K LD finemap results
-hardcallregion<-36
-trait <- "RBC_COUNT"
-FM_hardcall_region <- fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/",trait,"/UK10Koutput/region",hardcallregion,".snp"))
-FM_hardcall_region$POS <- str_split_fixed(str_split_fixed(FM_hardcall_region$snp,":",2)[,2],"_",2)[,1]
-FM_hardcall_region$POS <- as.integer(as.character(FM_hardcall_region$POS))
+UK10Kregion<-36
+FM_UK10K_region <- fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/",trait,"/UK10Koutput/region",UK10Kregion,".snp"))
+FM_UK10K_region$POS <- str_split_fixed(str_split_fixed(FM_UK10K_region$snp,":",2)[,2],"_",2)[,1]
+FM_UK10K_region$POS <- as.integer(as.character(FM_UK10K_region$POS))
 
 #UK10K LD
 locuszoom <- fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/association_plots/rs9349205/final_locuslist.",trait,".ukid.txt"))
 
 # Check if there are any SNPs with the same SNP ID (this would affect the merging)
 locuszoom$SNP %>% duplicated %>% unique
-FM_hardcall_region <- merge(locuszoom,FM_hardcall_region,by.x=c("SNP","POS"),by.y=c("snp","POS"))
-FM_hardcall_region[FM_hardcall_region$snp_log10bf < 0,"snp_log10bf"] <- 0 
-#FM_hardcall_region <- subset(FM_hardcall_region,snp_log10bf > -Inf)
-FM_hardcall_region$sentinel <- ifelse(FM_hardcall_region$RSQR ==1 | 
-                                        FM_hardcall_region$SNP =="6:41924998_C_T", "yes", "no")
+FM_UK10K_region <- merge(locuszoom,FM_UK10K_region,by.x=c("SNP","POS"),by.y=c("snp","POS"))
+FM_UK10K_region[FM_UK10K_region$snp_log10bf < 0,"snp_log10bf"] <- 0 
+#FM_UK10K_region <- subset(FM_UK10K_region,snp_log10bf > -Inf)
+FM_UK10K_region$sentinel <- ifelse(FM_UK10K_region$RSQR ==1 | 
+                                     FM_UK10K_region$SNP =="6:41924998_C_T", "yes", "no")
 
 # Plot FM log10bf with UK10K variants labeled
-uk10k <- ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
+uk10k <- ggplot(subset(FM_UK10K_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
   geom_point(aes(fill=RSQR),shape=21,size=sz)  +
   pretty_plot()+
   scale_y_continuous(expand = c(0.05, 0))+
@@ -292,19 +291,19 @@ uk10k <- ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp
   guides(fill=guide_colorbar(title.vjust=0.75))+
   locustheme+
   labs(x="Position on Chromosome 6 (Mb)",y="log10(Bayes factor)") + 
-  geom_point(data=subset(FM_hardcall_region,sentinel=="yes"),
+  geom_point(data=subset(FM_UK10K_region,sentinel=="yes"),
              aes(x=POS/(10^6),y=snp_log10bf),
              fill="yellow",shape=21,size=sz)+
-  geom_text_repel(data = subset(FM_hardcall_region, sentinel=="yes"),
+  geom_text_repel(data = subset(FM_UK10K_region, sentinel=="yes"),
                    aes(label = paste(SNP,"(PP = 0.0)",sep="\n")),
                    size = sz,
                    force=TRUE,
                   nudge_x = 0.5,
-                  nudge_y=2)
+                  nudge_y=2.5)
 
 dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/RBC_COUNT"
 height=3
 width=5
-ggsave("rs9349205_uk10k_fm_bfs.png", plot = uk10k, device = NULL, path = dir,
+ggsave("rs9349205_uk10k_fm_bfs.pdf", plot = uk10k, device = NULL, path = dir,
        scale = 1, width = width, height=height, units = "in",
        dpi = 300, limitsize = TRUE)
