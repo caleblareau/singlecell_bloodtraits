@@ -272,13 +272,16 @@ FM_hardcall_region <- fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/",tr
 FM_hardcall_region$POS <- str_split_fixed(str_split_fixed(FM_hardcall_region$snp,":",2)[,2],"_",2)[,1]
 FM_hardcall_region$POS <- as.integer(as.character(FM_hardcall_region$POS))
 
-# Check if there are any SNPs with the same position (this would affect the merging)
-locuszoom$POS %>% duplicated %>% unique
-FM_hardcall_region <- merge(locuszoom,FM_hardcall_region,by="POS")
+#UK10K LD
+locuszoom <- fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/association_plots/rs9349205/final_locuslist.",trait,".ukid.txt"))
+
+# Check if there are any SNPs with the same SNP ID (this would affect the merging)
+locuszoom$SNP %>% duplicated %>% unique
+FM_hardcall_region <- merge(locuszoom,FM_hardcall_region,by.x=c("SNP","POS"),by.y=c("snp","POS"))
 FM_hardcall_region[FM_hardcall_region$snp_log10bf < 0,"snp_log10bf"] <- 0 
 #FM_hardcall_region <- subset(FM_hardcall_region,snp_log10bf > -Inf)
 FM_hardcall_region$sentinel <- ifelse(FM_hardcall_region$RSQR ==1 | 
-                                        FM_hardcall_region$SNP =="rs112233623", "yes", "no")
+                                        FM_hardcall_region$SNP =="6:41924998_C_T", "yes", "no")
 
 # Plot FM log10bf with UK10K variants labeled
 uk10k <- ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
@@ -296,32 +299,12 @@ uk10k <- ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp
                    aes(label = paste(SNP,"(PP = 0.0)",sep="\n")),
                    size = sz,
                    force=TRUE,
-                   nudge_x = 0.75,
-                   nudge_y=3) 
+                  nudge_x = 0.5,
+                  nudge_y=2)
 
 dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/RBC_COUNT"
-width=3
+height=3
+width=5
 ggsave("rs9349205_uk10k_fm_bfs.png", plot = uk10k, device = NULL, path = dir,
-       scale = 1, width = width, height=width*1/2, units = "in",
+       scale = 1, width = width, height=height, units = "in",
        dpi = 300, limitsize = TRUE)
-
-# Hard called LD finemap results
-locuszoom$hardcall <- ifelse( locuszoom$SNP =="rs72867133" | 
-                                locuszoom$SNP =="rs11440956"| 
-                                locuszoom$SNP =="rs202170071"| 
-                                locuszoom$SNP =="rs141797580"| 
-                                locuszoom$SNP =="rs80215763", "yes", "no")
-
-# Replot, labeling the incorrectly predicted hard called variants
-ggplot(locuszoom,aes(POS/(10^6),-log10(PVAL))) + 
-  geom_point(aes(fill=RSQR),shape=21,size=3) + pretty_plot() +
-  ggtitle(paste("CCND3 hard called variants",trait)) + 
-  scale_fill_gradientn(colors = jdb_palette("solar_extra")) +
-  theme(plot.title = element_text(size=14,hjust = 0.5,face="bold")) +
-  labs(x="Position on Chromosome 6 (Mb)") + 
-  geom_label_repel(
-    data = subset(locuszoom, hardcall=="yes"),
-    aes(label = paste(SNP,RSQR,sep=" - ")),
-    size = 3,
-    force=TRUE,
-    nudge_x = 0.5)
