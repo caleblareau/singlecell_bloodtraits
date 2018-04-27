@@ -43,3 +43,13 @@ lapply(1:length(peaks_2cv), function(i){
 
 data.frame(peaks[ix], counts[ix, ])
 
+
+lapply(1:length(gr), function(i){
+  dov <- distanceToNearest(gr[i], gr[-i])
+  data.frame(data.frame(gr[i])[,c(1,2,3)],
+             data.frame((gr[-i])[subjectHits(dov)])[,c(1,2,3)],
+             dist = mcols(dov)$distance)
+}) %>% rbindlist() -> out
+colnames(out) <- c("chr1", "start1", "end1", "chr2", "start2", "end2", "distance")
+
+out %>% arrange(distance)
