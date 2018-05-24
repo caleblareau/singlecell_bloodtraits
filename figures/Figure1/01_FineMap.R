@@ -55,7 +55,7 @@ CS.df.best <- CS.df %>%
 CS.df.best$PPbin <- cut(CS.df.best$PPmax, c(0, 0.001, 0.01, 0.05, 0.1, 0.25, 0.75, 1.0))
 CS.df.best.sum <- CS.df.best %>%
   group_by(trait,PPbin) %>%
-  summarize(count=n())
+  dplyr::summarize(count=n())
 ggplot(CS.df.best.sum,aes(y=count,x=trait,group=trait)) + 
   geom_bar(stat="identity",aes(fill=PPbin),position = position_stack(reverse = TRUE)) + 
   coord_flip() +
@@ -65,13 +65,25 @@ ggplot(CS.df.best.sum,aes(y=count,x=trait,group=trait)) +
 
 #' Figure 1C
 #+ echo=FALSE, message=FALSE, warning=FALSE, fig.height = 10, fig.width = 10
-FM_exp <- readRDS("../../data/Finemap/allFINEMAPregions.rds")
-ggplot(FM_exp,aes(x=expectedvalue,y=trait,fill=trait)) + 
-  geom_joy(scale = 4) + 
-  theme_joy() +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0, 0)) + 
-  scale_fill_cyclical(values = jdb_palette("GrandBudapest2")[c(3,4)])
+allregions <- readRDS("../../data/Finemap/allFINEMAPregions.rds")
+allregions$numbin <- cut(allregions$expectedvalue, c(1,2,3,4,5))
+allregions_toplot <- allregions %>% group_by(trait,numbin) %>% dplyr::summarize(count=n())
+ggplot(allregions_toplot,aes(y=count,x=trait,group=trait)) + 
+  guides(fill=guide_legend(title="# Causal Variants"))+
+  geom_bar(stat="identity",aes(fill=numbin),position = position_stack(reverse = TRUE)) + 
+  coord_flip() +
+  theme_bw() +
+  pretty_plot() +
+  scale_fill_manual(values = c(jdb_palette("GrandBudapest2")[c(4)],jdb_palette("Zissou")[2:5]))
+
+# Old ggjoy plot
+# FM_exp <- readRDS("../../data/Finemap/allFINEMAPregions.rds")
+# ggplot(FM_exp,aes(x=expectedvalue,y=trait,fill=trait)) + 
+#   geom_joy(scale = 4) + 
+#   theme_joy() +
+#   scale_y_discrete(expand = c(0.01, 0)) +
+#   scale_x_continuous(expand = c(0, 0)) + 
+#   scale_fill_cyclical(values = jdb_palette("GrandBudapest2")[c(3,4)])
 
 #' Helper function for shifting
 #+ echo=FALSE, message=FALSE, warning=FALSE
