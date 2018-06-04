@@ -27,7 +27,7 @@ ATAC.cpm <- round(sweep(counts, 2, colSums(counts), FUN="/") * 1000000, 1)
 ATAC.cpm.log2 <- log2(ATAC.cpm+1)
 
 # Subset
-boo <- rowMaxs(ATAC.cpm.log2) > 2 & rowSums(assays(ukbb)[["weights"]]) > 0
+boo <- rowMaxs(ATAC.cpm.log2) > 1 & (rowSums(assays(ukbb)[["weights"]][,c(16,14, 5, 13,10)] > 0) >= 2)
 ATAC.cpm.log2 <- ATAC.cpm.log2[boo,]
 peaksdf <- peaksdf[boo,]
 peaks <- peaks[boo]
@@ -37,8 +37,8 @@ ATAC.cpm.log2.z <- t( colScale(t(ATAC.cpm.log2)) )
 ery_countsZ <- ATAC.cpm.log2.z[,c("HSC", "MPP", "CMP", "MEP", "Ery")]
 
 dim(ery_peaksdf)
-dim(ery_countsZ)
-pdf(file="plots/ery_cluster_peaks.pdf", width = 3, height = 8)  
+
+pdf(file="plots/pleitropy_RBC.pdf", width = 3, height = 8)  
 par(cex.main=0.8,mar=c(1,1,1,1))
 Heatmap(ery_countsZ, col=as.character(jdb_palette("brewer_spectra",type="continuous")),
         cluster_rows = TRUE, cluster_columns = FALSE, show_column_names = TRUE,
