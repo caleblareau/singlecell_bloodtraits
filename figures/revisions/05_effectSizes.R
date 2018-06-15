@@ -16,6 +16,9 @@ count_traits <- c(traits[grep("COUNT", traits)])
 map <- c("BASO_COUNT" = "GRAN", "EO_COUNT" = "GRAN", "NEUTRO_COUNT" = "GRAN", "RBC_COUNT" = "RBC", "PLT_COUNT" = "PLT", 
          "MONO_COUNT" = "MONO", "LYMPH_COUNT" = "LYMPH")
 
+# UKBB exclusion list
+exdf <- stringr::str_split_fixed(read.table("exclude_list.txt", header = FALSE, stringsAsFactors = FALSE)[,1], "_", 4)
+
 lapply(count_traits, function(trait){
   
   # Import and filter for PP > 0.1
@@ -35,7 +38,8 @@ lapply(count_traits, function(trait){
   
   t[complete.cases(t),]
 }) %>% rbindlist () %>% as.data.frame() -> ukbb.df
-
+ukbb.df$ID <- paste0(gsub("chr", "", ukbb.df$chr), ":", as.character(ukbb.df$start))
+ukbb.df <- ukbb.df[ukbb.df$ID %ni% exdf[,1],]
 
 # Identify pleiotropic variants
 ukbb.df %>%
@@ -116,6 +120,13 @@ switch_df <- cbind(switch_df, makeBinaryPleiotropyMatrix(switch_df))
 tune_df %>% arrange(class, GRAN, LYMPH, MONO, PLT, RBC) -> tune_df
 switch_df %>% arrange(class, GRAN, LYMPH, MONO, PLT, RBC) -> switch_df
 
+
+if(FALSE){
+  tune_df$what <- "tune"
+  switch_df$what <- "switch"
+  df <- rbind(tune_df, switch_df)
+  write.table(df[df$class == "coding",], file = "pleiotropy/coding_lineages.tsv", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+}
 
 ha1 <- HeatmapAnnotation(df = data.frame(class = c(tune_df$class, switch_df$class)),
                          col = list(class = annotationColors)

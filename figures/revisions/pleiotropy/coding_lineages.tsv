@@ -1,0 +1,5 @@
+seqnames	start	end	class	GRAN	LYMPH	MONO	PLT	RBC	what
+chr19	55451083	55451084	coding	1	0	1	0	0	tune
+chr22	37469591	37469592	coding	1	1	0	0	0	tune
+chr19	51728477	51728478	coding	1	1	0	1	0	tune
+chr1	205744138	205744139	coding	1	1	0	0	0	switch
