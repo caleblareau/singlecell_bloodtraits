@@ -8,7 +8,7 @@ CS.df$MAF_fix <- ifelse(CS.df$MAF > 0.5, 1-CS.df$MAF, CS.df$MAF)
 bins = c(0.001,0.01,0.05,0.1,0.25,0.75,1)
 CS.df$PP_bin <- cut(x = CS.df$PP, bins)
 
-CS.df %>% group_by(PP_bin) %>% summarise(MEAN = mean(MAF_fix), SD = sd(MAF_fix))
+CS.df %>% group_by(PP_bin) %>% dplyr::select(seqnames, POS, MAF_fix) %>% unique() %>% summarise(MEAN = mean(MAF_fix), SD = sd(MAF_fix))
 
 ggplot(CS.df) + 
   geom_bar(stat="identity",aes(x=PP_bin, y = MAF_fix, fill=PP_bin),

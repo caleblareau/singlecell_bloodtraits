@@ -24,17 +24,18 @@ length(map)
 lapply(names(map), function(trait){
   
   # Import and filter for PP > 0.1
-  t <- read.table(paste0("../../data/UKBB_BC_PP001/betas_added/",trait,"_PP001_betas.bed"))[,c("V1", "V2", "V3", "V5", "V8")]
+  t <- read.table(paste0("../../data/UKBB_BC_PP001/betas_added/",trait,"_PP001_betas.bed"))[,c("V1", "V2", "V4", "V5", "V8")]
   t <- t[t$V5 > 0.1, ]
   
   # Filter for multi-region variants
-  t %>% group_by(V1, V2, V3, V8) %>% summarise(V5 = max(V5)) %>% data.frame() -> t
+  t %>% group_by(V1, V2, V8) %>% summarise(long = head(V4,1), V5 = max(V5)) %>% data.frame() -> t
   
   # Annotate with trait and lineage
   lineage <- map[trait]
   t$trait <- trait
   t$lineage <- lineage
-  colnames(t) <- c("chr", "start", "stop", "Z",  "PP", "trait", "lineage")
+  colnames(t) <- c("chr", "start", "Z", "long",  "PP", "trait", "lineage")
+  t$stop <- t$start + 1
   gr <- makeGRangesFromDataFrame(t)
   
   # Find coding variants
@@ -54,7 +55,16 @@ lapply(names(map), function(trait){
   
 }) %>% rbindlist () %>% as.data.frame() -> ukbb.df
 
-ukbb.df %>% group_by(chr, start, stop) %>% summarize(gene = head(gene,1)) -> sumDF
+if(FALSE){
+  v <- stringr::str_split_fixed(ukbb.df$long, "-", 3)[,2]
+  x <- stringr::str_split_fixed(v, "_", 3)
+  x2 <- stringr::str_split_fixed(x[,1], ":", 2)
+  odf <- data.frame(chr = x2[,1], one = x2[,2], two = x2[,2], 
+                    allele = paste0(x[,2],"/",x[,3]), a = 1)
+  write.table(odf, file = "coding_forVEP.txt", sep = " ", quote = FALSE, col.names = FALSE, row.names = FALSE)
+}
+
+ukbb.df %>% group_by(chr, start) %>% summarize(gene = head(long,1)) -> sumDF
 
 # Import RNA
 x <- read.table("../../data/bulk/RNA/16populations_RNAcounts.txt", header = TRUE)
@@ -85,9 +95,9 @@ km <- kmeans(all.RBC, centers = 6, nstart = 1000)
 km.cluster <- factor(km$cluster)
 #km.cluster <- factor(km$cluster, km$cluster, levels = c("2", "3", "1"))
 hm <- Heatmap(all.RBC, col=as.character(jdb_palette("solar_extra",type="continuous")),
-        cluster_rows = TRUE, cluster_columns = FALSE, show_column_names = TRUE,
-        row_names_gp = gpar(fontsize = 0),
-        column_names_gp = gpar(fontsize = 6),
-        split = km.cluster, show_heatmap_legend = FALSE,
-        name = "Gene\nExpression")
+              cluster_rows = TRUE, cluster_columns = FALSE, show_column_names = TRUE,
+              row_names_gp = gpar(fontsize = 0),
+              column_names_gp = gpar(fontsize = 6),
+              split = km.cluster, show_heatmap_legend = FALSE,
+              name = "Gene\nExpression")
 hm
