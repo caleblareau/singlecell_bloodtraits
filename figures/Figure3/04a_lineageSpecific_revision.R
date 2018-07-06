@@ -1,5 +1,6 @@
 library(BuenColors)
 library(ggplot2)
+library(dplyr)
 library(data.table)
 
 set.seed(14651)
@@ -60,9 +61,36 @@ df$lineageSpecific <- rowCheck(df[,c("Celltype", "Trait")], lineageSpecificDF)
 
 dim(df)
 
+# Custom function to import fgwas stuff
+cells <- c("B","CD4","CD8","CLP","CMP","Ery","GMP.A","GMP.B","GMP.C","HSC","LMPP","mDC","Mega","MEP","Mono","MPP","NK","pDC")
+traits <- c("BASO_COUNT","EO_COUNT","HCT","HGB","LYMPH_COUNT", "MCH", "MCHC", "MCV", "MEAN_RETIC_VOL","MONO_COUNT", "MPV", "NEUTRO_COUNT", "PLT_COUNT", "RBC_COUNT","RETIC_COUNT","WBC_COUNT")
+
+lapply(cells, function(cell){
+  lapply(traits, function(trait){
+    
+    file <- paste0("../../data/fgwas/", trait, "_", cell, ".params")
+    tab <- read.table(file, header = TRUE)
+    sigma <- (as.numeric(as.character(tab[2,4])) - as.numeric(as.character(tab[2,2])))/(2*1.96)
+    
+    # if sigma is an NA, due to large confidence interval spanning -20; manually fix with approximation
+    sigma <- ifelse(is.na(sigma), 5, sigma)
+    
+    estimate <- tab[2,3]
+    
+    cell <- ifelse(cell == "GMP.A", "GMP-A", cell)
+    cell <- ifelse(cell == "GMP.B", "GMP-B", cell)
+    cell <- ifelse(cell == "GMP.C", "GMP-C", cell)
+    cell <- ifelse(cell == "mono", "Mono", cell)
+    
+    data.frame(cell, trait, z = estimate/sigma)
+  }) %>% rbindlist() %>% data.frame() -> odf
+  odf
+}) %>% rbindlist() %>% data.frame() -> fgwas
+
 gregor <- read.table("../../data/gregor/gregor_combinedenrichments.txt", header = TRUE)
 gpa <- data.frame(rbindlist(lapply(list.files("../../data/GPA", full.names = TRUE), read.table, header = TRUE)))
 
+# Fix names from GPA from cell types
 gpa$cell <- gsub("GMP1low", "GMP-A", gpa$cell)
 gpa$cell <- gsub("GMP2mid", "GMP-B", gpa$cell)
 gpa$cell <- gsub("GMP3high", "GMP-C", gpa$cell)
@@ -72,10 +100,12 @@ gpa$cell <- gsub("Erythro", "Ery", gpa$cell)
 
 colnames(gregor) <- c("Trait", "Celltype", "gregor_pvalue")
 colnames(gpa) <- c("Celltype", "Trait", "GPA_chisq")
+colnames(fgwas) <- c("Celltype", "Trait", "fgwas_z")
+
 
 mdf1 <- merge(df, gpa)
 mdf2 <- merge(mdf1, gregor)
-df <- mdf2
+df <- merge(mdf2, fgwas)
 
 permuted <- sapply(1:10000, function(i) sum(1:dim(df)[1] * sample(df$lineageSpecific, length(df$lineageSpecific))))
 gregor_ranksum <- sum(1:dim(df)[1]*df[order(df$gregor_pvalue, decreasing = FALSE), "lineageSpecific"])
@@ -83,4 +113,8 @@ pnorm((mean(permuted) - gregor_ranksum)/sd(permuted), lower.tail = FALSE)
 
 GPA_ranksum <- sum(1:dim(df)[1]*df[order(df$GPA_chisq, decreasing = TRUE), "lineageSpecific"])
 pnorm((mean(permuted) - GPA_ranksum)/sd(permuted), lower.tail = FALSE)
+
+fgwas_ranksum <- sum(1:dim(df)[1]*df[order(df$fgwas_z, decreasing = TRUE), "lineageSpecific"])
+pnorm((mean(permuted) - fgwas_ranksum)/sd(permuted), lower.tail = FALSE)
+
 

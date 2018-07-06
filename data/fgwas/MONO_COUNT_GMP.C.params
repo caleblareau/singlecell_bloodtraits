@@ -1,0 +1,3 @@
+parameter CI_lo estimate CI_hi
+pi_region 0.147632 0.162642 0.178387
+GMP.C_ln 1.07016 1.44948 1.79384
