@@ -4,20 +4,31 @@ library(GenomicRanges)
 library(data.table)
 library(BuenColors)
 
+"%ni%" <- Negate("%in%")
+
 x01_coding_gr <- bedToGRanges("../../data/annotations/Coding_UCSC.bed")
 x02_promoter_gr <- bedToGRanges("../../data/annotations/Promoter_UCSC.fixed.bed")
 x03_utr_gr <- bedToGRanges("../../data/annotations/UTR_3_UCSC.bed")
 x04_atac_gr <- bedToGRanges("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.bed")
 x05_intron_gr <- bedToGRanges("../../data/annotations/Intron_UCSC.bed")
+ex_var <- read.table("exclude_list.txt", header = FALSE, stringsAsFactors = FALSE)[,1]
 
 traits <- gsub("_PP001.bed", "", list.files("../../data/UKBB_BC_PP001/", patter = ".bed$"))
 lapply(traits, function(trait){
   
-  # Import and munge variants
-  t <- read.table(paste0("../../data/UKBB_BC_PP001/betas_added/",trait,"_PP001_betas.bed"))[,c("V1", "V2", "V3", "V5", "V8")]
+# Import and munge variants
+  t <- read.table(paste0("../../data/UKBB_BC_PP001/betas_added/",trait,"_PP001_betas.bed"))[,c("V1", "V2", "V3", "V4","V5", "V8")]
+  
+  # Specify region
+  reg_split <- stringr::str_split_fixed(as.character(t$V4), "-", 3)
+  t$V4 <- reg_split[,3]
+  
+  # Filter out the exclude variants
+  t <- t[reg_split[,2] %ni% ex_var, ]
+  
   t <- t[t$V5 > 0.5, ]
   t$trait <- trait
-  colnames(t) <- c("chr", "start", "stop", "PP", "Z", "trait")
+  colnames(t) <- c("chr", "start", "stop", "region", "PP", "Z", "trait")
   gr_t <- unique(makeGRangesFromDataFrame(t, keep.extra.columns = TRUE))
   
   # Do overlaps
@@ -88,5 +99,5 @@ p1 <- ggplot(odf, aes(Class1, Class2,fill = count)) + geom_tile( color = "black"
   labs(x = "", y = "") + pretty_plot(fontsize = 8) + L_border() + theme(legend.position = "none") +
   theme(axis.text.x=element_text(angle=45, hjust=1))
 
-cowplot::ggsave(p1, file = "nearestVariantOut/heatmap.pdf", height = 2, width = 2)
+cowplot::ggsave(p1, file = "nearestVariantOut/PP50_10kb_heatmap.pdf", height = 2, width = 2)
 write.table(PPvariantPairs, file = "nearestVariantOut/twoVar_table.tsv", sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
