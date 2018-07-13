@@ -73,13 +73,19 @@ coding_consequences <- c("missense_variant","synonymous_variant","frameshift_var
 all_consequences <- vep$Consequence %>% stringr::str_split(.,",") %>% unlist() 
 coding_con <- all_consequences[all_consequences %in% coding_consequences] %>% table() %>% as.data.frame()
 colnames(coding_con)[1] <- "Categorie"
+coding_con$Categorie <- paste0(coding_con$Categorie,": ",round(100*coding_con$Freq/(sum(coding_con$Freq)),2),"%")
 
-# Plot piechart and potentially export as PDF
-coding_con %>% plot_ly(labels = ~Categorie, values = ~Freq,
-                       textposition='inside',
-                       textinfo = 'percent',
-                       insidetextfont = list(color = '#FFFFFF')) %>%
-  add_pie(hole = 0) %>%
-  layout(margin=m,showlegend = T, legend=list(x=1,y=0.9),
-         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = F),
-         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = F)) #%>% export("coding_subtypes.pdf")
+par(mar=c(5,0,4,2))
+pie(coding_con$Freq, labels=NA, col=jdb_palette("brewer_spectra"),bty='L')
+legend(.9, .5, as.character(coding_con$Categorie), cex=0.7, fill=jdb_palette("brewer_spectra"))
+
+# Plotly version
+# # Plot piechart and potentially export as PDF
+# coding_con %>% plot_ly(labels = ~Categorie, values = ~Freq,
+#                        textposition='inside',
+#                        textinfo = 'percent',
+#                        insidetextfont = list(color = '#FFFFFF')) %>%
+#   add_pie(hole = 0) %>%
+#   layout(margin=m,showlegend = T, legend=list(x=1,y=0.9),
+#          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = F),
+#          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = F)) #%>% export("coding_subtypes.pdf")
