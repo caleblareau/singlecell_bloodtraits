@@ -95,7 +95,7 @@ limits <- c(as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.3)),
 ak3_phenos <- ggplot(AK3plotdf, aes(x = name, y = estimate)) + 
   geom_bar(stat = "identity", color = "black", fill = "firebrick") + pretty_plot() +
   geom_errorbar(aes(ymin=estimate-se, ymax=estimate+se), width=.1) +
-  labs(x = "", y = "Platelet Count (10^6 cells/uL)") + coord_cartesian(ylim = limits)
+  labs(x = "", y = "Platelet Count (10^3 cells/uL)") + coord_cartesian(ylim = limits)
 cowplot::ggsave(ak3_phenos, file = "AK3_gwas_phenotypes.pdf", height = 5, width = 10)
 
 ########################################################################################################################
@@ -144,7 +144,7 @@ limits <- c(as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.5)),
 cdk6_phenos <- ggplot(CDK6plotdf, aes(x = name, y = estimate)) + 
   geom_bar(stat = "identity", color = "black", fill = "firebrick") + pretty_plot() +
   geom_errorbar(aes(ymin=estimate-se, ymax=estimate+se), width=.1) +
-  labs(x = "", y = "Eosinophil Count (10^6 cells/uL)") + coord_cartesian(ylim = limits)
+  labs(x = "", y = "Eosinophil Count (10^3 cells/uL)") + coord_cartesian(ylim = limits)
 cowplot::ggsave(cdk6_phenos, file = "CDK6_eo_count_phenotypes.pdf", height = 5, width = 10)
 
 
