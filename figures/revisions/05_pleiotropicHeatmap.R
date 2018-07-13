@@ -17,7 +17,7 @@ map <- c("BASO_COUNT" = "GRAN", "EO_COUNT" = "GRAN", "NEUTRO_COUNT" = "GRAN", "R
          "MONO_COUNT" = "MONO", "LYMPH_COUNT" = "LYMPH")
 
 # UKBB exclusion list
-exdf <- stringr::str_split_fixed(read.table("exclude_list.txt", header = FALSE, stringsAsFactors = FALSE)[,1], "_", 4)
+exdf <- stringr::str_split_fixed(read.table("exclude_list_revised.txt", header = FALSE, stringsAsFactors = FALSE)[,1], "_", 4)
 
 lapply(count_traits, function(trait){
   
