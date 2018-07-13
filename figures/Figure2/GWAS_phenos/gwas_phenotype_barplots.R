@@ -147,6 +147,54 @@ cdk6_phenos <- ggplot(CDK6plotdf, aes(x = name, y = estimate)) +
   labs(x = "", y = "Eosinophil Count (10^3 cells/uL)") + coord_cartesian(ylim = limits)
 cowplot::ggsave(cdk6_phenos, file = "CDK6_eo_count_phenotypes.pdf", height = 5, width = 10)
 
+########################################################################################################################
+# CDK6 - NEUTRO_COUNT
+# Bar plots
+rs_alleles <- fread("../../../data/examples/rawphenos_mixed.rs144023540_rs445.txt")
+trait <- "NEUTRO_COUNT"
+
+colnames(rs_alleles)[1:2] <- c("alleleA.rs1","alleleA.rs2")
+# rs1 = rs445, rs2 = rs144023540
+
+# Round imputed genotypes to nearest integer
+rs_alleles_onlyabsolutes <- as.data.frame(rs_alleles)
+rs_alleles_onlyabsolutes$alleleA.rs1 <- round(rs_alleles_onlyabsolutes$alleleA.rs1,0)
+rs_alleles_onlyabsolutes$alleleB.rs1 <- 2-rs_alleles_onlyabsolutes$alleleA.rs1
+rs_alleles_onlyabsolutes$alleleA.rs2 <- round(rs_alleles_onlyabsolutes$alleleA.rs2,0)
+rs_alleles_onlyabsolutes$alleleB.rs2 <- 2-rs_alleles_onlyabsolutes$alleleA.rs2
+
+rs_alleles_onlyabsolutes <- rs_alleles_onlyabsolutes[,c("alleleB.rs1","alleleB.rs2",trait)]
+
+# Make bar plot with mean and se of trait
+eval_gene <- function(rs2, rs2_l, rs1, rs1_l,trait="NEUTRO_COUNT"){
+  v <- subset(rs_alleles_onlyabsolutes,alleleB.rs2==rs2 & alleleB.rs1==rs1)
+  if (nrow(v)<10){
+    v <- NULL
+  }
+  data.frame(name = paste0("rs144023540: ", rs2_l, "\nrs445: ", rs1_l), estimate = mean(v[,trait]), se = sd(v[,trait])/sqrt(length(v[,trait])))
+}
+CDK6plotdf <- rbind(
+  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 0, rs1_l = "CC"),
+  eval_gene(rs2 = 1, rs2_l = "GT", rs1 = 0, rs1_l = "CC"),
+  eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 0, rs1_l = "CC"),
+  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 1, rs2_l = "GT", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 2, rs1_l = "TT"),
+  eval_gene(rs2 = 1, rs2_l = "GT", rs1 = 2, rs1_l = "TT"),
+  eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 2, rs1_l = "TT")
+)
+
+CDK6plotdf <- CDK6plotdf[complete.cases(CDK6plotdf),]
+
+limits <- c(as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.3)),
+            as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.7)))
+
+cdk6_phenos <-ggplot(CDK6plotdf, aes(x = name, y = estimate)) + 
+  geom_bar(stat = "identity", color = "black", fill = "firebrick") + pretty_plot() +
+  geom_errorbar(aes(ymin=estimate-se, ymax=estimate+se), width=.1) +
+  labs(x = "", y = "Neutrophil Count (10^3 cells/uL)") + coord_cartesian(ylim = limits)
+cowplot::ggsave(cdk6_phenos, file = "CDK6_neutro_count_phenotypes.pdf", height = 5, width = 10)
 
 #########
 # Piechart of haplotype frequencies for the two AK3 SNPs
