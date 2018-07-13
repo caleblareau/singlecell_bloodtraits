@@ -174,15 +174,15 @@ eval_gene <- function(rs2, rs2_l, rs1, rs1_l,trait="NEUTRO_COUNT"){
   data.frame(name = paste0("rs144023540: ", rs2_l, "\nrs445: ", rs1_l), estimate = mean(v[,trait]), se = sd(v[,trait])/sqrt(length(v[,trait])))
 }
 CDK6plotdf <- rbind(
-  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 0, rs1_l = "CC"),
-  eval_gene(rs2 = 1, rs2_l = "GT", rs1 = 0, rs1_l = "CC"),
-  eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 0, rs1_l = "CC"),
-  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 1, rs1_l = "CT"),
-  eval_gene(rs2 = 1, rs2_l = "GT", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 2, rs1_l = "TT"),
   eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 1, rs1_l = "CT"),
-  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 2, rs1_l = "TT"),
+  eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 0, rs1_l = "CC"),
   eval_gene(rs2 = 1, rs2_l = "GT", rs1 = 2, rs1_l = "TT"),
-  eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 2, rs1_l = "TT")
+  eval_gene(rs2 = 1, rs2_l = "GT", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 1, rs2_l = "GT", rs1 = 0, rs1_l = "CC"),
+  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 0, rs1_l = "CC"),
+  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 2, rs1_l = "TT")
 )
 
 CDK6plotdf <- CDK6plotdf[complete.cases(CDK6plotdf),]
