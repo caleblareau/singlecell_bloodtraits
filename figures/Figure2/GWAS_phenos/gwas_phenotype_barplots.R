@@ -6,7 +6,7 @@ library(dplyr)
 library(scales)
 
 ########################################################################################################################
-# Bar plots
+# CCND3 Bar plots
 trait <- "RBC_COUNT"
 rs_alleles <- fread("../../../data/examples/rawphenos_mixed.rs9349205_rs112233623.txt")
 colnames(rs_alleles)[2] <- "alleleA.rs2408955"
@@ -97,6 +97,55 @@ ak3_phenos <- ggplot(AK3plotdf, aes(x = name, y = estimate)) +
   geom_errorbar(aes(ymin=estimate-se, ymax=estimate+se), width=.1) +
   labs(x = "", y = "Platelet Count (10^6 cells/uL)") + coord_cartesian(ylim = limits)
 cowplot::ggsave(ak3_phenos, file = "AK3_gwas_phenotypes.pdf", height = 5, width = 10)
+
+########################################################################################################################
+# CDK6 - EO_COUNT
+# Bar plots
+rs_alleles <- fread("../../../data/examples/rawphenos_mixed.rs8_rs445.txt")
+trait <- "EO_COUNT"
+
+colnames(rs_alleles)[1:2] <- c("alleleA.rs1","alleleA.rs2")
+# rs1 = rs445, rs2 = rs8
+
+# Round imputed genotypes to nearest integer
+rs_alleles_onlyabsolutes <- as.data.frame(rs_alleles)
+rs_alleles_onlyabsolutes$alleleA.rs1 <- round(rs_alleles_onlyabsolutes$alleleA.rs1,0)
+rs_alleles_onlyabsolutes$alleleB.rs1 <- 2-rs_alleles_onlyabsolutes$alleleA.rs1
+rs_alleles_onlyabsolutes$alleleA.rs2 <- round(rs_alleles_onlyabsolutes$alleleA.rs2,0)
+rs_alleles_onlyabsolutes$alleleB.rs2 <- 2-rs_alleles_onlyabsolutes$alleleA.rs2
+
+rs_alleles_onlyabsolutes <- rs_alleles_onlyabsolutes[,c("alleleB.rs1","alleleB.rs2",trait)]
+
+# Make bar plot with mean and se of trait
+eval_gene <- function(rs2, rs2_l, rs1, rs1_l,trait="EO_COUNT"){
+  v <- subset(rs_alleles_onlyabsolutes,alleleB.rs2==rs2 & alleleB.rs1==rs1)
+  if (nrow(v)<10){
+    v <- NULL
+  }
+  data.frame(name = paste0("rs8: ", rs2_l, "\nrs445: ", rs1_l), estimate = mean(v[,trait]), se = sd(v[,trait])/sqrt(length(v[,trait])))
+}
+CDK6plotdf <- rbind(
+  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 2, rs1_l = "TT"),
+  eval_gene(rs2 = 1, rs2_l = "CT", rs1 = 2, rs1_l = "TT"),
+  eval_gene(rs2 = 0, rs2_l = "CC", rs1 = 2, rs1_l = "TT"),
+  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 1, rs2_l = "CT", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 0, rs2_l = "CC", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 0, rs1_l = "CC"),
+  eval_gene(rs2 = 1, rs2_l = "CT", rs1 = 0, rs1_l = "CC"),
+  eval_gene(rs2 = 0, rs2_l = "CC", rs1 = 0, rs1_l = "CC")
+)
+
+CDK6plotdf <- CDK6plotdf[complete.cases(CDK6plotdf),]
+
+limits <- c(as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.5)),
+            as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.65)))
+
+cdk6_phenos <- ggplot(CDK6plotdf, aes(x = name, y = estimate)) + 
+  geom_bar(stat = "identity", color = "black", fill = "firebrick") + pretty_plot() +
+  geom_errorbar(aes(ymin=estimate-se, ymax=estimate+se), width=.1) +
+  labs(x = "", y = "Eosinophil Count (10^6 cells/uL)") + coord_cartesian(ylim = limits)
+cowplot::ggsave(cdk6_phenos, file = "CDK6_eo_count_phenotypes.pdf", height = 5, width = 10)
 
 
 #########
