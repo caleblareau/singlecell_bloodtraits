@@ -3,7 +3,7 @@ library(diffloop)
 library(GenomicRanges)
 library(data.table)
 library(BuenColors)
-
+library(cowplot)
 "%ni%" <- Negate("%in%")
 
 x01_coding_gr <- bedToGRanges("../../data/annotations/Coding_UCSC.bed")
@@ -29,7 +29,7 @@ lapply(traits, function(trait){
   # Filter out the exclude variants
   t <- t[reg_split[,2] %ni% ex_var, ]
   
-  t <- t[t$V5 > 0.1, ]
+  t <- t[t$V5 > 0.3, ]
   t$trait <- trait
   colnames(t) <- c("chr", "start", "stop", "region", "PP", "Z", "trait")
   gr_t <- unique(makeGRangesFromDataFrame(t, keep.extra.columns = TRUE))
@@ -115,8 +115,8 @@ p1 <- ggplot(odf, aes(Class1, Class2,fill = count)) + geom_tile( color = "black"
   labs(x = "", y = "") + pretty_plot(fontsize = 8) + L_border() + theme(legend.position = "none") +
   theme(axis.text.x=element_text(angle=45, hjust=1))
 
-cowplot::ggsave(p1, file = "nearestVariantOut/PP10_region_heatmap.pdf", height = 2, width = 2)
-write.table(PPvariantPairs, file = "nearestVariantOut/twoVar_region10kb_table.tsv",
-            sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
+cowplot::ggsave(p1, file = "nearestVariantOut/PP30_region_heatmap.pdf", height = 2, width = 2)
+# write.table(PPvariantPairs, file = "nearestVariantOut/twoVar_region10kb_table.tsv",
+#             sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
 
 
