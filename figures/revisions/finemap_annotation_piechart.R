@@ -75,9 +75,9 @@ coding_con <- all_consequences[all_consequences %in% coding_consequences] %>% ta
 colnames(coding_con)[1] <- "Categorie"
 coding_con$Categorie <- paste0(coding_con$Categorie,": ",round(100*coding_con$Freq/(sum(coding_con$Freq)),2),"%")
 
-par(mar=c(5,0,4,2))
+par(mar=c(6,2,2,17))
 pie(coding_con$Freq, labels=NA, col=jdb_palette("brewer_spectra"),bty='L')
-legend(.9, .5, as.character(coding_con$Categorie), cex=0.7, fill=jdb_palette("brewer_spectra"))
+legend(.85, .65, as.character(coding_con$Categorie), cex=1.1, fill=jdb_palette("brewer_spectra"))
 
 # Plotly version
 # # Plot piechart and potentially export as PDF
