@@ -7,7 +7,7 @@ library(matrixStats)
 library(data.table)
 
 df <- read.table("pleiotropy/all.tsv", header = TRUE)
-#df <- df[df$class == "accessible",]
+df <- df[df$class%in% c("accessible"),]
 pleio_gr <- makeGRangesFromDataFrame(df)
 
 # Import counts and normalize
