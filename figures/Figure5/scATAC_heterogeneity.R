@@ -257,7 +257,7 @@ grid.arrange(legend, ncol=1, nrow=1)
 # Overlay PC2 and PC3 plot with k-medoids results
 enrichments <- compare_subgroups_plot(allcells,celltype="CMP",traitstoplot=traitstoplot,
                                       numPCs=5,graph=FALSE,kmeans=FALSE)
-others <- allcells[allcells$type %ni% "CMP",] %>% select(name,paste0(traitstoplot,"_PP001"))
+others <- allcells[allcells$type %ni% "CMP",] %>% dplyr::select(name,traitstoplot)
 colnames(others) <- remove_smooth(colnames(others))
 others$kmeans <- 3
 others$kmeans <- as.factor(others$kmeans)
@@ -277,15 +277,15 @@ cmp_pcs <- ggplot(pcplot,aes(PC2,PC3)) + geom_point(aes(colour=kmeans)) +
 ggsave(cmp_pcs, file="CMP_pamk_pcoverlay.pdf",
        width=5,height=4, useDingbats=F)
 
-# CMP g-ChromVAR clustering
-traitstoplot <- c("RBC_COUNT","PLT_COUNT","MPV","MONO_COUNT")
-cmp_chromvar <- ggallyplot(allcells,celltype="CMP",traitstoplot=traitstoplot,smoothed=FALSE,colors=c("Mono","Ery"),kmeans=F)
-cmp_chromvar_plots <- ggmatrix(cmp_chromvar,1,length(traitstoplot),
-                               xAxisLabels = traitstoplot) + 
-  theme(plot.title = element_text(hjust = 0.5))
-
-ggsave(cmp_chromvar_plots, file="CMP_gChromVAR_Clustering.pdf",
-       width=6,height=3,useDingbats=F)
+# CMP g-ChromVAR clustering (ended up not doing this)
+# traitstoplot <- c("RBC_COUNT","PLT_COUNT","MPV","MONO_COUNT")
+# cmp_chromvar <- ggallyplot(allcells,celltype="CMP",traitstoplot=traitstoplot,smoothed=FALSE,colors=c("Mono","Ery"),kmeans=F)
+# cmp_chromvar_plots <- ggmatrix(cmp_chromvar,1,length(traitstoplot),
+#                                xAxisLabels = traitstoplot) +
+#   theme(plot.title = element_text(hjust = 0.5))
+# 
+# ggsave(cmp_chromvar_plots, file="CMP_gChromVAR_Clustering.pdf",
+#        width=6,height=3,useDingbats=F)
 
 # Extract dataframe with annotation for k-medoids clustering by ATAC PCs
 enrichments <- compare_subgroups_plot(allcells,celltype="CMP",traitstoplot=traitstoplot,
@@ -373,28 +373,29 @@ enrichments <- compare_subgroups_plot(allcells,celltype=celltype,traitstoplot=me
 plots  <- compare_subgroups_plot(allcells,celltype=celltype,traitstoplot=meptraits,
                                  numPCs=numPCs,graph=TRUE,colors=c("Ery","Mega"),kmeans=F)
 
+ggmatrix(plots,1,length(meptraits),xAxisLabels = meptraits)
 mep_atac_plots <- ggmatrix(plots,1,length(meptraits),xAxisLabels = meptraits)
 ggsave(mep_atac_plots, file="5Ea_MEP_ATAC_Clustering_4traits_REVISED.pdf",
        width=6,height=3, useDingbats=F)
 legend <- g_legend(plots[[1]])
 grid.arrange(legend, ncol=1, nrow=1)
 
-# Cluster MEP population by g-chromVAR
-celltype <- "MEP"
-mep_chromvar <- ggallyplot(allcells,kmeans=F,celltype="MEP",traitstoplot=meptraits,smoothed=FALSE,colors=c("Ery","Mega"))
-mep_chromvar_plots <- ggmatrix(mep_chromvar,1,length(meptraits),
-                               xAxisLabels = meptraits) + 
-  theme(plot.title = element_text(hjust = 0.5))
-
-ggsave(mep_chromvar_plots, file="5Ea_MEP_gChromVAR_Clustering_REVISED.pdf",
-       width=6,height=3, useDingbats=F)
+# Cluster MEP population by g-chromVAR (ended up not doing this)
+# celltype <- "MEP"
+# mep_chromvar <- ggallyplot(allcells,celltype="MEP",traitstoplot=meptraits,smoothed=FALSE,colors=c("Ery","Mega"),kmeans=F)
+# mep_chromvar_plots <- ggmatrix(mep_chromvar,1,length(meptraits),
+#                                xAxisLabels = meptraits) +
+#   theme(plot.title = element_text(hjust = 0.5))
+# 
+# ggsave(mep_chromvar_plots, file="5Ea_MEP_gChromVAR_Clustering_REVISED.pdf",
+#        width=6,height=3, useDingbats=F)
 
 # MEP color PC2 and PC3 plot by k-medoids clustering
 enrichments <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=meptraits,
                                       numPCs=numPCs,graph=FALSE,kmeans=F,colors=c("Ery","Mega"))
 # enrichments <- ggallyplot(allcells,kmeans=F,celltype=celltype,traitstoplot=meptraits,smoothed=FALSE,colors = c("Mega","Ery"),graph=FALSE)
 # enrichments$name <- rownames(enrichments)
-others <- allcells[allcells$type %ni% "MEP",] %>% select(name,paste0(traitstoplot,"_PP001"))
+others <- allcells[allcells$type %ni% "MEP",] %>% dplyr::select(name,traitstoplot)
 colnames(others) <- remove_smooth(colnames(others))
 others$kmeans <- 3
 others$kmeans <- as.factor(others$kmeans)
@@ -416,7 +417,7 @@ ggsave(MEP_pamk_pcoverlay, file="MEP_pamk_pcoverlay.pdf",
        width=5,height=4, useDingbats=F)
 
 # MEP TFs
-# K-medoids cluster by g-ChromVAR z-scores
+# K-medoids cluster by ATAC PCs
 enrichments <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=meptraits,
                                       numPCs=numPCs,graph=FALSE,kmeans=F)
 
