@@ -22,10 +22,11 @@ vep$Uploaded_variation <- gsub("/","_",vep$Uploaded_variation) %>% str_replace(.
 
 # Coding consequences
 coding_consequences <- c("missense_variant","synonymous_variant","frameshift_variant",
+                         "splice_acceptor_variant","splice_donor_variant",
                          "inframe_insertion","stop_gained","stop_retained_variant",
                          "start_lost","stop_lost","coding_sequence_variant","incomplete_terminal_codon_variant")
 
-all_consequences <- CS.gr[CS.gr$PP > 0.10,"Consequence"] %>% mcols() %>% unlist()
+all_consequences <- CS.gr[CS.gr$PP > 0.10,"Consequence"] %>% unique() %>% mcols() %>% unlist()
 coding_con <- all_consequences[all_consequences %in% coding_consequences] %>% table() %>% as.data.frame() %>% arrange(desc(Freq))
 colnames(coding_con)[1] <- "Categorie"
 coding_con$Categorie <- factor(coding_con$Categorie, levels = coding_con$Categorie)
