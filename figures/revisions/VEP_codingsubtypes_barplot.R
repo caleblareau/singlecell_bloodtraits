@@ -15,14 +15,14 @@ setwd("/Volumes/broad_sankaranlab/ebao/singlecell_bloodtraits/")
 CS.gr <- readRDS("data/Finemap/UKBB_BC_v3_VEPannotations.rds")
 
 # Read VEP table ----------------------------------------------------------
-vep <- data.frame(fread("figures/revisions/vep_output_everything.txt"))
+vep <- data.frame(fread("figures/revisions/VEP/vep_output_everything.txt"))
 colnames(vep)[1] <- "Uploaded_variation"
 
 vep$Uploaded_variation <- gsub("/","_",vep$Uploaded_variation) %>% str_replace(.,"_",":") 
 
 # Coding consequences
 coding_consequences <- c("missense_variant","synonymous_variant","frameshift_variant",
-                         "splice_acceptor_variant","splice_donor_variant",
+                         "splice_acceptor_variant","splice_donor_variant","splice_region_variant",
                          "inframe_insertion","stop_gained","stop_retained_variant",
                          "start_lost","stop_lost","coding_sequence_variant","incomplete_terminal_codon_variant")
 
