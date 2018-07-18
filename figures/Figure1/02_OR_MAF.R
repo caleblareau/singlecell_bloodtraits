@@ -17,4 +17,9 @@ ggplot(CS.df) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_fill_manual(values = c(jdb_palette("GrandBudapest2")[c(4)],jdb_palette("Zissou")[1:5]))
 
+p1 <- ggplot(CS.df, aes(x = MAF_fix, color = PP_bin)) + 
+  geom_density() + 
+  pretty_plot(fontsize = 7) + L_border() + theme(legend.position = "none") + 
+  scale_color_manual(values = c(jdb_palette("GrandBudapest2")[c(4)],jdb_palette("Zissou")[1:5]))
+cowplot::ggsave(p1, file = "MAF_density.pdf", width = 3, height = 1.5)
 
