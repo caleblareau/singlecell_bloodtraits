@@ -7,7 +7,7 @@ library(diffloop)
 library(BuenColors)
 
 
-source("geneinfoLoad.R")
+source("geneinfoLoad.R") #hi-C interactions?
 genome <- "hg19"
 
 chr <- "chr7"

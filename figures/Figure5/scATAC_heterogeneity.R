@@ -247,8 +247,7 @@ plots <- compare_subgroups_plot(allcells,celltype="CMP",traitstoplot=traitstoplo
                                 numPCs=5,graph=TRUE,colors=c("Ery","Mono"),kmeans=F)
 CMP_boxplots <- ggmatrix(plots[1:4],nrow=1,ncol=length(traitstoplot),
                          xAxisLabels = traitstoplot)
-ggsave(CMP_boxplots, file="5Ca_CMP_kmedoids_REVISED.pdf",
-       width=6,height=3, useDingbats=F)
+#ggsave(CMP_boxplots, file="5Ca_CMP_kmedoids_REVISED.pdf", width=6,height=3, useDingbats=F)
 
 # Extract legend and save separately
 legend <- g_legend(plots[[1]])
@@ -316,10 +315,21 @@ CMP_TFs <- ggmatrix(TFplots,1,length(TFs_of_interest),
          xAxisLabels = TFs_of_interest) + 
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(CMP_TFs, file="5Cb_CMP_TFzscores_REVISED.pdf",width=6,height=3, useDingbats=F)
+#ggsave(CMP_TFs, file="5Cb_CMP_TFzscores_REVISED.pdf",width=6,height=3, useDingbats=F)
 
 # CMP TF rank order plot
+
+# Calculate pvalues for all TFs
+TFplots <- lapply(colnames(TF_zscores)[2:ncol(TF_zscores)], function(TF){
+  # idx <- grep(TF,colnames(TF_zscores),value=TRUE)[1]
+  zscores <- TF_zscores %>% dplyr::select(cellnames,TF)
+  merged <- merge(enrichments,zscores,by.x="name",by.y="cellnames")
+  p <- t.test(merged[merged$kmeans %in% 1,TF], merged[merged$kmeans %in% 2,TF])$p.value
+  return(p)
+})
+
 TF_differences <- readRDS("../../data/singlecell/scATAC/CMP_ATAC_TFzscore_differences_kmedoids.rds")
+TF_differences <- TF_differences[,-c("highlight","toLabel")]
 TF_differences$TF_name <- str_split_fixed(TF_differences$TF, "_",n=4)[,3]
 TF_differences$FDR <- qvalue(TF_differences$pval)$qvalues
 
@@ -371,7 +381,7 @@ ggallyplot_atac(allcells,kmeans=F,celltype=celltype,traitstoplot=meptraits,smoot
 enrichments <- compare_subgroups_plot(allcells,celltype=celltype,traitstoplot=meptraits,
                                       numPCs=numPCs,graph=FALSE,kmeans=F)
 plots  <- compare_subgroups_plot(allcells,celltype=celltype,traitstoplot=meptraits,
-                                 numPCs=numPCs,graph=TRUE,colors=c("Ery","Mega"),kmeans=F)
+                                 numPCs=numPCs,graph=TRUE,colors=c("Mega","Ery"),kmeans=F)
 
 ggmatrix(plots,1,length(meptraits),xAxisLabels = meptraits)
 mep_atac_plots <- ggmatrix(plots,1,length(meptraits),xAxisLabels = meptraits)
@@ -425,7 +435,7 @@ enrichments <- compare_subgroups_plot(allcells,celltype="MEP",traitstoplot=meptr
 #                           smoothed=FALSE,colors = c("Ery","Mega"),graph=F)
 # enrichments$name <- rownames(enrichments)
 
-TFs_of_interest <- c("GATA1","KLF1","MEF2C")
+TFs_of_interest <- c("GATA1","KLF1","RUNX1")
 
 # For the TFs of interest, extract their z-scores for all single cells of a cell type and plot k-means cluster vs. z-score
 TFplots <- lapply(TFs_of_interest, function(TF){
@@ -435,7 +445,7 @@ TFplots <- lapply(TFs_of_interest, function(TF){
   merged <- merge(enrichments,zscores,by.x="name",by.y="cellnames")
   p <- ggplot(merged, aes_string(x="kmeans", y=colnames(merged)[ncol(merged)],fill="kmeans")) + 
     geom_boxplot(outlier.shape=NA) + pretty_plot() + 
-    scale_fill_manual(values=as.character(jdb_color_maps2[c("Ery","Mega")])) +
+    scale_fill_manual(values=as.character(jdb_color_maps2[c("Mega","Ery")])) +
     geom_quasirandom(varwidth = TRUE,alpha=0.35,size=0.5)+
     theme(axis.title.x = element_blank())
   return(p)
@@ -489,6 +499,18 @@ p <- ggplot(TF_differences,aes(x=rank,y=-log10(FDR))) +
     direction="both")
 
 ggsave(p, file="5F_MEP_TFs_rankorderplot.pdf",width=6,height=6, useDingbats=F)
+
+
+# TF rank-order plot supplemental tables ----------------------------------
+# CMP TF rank order plot
+TF_differences <- readRDS("../../data/singlecell/scATAC/CMP_ATAC_TFzscore_differences_kmedoids.rds")
+TF_differences <- TF_differences %>% dplyr::select(rank,TF,pval,FDR,logp)
+write.table(TF_differences, file = "SupplementalTable_CMP_TFs.tsv", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+# MEP TF rank order plot
+TF_differences <- readRDS("../../data/singlecell/scATAC/MEP_ATAC_TFzscore_differences_kmedoids.rds")
+TF_differences <- TF_differences %>% dplyr::select(rank,TF,pval,FDR,logp) 
+write.table(TF_differences, file = "SupplementalTable_MEP_TFs.tsv", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 
 ######################################################################################################
 # # k-mers clustering
