@@ -249,11 +249,11 @@ cowplot::ggsave(GFI1B_phenos, file = "GFI1B_plt_count_phenotypes.pdf", height = 
 ########################################################################################################################
 # VAV1 - MPV
 # Bar plots
-rs_alleles <- fread("../../../data/examples/rawphenos_mixed.rs150813342_rs60757417.txt")
+rs_alleles <- fread("../../../data/examples/rawphenos_mixed.rs8106212_rs332426.txt")
 trait <- "MPV"
 
 colnames(rs_alleles)[1:2] <- c("alleleA.rs1","alleleA.rs2")
-# rs1 = rs60757417, rs2 = rs150813342
+# rs1 = rs8106212, rs2 = rs332426
 
 # Round imputed genotypes to nearest integer
 rs_alleles_onlyabsolutes <- as.data.frame(rs_alleles)
@@ -265,36 +265,36 @@ rs_alleles_onlyabsolutes$alleleB.rs2 <- 2-rs_alleles_onlyabsolutes$alleleA.rs2
 rs_alleles_onlyabsolutes <- rs_alleles_onlyabsolutes[,c("alleleB.rs1","alleleB.rs2",trait)]
 
 # Make bar plot with mean and se of trait
-eval_gene <- function(rs2, rs2_l, rs1, rs1_l,trait="PLT_COUNT"){
+eval_gene <- function(rs2, rs2_l, rs1, rs1_l,trait="MPV"){
   v <- subset(rs_alleles_onlyabsolutes,alleleB.rs2==rs2 & alleleB.rs1==rs1)
   if (nrow(v)<10){
     v <- NULL
   }
-  data.frame(name = paste0("rs150813342: ", rs2_l, "\nrs60757417: ", rs1_l), estimate = mean(v[,trait]), se = sd(v[,trait])/sqrt(length(v[,trait])))
+  data.frame(name = paste0("rs332426: ", rs2_l, "\nrs8106212: ", rs1_l), estimate = mean(v[,trait]), se = sd(v[,trait])/sqrt(length(v[,trait])))
 }
 
 plotdf <- rbind(
-  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 0, rs1_l = "GG"),
-  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 1, rs1_l = "CG"),
-  eval_gene(rs2 = 2, rs2_l = "TT", rs1 = 2, rs1_l = "CC"),
-  eval_gene(rs2 = 1, rs2_l = "CT", rs1 = 2, rs1_l = "GG"),
-  eval_gene(rs2 = 1, rs2_l = "CT", rs1 = 1, rs1_l = "CG"),
-  eval_gene(rs2 = 1, rs2_l = "CT", rs1 = 0, rs1_l = "CC"),
-  eval_gene(rs2 = 0, rs2_l = "CC", rs1 = 2, rs1_l = "GG"),
-  eval_gene(rs2 = 0, rs2_l = "CC", rs1 = 1, rs1_l = "CG"),
-  eval_gene(rs2 = 0, rs2_l = "CC", rs1 = 0, rs1_l = "CC")
+  eval_gene(rs2 = 2, rs2_l = "AA", rs1 = 0, rs1_l = "CC"),
+  eval_gene(rs2 = 1, rs2_l = "GA", rs1 = 0, rs1_l = "CC"),
+  eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 0, rs1_l = "CC"),
+  eval_gene(rs2 = 2, rs2_l = "AA", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 1, rs2_l = "GA", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 1, rs1_l = "CT"),
+  eval_gene(rs2 = 2, rs2_l = "AA", rs1 = 2, rs1_l = "TT"),
+  eval_gene(rs2 = 1, rs2_l = "GA", rs1 = 2, rs1_l = "TT"),
+  eval_gene(rs2 = 0, rs2_l = "GG", rs1 = 2, rs1_l = "TT")
 )
 
 plotdf <- plotdf[complete.cases(plotdf),]
 
-limits <- c(as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.3)),
-            as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.6)))
+limits <- c(as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.4)),
+            as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.7)))
 
-GFI1B_phenos <-ggplot(plotdf, aes(x = name, y = estimate)) + 
+VAV1_phenos <-ggplot(plotdf, aes(x = name, y = estimate)) + 
   geom_bar(stat = "identity", color = "black", fill = "firebrick") + pretty_plot() +
   geom_errorbar(aes(ymin=estimate-se, ymax=estimate+se), width=.1) +
-  labs(x = "", y = "Platelet Count (10^3 cells/uL)") + coord_cartesian(ylim = limits)
-cowplot::ggsave(GFI1B_phenos, file = "GFI1B_plt_count_phenotypes.pdf", height = 5, width = 10)
+  labs(x = "", y = "Mean platelet volume (femtolitres)") + coord_cartesian(ylim = limits)
+cowplot::ggsave(VAV1_phenos, file = "VAV1_MPV_phenotypes.pdf", height = 5, width = 10)
 
 #########
 # Piechart of haplotype frequencies for the two AK3 SNPs
