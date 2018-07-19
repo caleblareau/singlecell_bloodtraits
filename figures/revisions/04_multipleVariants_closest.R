@@ -11,12 +11,12 @@ x02_promoter_gr <- bedToGRanges("../../data/annotations/Promoter_UCSC.fixed.bed"
 x03_utr_gr <- bedToGRanges("../../data/annotations/UTR_3_UCSC.bed")
 x04_atac_gr <- bedToGRanges("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.bed")
 x05_intron_gr <- bedToGRanges("../../data/annotations/Intron_UCSC.bed")
-ex_var <- read.table("exclude_list.txt", header = FALSE, stringsAsFactors = FALSE)[,1]
+ex_var <- read.table("exclude_list_revised.txt", header = FALSE, stringsAsFactors = FALSE)[,1]
 
 traits <- gsub("_PP001.bed", "", list.files("../../data/UKBB_BC_PP001/", patter = ".bed$"))
 lapply(traits, function(trait){
   
-# Import and munge variants
+  # Import and munge variants
   t <- read.table(paste0("../../data/UKBB_BC_PP001/betas_added/",trait,"_PP001_betas.bed"))[,c("V1", "V2", "V3", "V4","V5", "V8")]
   
   # Specify region
@@ -73,10 +73,27 @@ lapply(traits, function(trait){
   
 }) %>% rbindlist () %>% as.data.frame() -> nearestPairsDF
 
-# Filter at 10k
-nearestPairsDF %>% filter(distance < 10000) %>% arrange(distance) -> PPvariantPairs
 
-PPvariantPairs %>% group_by(Class1, Class2) %>% summarise(count = n()) %>% data.frame() -> odf
+if(FALSE){
+  nearestPairsDF %>% dplyr::select(Variant1, Variant2, distance) %>%
+    distinct() %>% mutate(log10dist = log10(distance)) %>%
+    ggplot() + stat_ecdf(aes(x = log10dist))
+  
+  nearestPairsDF %>% dplyr::select(Variant1, Variant2, distance) %>%
+    distinct() %>% mutate(binCut = cut(distance, breaks = c(1,100,1000,10000,10^5,10^6))) %>%
+    filter(!is.na(binCut)) %>% group_by(binCut) %>% summarize(count = n()) %>%
+    ggplot() + geom_bar(aes(x = binCut, y = count), stat = "identity", color = "black", fill = "lightgrey") +
+    pretty_plot(fontsize = 7) + L_border() -> p1
+    cowplot::ggsave(p1, filename = "nearestVariantOut/barplot.pdf", width = 2, height = 2)
+  
+  
+}
+
+# Filter at 10k
+nearestPairsDF %>% filter(distance < 25000) %>% arrange(distance) -> PPvariantPairs
+
+PPvariantPairs %>% dplyr::select(Variant1, Class1, Variant2, Class2) %>% distinct() %>%
+  group_by(Class1, Class2) %>% summarise(count = n()) %>% data.frame() -> odf
 
 # swap stuff around -- painful
 odf[odf$Class1 == "accessible" & odf$Class2 == "promoter", c("Class1", "Class2")] <-
@@ -99,5 +116,6 @@ p1 <- ggplot(odf, aes(Class1, Class2,fill = count)) + geom_tile( color = "black"
   labs(x = "", y = "") + pretty_plot(fontsize = 8) + L_border() + theme(legend.position = "none") +
   theme(axis.text.x=element_text(angle=45, hjust=1))
 
-cowplot::ggsave(p1, file = "nearestVariantOut/PP50_10kb_heatmap.pdf", height = 2, width = 2)
+cowplot::ggsave(p1, file = "nearestVariantOut/PP50_25kb_heatmap.pdf", height = 2, width = 2)
+
 write.table(PPvariantPairs, file = "nearestVariantOut/twoVar_table.tsv", sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)

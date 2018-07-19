@@ -12,7 +12,7 @@ x03_utr_gr <- bedToGRanges("../../data/annotations/UTR_3_UCSC.bed")
 x04_atac_gr <- bedToGRanges("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.bed")
 x05_intron_gr <- bedToGRanges("../../data/annotations/Intron_UCSC.bed")
 
-ex_var <- read.table("exclude_list.txt", header = FALSE, stringsAsFactors = FALSE)[,1]
+ex_var <- read.table("exclude_list_revised.txt", header = FALSE, stringsAsFactors = FALSE)[,1]
 
 traits <- gsub("_PP001.bed", "", list.files("../../data/UKBB_BC_PP001/", patter = ".bed$"))
 lapply(traits, function(trait){
@@ -29,7 +29,7 @@ lapply(traits, function(trait){
   # Filter out the exclude variants
   t <- t[reg_split[,2] %ni% ex_var, ]
   
-  t <- t[t$V5 > 0.3, ]
+  t <- t[t$V5 > 0.5, ]
   t$trait <- trait
   colnames(t) <- c("chr", "start", "stop", "region", "PP", "Z", "trait")
   gr_t <- unique(makeGRangesFromDataFrame(t, keep.extra.columns = TRUE))
@@ -82,7 +82,8 @@ lapply(traits, function(trait){
 # Filter such that they are in the same region
 nearestPairsDF_region %>% filter(as.character(regionA) == as.character(regionB)) %>% arrange(distance) -> PPvariantPairs
 
-PPvariantPairs %>% group_by(Class1, Class2) %>% summarise(count = n()) %>% data.frame() -> odf
+PPvariantPairs %>% dplyr::select(Variant1, Class1, Variant2, Class2) %>% distinct() %>%
+  group_by(Class1, Class2) %>% summarise(count = n()) %>% data.frame() -> odf
 
 # swap stuff around -- painful
 odf[odf$Class1 == "accessible" & odf$Class2 == "promoter", c("Class1", "Class2")] <-
@@ -104,7 +105,7 @@ odf[odf$Class1 == "accessible" & odf$Class2 == "utr", c("Class1", "Class2")] <-
 odf[odf$Class1 == "intron" & odf$Class2 == "utr", c("Class1", "Class2")] <-
   odf[odf$Class1 == "intron" & odf$Class2 == "utr", c("Class2", "Class1")] 
 
-odf <- rbind(odf, data.frame(Class1 = "utr", Class2 = "intergenic", count = 0))
+#odf <- rbind(odf, data.frame(Class1 = "utr", Class2 = "intergenic", count = 0))
 
 # Order for final presentation
 odf$Class1 <- factor(as.character(odf$Class1), levels = c("coding", "promoter", "utr", "accessible", "intron", "intergenic"))
@@ -115,7 +116,7 @@ p1 <- ggplot(odf, aes(Class1, Class2,fill = count)) + geom_tile( color = "black"
   labs(x = "", y = "") + pretty_plot(fontsize = 8) + L_border() + theme(legend.position = "none") +
   theme(axis.text.x=element_text(angle=45, hjust=1))
 
-cowplot::ggsave(p1, file = "nearestVariantOut/PP30_region_heatmap.pdf", height = 2, width = 2)
+cowplot::ggsave(p1, file = "nearestVariantOut/PP50_region_heatmap.pdf", height = 2, width = 2)
 # write.table(PPvariantPairs, file = "nearestVariantOut/twoVar_region10kb_table.tsv",
 #             sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
 
