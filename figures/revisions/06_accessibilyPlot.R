@@ -17,10 +17,15 @@ ATAC.cpm.log2 <- log2(ATAC.cpm+1)
 cebpa <- makeGRangesFromDataFrame(data.frame(chr = "chr19", start = 33754548, end = 33754549))
 kit <- makeGRangesFromDataFrame(data.frame(chr = "chr4", start = 55408999, end = 55409000))
 bcl2 <- makeGRangesFromDataFrame(data.frame(chr = "chr18", start = 60920854, end = 60920855))
+myc <- makeGRangesFromDataFrame(data.frame(chr = "chr8", start = 130604272, end = 130604273))
+cebpe <- makeGRangesFromDataFrame(data.frame(chr = "chr14", start = 23589349, end = 23589350))
+
 
 cebpa_counts <- ATAC.cpm.log2[subjectHits(findOverlaps(cebpa, peaks)),]
 kit_counts <- ATAC.cpm.log2[subjectHits(findOverlaps(kit, peaks)),]
 bcl2_counts <- ATAC.cpm.log2[subjectHits(findOverlaps(bcl2, peaks)),]
+myc_counts <- ATAC.cpm.log2[subjectHits(findOverlaps(myc, peaks)),]
+cebpe_counts <- ATAC.cpm.log2[subjectHits(findOverlaps(cebpe, peaks)),]
 
 # Set up coordinates
 cellCoordsDF <- data.frame(
@@ -50,3 +55,5 @@ makeAplot <- function(vec, plottrait){
 makeAplot(cebpa_counts, "CEBPa")
 makeAplot(kit_counts, "KIT")
 makeAplot(bcl2_counts, "BCL2")
+makeAplot(myc_counts, "MYC")
+makeAplot(cebpe_counts, "CEBPE")
