@@ -13,7 +13,7 @@ x <- x[,2:17]
 counts <- x/colSums(x) * 1000000
 log2cpm <- data.matrix(log2(counts + 1))
 
-gfi1b_counts <- log2cpm["GFI1B",]
+gfi1b_counts <- log2cpm["CD33",]
 
 
 # Set up coordinates
@@ -42,4 +42,4 @@ makeAplot <- function(vec, plottrait){
 }
 
 makeAplot(gfi1b_counts, "GFI1B")
-
+makeAplot(gfi1b_counts, "NLRP7")

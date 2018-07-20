@@ -117,4 +117,5 @@ pnorm((mean(permuted) - GPA_ranksum)/sd(permuted), lower.tail = FALSE)
 fgwas_ranksum <- sum(1:dim(df)[1]*df[order(df$fgwas_z, decreasing = TRUE), "lineageSpecific"])
 pnorm((mean(permuted) - fgwas_ranksum)/sd(permuted), lower.tail = FALSE)
 
+saveRDS(df, file = "allEnrichments-df.rds")
 
