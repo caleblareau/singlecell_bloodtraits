@@ -31,6 +31,7 @@ coding_con <- all_consequences[all_consequences %in% coding_consequences] %>% ta
 colnames(coding_con)[1] <- "Categorie"
 coding_con$Categorie <- factor(coding_con$Categorie, levels = coding_con$Categorie)
 
+# LOF variants: 3, 11, 15, 16, 17, 21, 22 = frameshift, splice donor, splice acceptor, stop_gained, stop_lost, start_lost
 # Barplot
 p <- ggplot(coding_con, aes(x = Categorie, y = Freq)) + 
   geom_bar(stat = "identity", color = "black", fill = "firebrick") + pretty_plot() +

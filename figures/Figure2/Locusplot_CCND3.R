@@ -193,7 +193,8 @@ ggplot(conditional,aes(POS/(10^6),-log10(PVAL))) +
                    nudge_y=0) 
 
 ####################################################################################################################
-### Plot log10(BF) for FM variants
+#####################
+#Plot log10(BF) for FM variants
 region<-37
 FM_region <- fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/",trait,"/output/region",region,".snp"))
 FM_region$POS <- str_split_fixed(str_split_fixed(FM_region$snp,":",2)[,2],"_",2)[,1]
@@ -229,6 +230,7 @@ ggsave("rs9349205_fm_bfs.pdf", plot = fm, device = NULL, path = dir,
 
 ####################################################################################################################
 # Hard called LD finemap results
+trait <- "RBC_COUNT"
 hardcallregion<-36
 FM_hardcall_region <- fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/",trait,"/hardcalloutput/region",hardcallregion,".snp"))
 FM_hardcall_region$POS <- str_split_fixed(str_split_fixed(FM_hardcall_region$snp,":",2)[,2],"_",2)[,1]
@@ -266,6 +268,7 @@ ggsave("rs9349205_hardcall_fm_bfs.pdf", plot = hardcall, device = NULL, path = d
 
 ####################################################################################################################
 # UK10K LD finemap results
+
 UK10Kregion<-36
 FM_UK10K_region <- fread(paste0("/Volumes/broad_sankaranlab/ebao/FINEMAP/",trait,"/UK10Koutput/region",UK10Kregion,".snp"))
 FM_UK10K_region$POS <- str_split_fixed(str_split_fixed(FM_UK10K_region$snp,":",2)[,2],"_",2)[,1]
@@ -284,7 +287,7 @@ FM_UK10K_region$sentinel <- ifelse(FM_UK10K_region$RSQR ==1 |
 
 # Plot FM log10bf with UK10K variants labeled
 uk10k <- ggplot(subset(FM_UK10K_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
-  geom_point(aes(fill=RSQR),shape=21,size=sz)  +
+  geom_point(aes(fill=RSQR),shape=21,size=1)+
   pretty_plot()+
   scale_y_continuous(expand = c(0.05, 0))+
   scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1],name="R2") +
@@ -301,7 +304,37 @@ uk10k <- ggplot(subset(FM_UK10K_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_lo
                   nudge_x = 0.5,
                   nudge_y=2.5)
 
-dir="/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Examples/CCND3/RBC_COUNT"
+locustheme <-  theme(plot.title = element_text(size=sz*4,hjust = 0.50,face="bold"),
+                     text=element_text(size=sz*4),
+                     axis.title.x = element_blank(),
+                     axis.text.x = element_blank(),
+                     axis.ticks.x = element_blank(),
+                     axis.title.y = element_blank(),
+                     axis.text.y = element_blank(),
+                     axis.ticks.y = element_blank(),
+                     legend.position = "none",
+                     legend.justification = c("left", "top"),
+                     legend.box.just = "left",
+                     legend.margin = margin(1, 1, 1, 1),
+                     legend.direction = "horizontal",
+                     legend.key.size = unit(width/30, "in"),
+                     legend.text = element_text(size=sz*2),
+                     legend.title = element_text(face="bold",size=sz*2))
+
+ggplot(subset(FM_UK10K_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
+  geom_point(aes(fill=RSQR),shape=21,size=1)+
+  pretty_plot()+
+  scale_y_continuous(expand = c(0.05, 0))+
+  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1],name="R2") +
+  guides(fill=guide_colorbar(title.vjust=0.75))+
+  locustheme+
+  labs(x="Position on Chromosome 6 (Mb)",y="log10(Bayes factor)") + 
+  geom_point(data=subset(FM_UK10K_region,sentinel=="yes"),
+             aes(x=POS/(10^6),y=snp_log10bf),
+             fill="yellow",shape=21,size=1)
+
+
+dir="/Volumes/broad_sankaranlab/ebao/singlecell_bloodtraits/figures/Figure2/CCND3_RBC_COUNT/"
 height=3
 width=5
 ggsave("rs9349205_uk10k_fm_bfs.pdf", plot = uk10k, device = NULL, path = dir,
