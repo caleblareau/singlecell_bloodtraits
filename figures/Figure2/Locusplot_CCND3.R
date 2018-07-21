@@ -337,6 +337,6 @@ uk10k <- ggplot(subset(FM_UK10K_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_lo
 dir="/Volumes/broad_sankaranlab/ebao/singlecell_bloodtraits/figures/Figure2/CCND3_RBC_COUNT/"
 height=3
 width=5
-ggsave("rs9349205_uk10k_fm_bfs.pdf", plot = uk10k, device = NULL, path = dir,
+ggsave("rs9349205_uk10k_fm_bfs.png", plot = uk10k, device = NULL, path = dir,
        scale = 1, width = width, height=height, units = "in",
        dpi = 300, limitsize = TRUE)
