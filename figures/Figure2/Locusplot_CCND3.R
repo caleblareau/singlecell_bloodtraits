@@ -321,7 +321,7 @@ locustheme <-  theme(plot.title = element_text(size=sz*4,hjust = 0.50,face="bold
                      legend.text = element_text(size=sz*2),
                      legend.title = element_text(face="bold",size=sz*2))
 
-ggplot(subset(FM_UK10K_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
+uk10k <- ggplot(subset(FM_UK10K_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
   geom_point(aes(fill=RSQR),shape=21,size=1)+
   pretty_plot()+
   scale_y_continuous(expand = c(0.05, 0))+
