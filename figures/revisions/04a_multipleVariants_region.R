@@ -82,6 +82,18 @@ lapply(traits, function(trait){
 # Filter such that they are in the same region
 nearestPairsDF_region %>% filter(as.character(regionA) == as.character(regionB)) %>% arrange(distance) -> PPvariantPairs
 
+if(FALSE){
+  rsid_vec <- readRDS("rsid_vector.rds")
+  PPvariantPairs$Var1 <- stringr::str_split_fixed(PPvariantPairs$Variant1, "-", 2)[,1]
+  PPvariantPairs$Var2 <- stringr::str_split_fixed(PPvariantPairs$Variant2, "-", 2)[,1]
+  PPvariantPairs %>% mutate(rsID1 = rsid_vec[Var1], rsID2 = rsid_vec[Var2]) %>%
+    dplyr::select(Var1, rsID1, Class1, PP1, 
+                  Var2, rsID2, Class2, PP2, 
+                  trait, distance) -> refined_region
+  write.table(refined_region, file = "final_supplemental_tables/nearVariantsRegionPP50.tsv", sep = "\t", quote = FALSE,
+              row.names = FALSE, col.names = TRUE)
+}
+
 PPvariantPairs %>% dplyr::select(Variant1, Class1, Variant2, Class2) %>% distinct() %>%
   group_by(Class1, Class2) %>% summarise(count = n()) %>% data.frame() -> odf
 
