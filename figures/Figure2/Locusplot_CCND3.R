@@ -266,6 +266,26 @@ ggsave("rs9349205_hardcall_fm_bfs.pdf", plot = hardcall, device = NULL, path = d
        scale = 1, width = width, height=width*1/2, units = "in",
        dpi = 300, limitsize = TRUE)
 
+
+hardcall <- ggplot(subset(FM_hardcall_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
+  geom_point(aes(fill=RSQR),shape=21,size=sz)  +
+  pretty_plot()+
+  scale_y_continuous(expand = c(0.05, 0))+
+  scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1],name="R2") +
+  guides(fill=guide_colorbar(title.vjust=0.75))+
+  locustheme+
+  labs(x="Position on Chromosome 6 (Mb)",y="log10(Bayes factor)") + 
+  geom_point(data=subset(FM_hardcall_region,sentinel=="yes"),
+             aes(x=POS/(10^6),y=snp_log10bf),
+             fill="yellow",shape=21,size=sz)
+
+dir="/Volumes/broad_sankaranlab/ebao/singlecell_bloodtraits/figures/Figure2/CCND3_RBC_COUNT/"
+height=3
+width=5
+cowplot::ggsave("rs9349205_hardcall_fm_bfs.png", plot = hardcall, device = NULL, path = dir,
+       scale = 1, width = width, height=height, units = "in",
+       dpi = 300, limitsize = TRUE)
+
 ####################################################################################################################
 # UK10K LD finemap results
 
@@ -287,7 +307,7 @@ FM_UK10K_region$sentinel <- ifelse(FM_UK10K_region$RSQR ==1 |
 
 # Plot FM log10bf with UK10K variants labeled
 uk10k <- ggplot(subset(FM_UK10K_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
-  geom_point(aes(fill=RSQR),shape=21,size=1)+
+  geom_point(aes(fill=RSQR),shape=21,size=sz)+
   pretty_plot()+
   scale_y_continuous(expand = c(0.05, 0))+
   scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1],name="R2") +
@@ -322,7 +342,7 @@ locustheme <-  theme(plot.title = element_text(size=sz*4,hjust = 0.50,face="bold
                      legend.title = element_text(face="bold",size=sz*2))
 
 uk10k <- ggplot(subset(FM_UK10K_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_log10bf)) + 
-  geom_point(aes(fill=RSQR),shape=21,size=1)+
+  geom_point(aes(fill=RSQR),shape=21,size=sz)+
   pretty_plot()+
   scale_y_continuous(expand = c(0.05, 0))+
   scale_fill_gradientn(colors = jdb_palette("solar_extra")[-1],name="R2") +
@@ -331,12 +351,12 @@ uk10k <- ggplot(subset(FM_UK10K_region,snp_log10bf > -Inf),aes(POS/(10^6),snp_lo
   labs(x="Position on Chromosome 6 (Mb)",y="log10(Bayes factor)") + 
   geom_point(data=subset(FM_UK10K_region,sentinel=="yes"),
              aes(x=POS/(10^6),y=snp_log10bf),
-             fill="yellow",shape=21,size=1)
+             fill="yellow",shape=21,size=sz)
 
 
 dir="/Volumes/broad_sankaranlab/ebao/singlecell_bloodtraits/figures/Figure2/CCND3_RBC_COUNT/"
 height=3
 width=5
-ggsave("rs9349205_uk10k_fm_bfs.png", plot = uk10k, device = NULL, path = dir,
+cowplot::ggsave("rs9349205_uk10k_fm_bfs.png", plot = uk10k, device = NULL, path = dir,
        scale = 1, width = width, height=height, units = "in",
        dpi = 300, limitsize = TRUE)
