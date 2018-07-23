@@ -58,7 +58,7 @@ CS.df.sub.gr <- GRanges(CS.df.sub)
 # Read in and munge motifbreakR results
 ALL.motif <- readRDS("../../data/motifbreakR/alltraits.mbreaker.withPPs.rds")
 ALL.motif.sub <- ALL.motif %>%
-  dplyr::filter(PP > 0.1) %>%
+  dplyr::filter(PP > 0.1, SNP %ni% gsub("_", ":", exdf)) %>%
   dplyr::select(seqnames, start, end, SNP, REF, ALT, geneSymbol, providerName, seqMatch, effect, PP, MAF, trait)
 ALL.motif.sub.gr <- GRanges(ALL.motif.sub)
 
@@ -100,12 +100,16 @@ write.table(ALL.M_C.df.match, "motifs/ALL.M_C.df.match.txt", sep = "\t", quote =
 lineage <- c("BASO_COUNT" = "GRAN", "EO_COUNT" = "GRAN", "HCT" = "RBC", "HGB" = "RBC", "LYMPH_COUNT" = "LYMPH", "MCH" = "RBC", "MCHC" = "RBC", "MCV" = "RBC", "MEAN_RETIC_VOL" = "RBC", "MONO_COUNT" = "MONO", "MPV" = "PLT", "NEUTRO_COUNT" = "GRAN", "PLT_COUNT" = "PLT", "RBC_COUNT" = "RBC", "RETIC_COUNT" = "RBC", "WBC_COUNT" = "LYMPH") 
 
 # Unique total variants with at least one mechanisms
-ALL.M_C.df.match %>% 
+temp <- ALL.M_C.df.match %>% 
   group_by(SNP) %>%
-  dplyr::select(SNP) %>%
-  distinct() %>% 
+  distinct(SNP, .keep_all = TRUE) 
+temp %>% 
   ungroup() %>%
   summarize(count = n())
+
+# Check overlaps with AC
+idx <- findOverlaps(GRanges(temp), peaks)
+length(table(idx@from))
 
 # Unique variants per trait with at least one mechanism
 ALL.M_C.df.match %>% 
@@ -130,21 +134,35 @@ ALL.M_C.df.match.TFcount <- ALL.M_C.df.match %>%
   arrange(desc(count)) %>%
   as.data.frame()
 
+# Collapse to unique variant / antigen / lineage (trait) combinations
+ALL.M_C.df.match.TFcountSum <- ALL.M_C.df.match %>% 
+  merge(., lineage, by.x = "trait", by.y = "row.names") %>%
+  mutate(lineage = y) %>%
+  group_by(SNP, antigen) %>%
+  summarize(count = n()) %>%
+  ungroup() %>%
+  group_by(antigen) %>%
+  summarize(count = sum(count > 0)) %>%
+  arrange(desc(count)) %>%
+  as.data.frame()
+ALL.M_C.df.match.TFcountSum.vec <- as.vector(ALL.M_C.df.match.TFcountSum$count)
+names(ALL.M_C.df.match.TFcountSum.vec) <- ALL.M_C.df.match.TFcountSum$antigen
+
 # Long to wide for heatmap
 ALL.M_C.df.match.TFcount.wide <- dcast(ALL.M_C.df.match.TFcount, antigen ~ lineage)
 ALL.M_C.df.match.TFcount.wide[is.na(ALL.M_C.df.match.TFcount.wide)] <- 0
 row.names(ALL.M_C.df.match.TFcount.wide) <- ALL.M_C.df.match.TFcount.wide$antigen
 ALL.M_C.df.match.TFcount.wide <- ALL.M_C.df.match.TFcount.wide[,-1]
 ALL.M_C.df.match.TFcount.wide <- as.matrix(ALL.M_C.df.match.TFcount.wide)
-ALL.M_C.df.match.TFcount.wide <- ALL.M_C.df.match.TFcount.wide[names(sort(rowSums(ALL.M_C.df.match.TFcount.wide))),]
+ALL.M_C.df.match.TFcount.wide <- ALL.M_C.df.match.TFcount.wide[names(sort(ALL.M_C.df.match.TFcountSum.vec)),]
 
 # Plot ChIP-seq + motifBreakR overlap
 hm <- Heatmap(ALL.M_C.df.match.TFcount.wide, col=as.character(jdb_palette("brewer_spectra", type="continuous")),
               cluster_rows = FALSE, cluster_columns = TRUE, show_column_names = TRUE,
               row_names_gp = gpar(fontsize = 6),
               column_names_gp = gpar(fontsize = 6),
-              show_heatmap_legend = TRUE)
-ha1 <- rowAnnotation(foo2 = row_anno_barplot(rowSums(ALL.M_C.df.match.TFcount.wide), axis = TRUE, width = unit(2, "cm")))
+              show_heatmap_legend = FALSE)
+ha1 <- rowAnnotation(foo2 = row_anno_barplot(rev(ALL.M_C.df.match.TFcountSum.vec), axis = TRUE, width = unit(2, "cm")))
 hm + ha1
 
 # Read in heme ATAC-seq peaks
@@ -190,12 +208,16 @@ ALL.MM_C.df.match <- ALL.MM_C.df %>%
 write.table(ALL.MM_C.df.match, "motifs/ALL.M_C.df.match.txt", sep = "\t", quote = F, row.names = F)
 
 # Unique total variants with at least one mechanisms
-ALL.MM_C.df.match %>% 
+temp <- ALL.MM_C.df.match %>% 
   group_by(var) %>%
-  dplyr::select(var) %>%
-  distinct() %>% 
+  distinct(var, .keep_all = TRUE)
+temp %>% 
   ungroup() %>%
   summarize(count = n())
+
+# Check overlaps with AC
+idx <- findOverlaps(GRanges(temp), peaks.all)
+length(table(idx@from))
 
 # Unique variants per trait with at least one mechanism
 ALL.MM_C.df.match %>% 
@@ -220,13 +242,27 @@ ALL.MM_C.df.match.TFcount <- ALL.MM_C.df.match %>%
   arrange(desc(count)) %>%
   as.data.frame()
 
+# Collapse to unique variant / antigen / lineage (trait) combinations
+ALL.MM_C.df.match.TFcountSum <- ALL.MM_C.df.match %>% 
+  merge(., lineage, by.x = "trait", by.y = "row.names") %>%
+  mutate(lineage = y) %>%
+  group_by(var, antigen) %>%
+  summarize(count = n()) %>%
+  ungroup() %>%
+  group_by(antigen) %>%
+  summarize(count = sum(count > 0)) %>%
+  arrange(desc(count)) %>%
+  as.data.frame()
+ALL.MM_C.df.match.TFcountSum.vec <- as.vector(ALL.MM_C.df.match.TFcountSum$count)
+names(ALL.MM_C.df.match.TFcountSum.vec) <- ALL.MM_C.df.match.TFcountSum$antigen
+
 # Long to wide for heatmap
 ALL.MM_C.df.match.TFcount.wide <- dcast(ALL.MM_C.df.match.TFcount, antigen ~ lineage)
 ALL.MM_C.df.match.TFcount.wide[is.na(ALL.MM_C.df.match.TFcount.wide)] <- 0
 row.names(ALL.MM_C.df.match.TFcount.wide) <- ALL.MM_C.df.match.TFcount.wide$antigen
 ALL.MM_C.df.match.TFcount.wide <- ALL.MM_C.df.match.TFcount.wide[,-1]
 ALL.MM_C.df.match.TFcount.wide <- as.matrix(ALL.MM_C.df.match.TFcount.wide)
-ALL.MM_C.df.match.TFcount.wide <- ALL.MM_C.df.match.TFcount.wide[names(sort(rowSums(ALL.MM_C.df.match.TFcount.wide))),]
+ALL.MM_C.df.match.TFcount.wide <- ALL.MM_C.df.match.TFcount.wide[names(sort(ALL.MM_C.df.match.TFcountSum.vec)),]
 
 # Plot ChIP-seq + motifMatchR overlap
 hm <- Heatmap(ALL.MM_C.df.match.TFcount.wide, col=as.character(jdb_palette("brewer_spectra", type="continuous")),
@@ -234,6 +270,21 @@ hm <- Heatmap(ALL.MM_C.df.match.TFcount.wide, col=as.character(jdb_palette("brew
               row_names_gp = gpar(fontsize = 6),
               column_names_gp = gpar(fontsize = 6),
               show_heatmap_legend = TRUE)
-ha1 <- rowAnnotation(foo2 = row_anno_barplot(rowSums(ALL.MM_C.df.match.TFcount.wide), axis = TRUE, width = unit(2, "cm")))
+ha1 <- rowAnnotation(foo2 = row_anno_barplot(rev(ALL.MM_C.df.match.TFcountSum.vec), axis = TRUE, width = unit(2, "cm")))
 hm + ha1
+
+# Examples
+results <- readRDS("../../data/motifbreakR/MEAN_RETIC_VOL_Motifbreakr_output_PP001.rds")
+plotMB(results = results, rsid = "chr1:203275407:C:G", effect = "strong")
+plotMB(results = results, rsid = "chr16:87886545:C:T", effect = "strong")
+results <- readRDS("../../data/motifbreakR/MPV_Motifbreakr_output_PP001.rds")
+plotMB(results = results, rsid = "chr10:97057370:C:T", effect = "strong")
+results <- readRDS("../../data/motifbreakR/PLT_COUNT_Motifbreakr_output_PP001.rds")
+plotMB(results = results[results$geneSymbol=="RUNX1",], rsid = "chr1:31241886:G:T", effect = "strong")
+results <- readRDS("../..//LYMPH_COUNT_Motifbreakr_output_PP001.rds")
+plotMB(results = results[results$geneSymbol=="RUNX1",], rsid = "chr2:143886819:G:A", effect = "strong")
+
+
+chr1:203275157-203275657
+
   

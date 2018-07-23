@@ -189,7 +189,7 @@ ATAC.cpm.log2.all.mm.RBC.ARCORannot <- data.frame("mc" = ifelse(seq(1:length(pea
 ATAC.cpm.log2.all.mm.RBC.geneannot <- ATAC.cpm.log2.all.mm.RBC.PCHICannot + ATAC.cpm.log2.all.mm.RBC.ARCORannot
 
 # Plot RBC
-pdf(file="plots/ery_cluster_peaks.pdf", width = 6, height = 5)  
+pdf(file="plots/ery_cluster_peaks.pdf", width = 7, height = 5)  
 par(cex.main=0.8,mar=c(1,1,1,1))
 set.seed(123456)
 km <- kmeans(ATAC.cpm.log2.all.mm.RBC, centers = 5, nstart = 10000) # RBC = 5, LYMPH = 5, MONO = 4, GRAN = 5, PLT = 6
@@ -243,7 +243,7 @@ ATAC.cpm.log2.all.mm.LYMPH.ARCORannot <- data.frame("mc" = ifelse(seq(1:length(p
 ATAC.cpm.log2.all.mm.LYMPH.geneannot <- ATAC.cpm.log2.all.mm.LYMPH.PCHICannot + ATAC.cpm.log2.all.mm.LYMPH.ARCORannot
 
 # Plot LYMPH
-pdf(file="plots/lymph_cluster_peaks.pdf", width = 6, height = 5)  
+pdf(file="plots/lymph_cluster_peaks.pdf", width = 7, height = 5)  
 par(cex.main=0.8,mar=c(1,1,1,1))
 set.seed(123456)
 km <- kmeans(ATAC.cpm.log2.all.mm.LYMPH, centers = 5, nstart = 10000) # LYMPH = 5, LYMPH = 5, MONO = 4, GRAN = 5, PLT = 6
@@ -297,7 +297,7 @@ ATAC.cpm.log2.all.mm.MONO.ARCORannot <- data.frame("mc" = ifelse(seq(1:length(pe
 ATAC.cpm.log2.all.mm.MONO.geneannot <- ATAC.cpm.log2.all.mm.MONO.PCHICannot + ATAC.cpm.log2.all.mm.MONO.ARCORannot
 
 # Plot MONO
-pdf(file="plots/MONO_cluster_peaks.pdf", width = 6, height = 5)  
+pdf(file="plots/MONO_cluster_peaks.pdf", width = 7, height = 5)  
 par(cex.main=0.8,mar=c(1,1,1,1))
 set.seed(123456)
 km <- kmeans(ATAC.cpm.log2.all.mm.MONO, centers = 4, nstart = 10000) # MONO = 5, LYMPH = 5, MONO = 4, GRAN = 5, PLT = 6
@@ -351,7 +351,7 @@ ATAC.cpm.log2.all.mm.PLT.ARCORannot <- data.frame("mc" = ifelse(seq(1:length(pea
 ATAC.cpm.log2.all.mm.PLT.geneannot <- ATAC.cpm.log2.all.mm.PLT.PCHICannot + ATAC.cpm.log2.all.mm.PLT.ARCORannot
 
 # Plot PLT
-pdf(file="plots/plt_cluster_peaks.pdf", width = 6, height = 5)  
+pdf(file="plots/plt_cluster_peaks.pdf", width = 7, height = 5)  
 par(cex.main=0.8,mar=c(1,1,1,1))
 set.seed(123456)
 km <- kmeans(ATAC.cpm.log2.all.mm.PLT, centers = 5, nstart = 10000) # PLT = 5, LYMPH = 5, MONO = 4, GRAN = 5, PLT = 6
@@ -405,7 +405,7 @@ ATAC.cpm.log2.all.mm.GRAN.ARCORannot <- data.frame("mc" = ifelse(seq(1:length(pe
 ATAC.cpm.log2.all.mm.GRAN.geneannot <- ATAC.cpm.log2.all.mm.GRAN.PCHICannot + ATAC.cpm.log2.all.mm.GRAN.ARCORannot
 
 # Plot GRAN
-pdf(file="plots/GRAN_cluster_peaks.pdf", width = 6, height = 5)  
+pdf(file="plots/GRAN_cluster_peaks.pdf", width = 7, height = 5)  
 par(cex.main=0.8,mar=c(1,1,1,1))
 set.seed(123456)
 km <- kmeans(ATAC.cpm.log2.all.mm.GRAN, centers = 4, nstart = 10000) # GRAN = 5, LYMPH = 5, MONO = 4, GRAN = 5, GRAN = 6
@@ -424,9 +424,41 @@ hm_num <- unlist(lapply(hm_ro, length))
 hm_num
 dev.off()
 
+# Target gene summaries
+sum(table(ATAC.cpm.log2.all.mm.RBC.geneannot)[2:3]) + sum(table(ATAC.cpm.log2.all.mm.PLT.geneannot)[2:3]) + sum(table(ATAC.cpm.log2.all.mm.LYMPH.geneannot)[2:3]) + sum(table(ATAC.cpm.log2.all.mm.MONO.geneannot)[2:3]) + sum(table(ATAC.cpm.log2.all.mm.GRAN.geneannot)[2:3]) + sum(table(ATAC.cpm.log2.all.mm.RBC.geneannot)[2:3]) 
+sum(table(ATAC.cpm.log2.all.mm.RBC.geneannot)[1:3]) + sum(table(ATAC.cpm.log2.all.mm.PLT.geneannot)[1:3]) + sum(table(ATAC.cpm.log2.all.mm.LYMPH.geneannot)[1:3]) + sum(table(ATAC.cpm.log2.all.mm.MONO.geneannot)[1:3]) + sum(table(ATAC.cpm.log2.all.mm.GRAN.geneannot)[1:3]) + sum(table(ATAC.cpm.log2.all.mm.RBC.geneannot)[1:3]) 
 
+# Target gene examples
+idx <- findOverlaps(peaks.RBC, pchic.gr.RBC[pchic.gr.RBC$PP > 0.5,])
+pchic.gene <- unique(pchic.gr.RBC[idx@to]$Gene)
+idx <- findOverlaps(peaks.RBC, CS.ATAC.cor.RBC[CS.ATAC.cor.RBC$PP > 0.5,])
+cor.gene <- unique(CS.ATAC.cor.RBC[idx@to]$gene)
+intersect(pchic.gene, cor.gene)
 
+idx <- findOverlaps(peaks.PLT, pchic.gr.PLT[pchic.gr.PLT$PP > 0.1,])
+pchic.gene <- unique(pchic.gr.PLT[idx@to]$Gene)
+idx <- findOverlaps(peaks.PLT, CS.ATAC.cor.PLT[CS.ATAC.cor.PLT$PP > 0.1,])
+cor.gene <- unique(CS.ATAC.cor.PLT[idx@to]$gene)
+intersect(pchic.gene, cor.gene)
+#cat(unique(c(pchic.gene, cor.gene)), " ")
 
+idx <- findOverlaps(peaks.MONO, pchic.gr.MONO[pchic.gr.MONO$PP > 0.1,])
+pchic.gene <- unique(pchic.gr.MONO[idx@to]$Gene)
+idx <- findOverlaps(peaks.MONO, CS.ATAC.cor.MONO[CS.ATAC.cor.MONO$PP > 0.1,])
+cor.gene <- unique(CS.ATAC.cor.MONO[idx@to]$gene)
+intersect(pchic.gene, cor.gene)
+
+idx <- findOverlaps(peaks.GRAN, pchic.gr.GRAN)
+pchic.gene <- unique(pchic.gr.GRAN[idx@to]$Gene)
+idx <- findOverlaps(peaks.GRAN, CS.ATAC.cor.GRAN)
+cor.gene <- unique(CS.ATAC.cor.GRAN[idx@to]$gene)
+intersect(pchic.gene, cor.gene)
+
+idx <- findOverlaps(peaks.LYMPH, pchic.gr.LYMPH[pchic.gr.LYMPH$PP > 0.5,])
+pchic.gene <- unique(pchic.gr.LYMPH[idx@to]$Gene)
+idx <- findOverlaps(peaks.LYMPH, CS.ATAC.cor.LYMPH[CS.ATAC.cor.LYMPH$PP > 0.5,])
+cor.gene <- unique(CS.ATAC.cor.LYMPH[idx@to]$gene)
+intersect(pchic.gene, cor.gene)
 
 # RBC PCHIC get the genes
 pchic.gr.overlap <- findOverlaps(pchic.gr.RBC, peaks.RBC)
