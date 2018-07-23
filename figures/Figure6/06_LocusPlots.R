@@ -129,4 +129,11 @@ RBC.motifs[RBC.motifs$snpPos == known[6,]$pos]
 MPV.motifs[MPV.motifs$snpPos == known[8,]$pos]
 
 
+peaks.CS.df.temp <- peaks.CS.df %>% 
+  dplyr::filter(trait %in% "RBC_COUNT", PP > 0.1) %>%
+  mutate(var = gsub("_", ":", var))
+
+RBC.motifs$var <- gsub("chr", "", names(RBC.motifs))
+RBC.motifs <- RBC.motifs[RBC.motifs$var %in% peaks.CS.df.temp$var,]
+
 

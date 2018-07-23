@@ -37,3 +37,9 @@ data/Shiny_Data/RSIDs/
 
 # I hate DS store
 .DS_Store
+.DS_Store?
+
+# Too big but email us if you want it
+data/chipatlas/Oth.Bld.05.AllAg.AllCell.clean.bed.gz
+
+

@@ -174,6 +174,9 @@ gkm <- sapply(files, function(file) {
 colnames(gkm) <- cellnames
 row.names(gkm) <- data.frame(fread(files[1], select = 1, skip=0))[,1]
 gkm <- gkm[!duplicated(row.names(gkm)),]
+gkm.df <- data.frame(as.matrix(gkm))
+row.names(gkm.df) <- gsub("chr", "", row.names(gkm.df))
+gkm.df$var <- gsub("chr", "", row.names(gkm.df))
 
 saveRDS(gkm, "gkm.rds")
 cor(data.matrix(gkm[1:5,1:5]))
@@ -192,6 +195,17 @@ gkm.cv <- lapply(files, function(file) {
 gkm.cv.plot <- lapply(gkm.cv, FUN = function(x) PRC(x$V2, x$V3))
 gkm.cv.auprc <- unlist(lapply(gkm.cv.plot, FUN = function(x) AUPRC(x)))
 mean(gkm.cv.auprc)
+
+# Compare for variants
+peaks.CS.df.gkm <- merge(peaks.CS.df, gkm.df, by = "var")
+peaks.CS.df.gkm$PPbin <- cut(peaks.CS.df.gkm$PP, c(0, 0.001, 0.01, 0.05, 0.1, 0.25, 0.75, 1.0))
+blah <- peaks.CS.df.gkm %>% dplyr::select(ends_with(".y"))
+peaks.CS.df.gkm$max <- apply(blah, 1, function(x) {max(abs(x))})
+
+peaks.CS.df.gkm.plot <- peaks.CS.df.gkm %>% 
+  dplyr::filter(trait %in% "RBC_COUNT")
+ggplot(peaks.CS.df.gkm.plot, aes(PPbin, max)) + geom_boxplot()
+
 
 
 

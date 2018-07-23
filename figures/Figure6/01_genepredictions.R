@@ -53,7 +53,7 @@ peaks.CS.df <- foverlaps(peaks.df,CS.df, nomatch = 0)
 setkey(setDT(peaks.CS.df), seqnames, start, end)
 peaks.CS.pg.dt <- foverlaps(peaks.CS.df,pg.df, nomatch = 0)
 temp <- peaks.CS.pg.dt %>% 
-  dplyr::filter(PP > 0.5) %>%
+  dplyr::filter(PP > 0.1) %>%
   dplyr::select(trait,var,PP,region,peak,gene,cor,pvalue,B,CD4,CD8,CLP,CMP,Ery,GMP.A,GMP.B,GMP.C,HSC,LMPP,mDC,Mega,MEP,mono,MPP,NK,pDC)
 
 
