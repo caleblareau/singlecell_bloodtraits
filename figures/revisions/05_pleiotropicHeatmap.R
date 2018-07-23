@@ -122,10 +122,18 @@ switch_df %>% arrange(class, GRAN, LYMPH, MONO, PLT, RBC) -> switch_df
 
 
 if(FALSE){
-  tune_df$what <- "tune"
-  switch_df$what <- "switch"
-  df <- rbind(tune_df, switch_df)
-  write.table(df[df$class == "coding",], file = "pleiotropy/coding_lineages.tsv", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+  tune_df$Annotation <- "tune"
+  switch_df$Annotation <- "switch"
+  all_df <- rbind(tune_df, switch_df) 
+  
+  rsid_vec <- readRDS("rsid_vector.rds")
+  all_df$Variant <- paste0(all_df$seqnames, ":", as.character(all_df$start))
+  
+  all_df %>% mutate(rsID = rsid_vec[Variant]) %>%
+    dplyr::select(Variant, rsID, class, Annotation, GRAN, LYMPH, MONO, PLT, RBC) -> refined_pleio
+  write.table(refined_pleio, file = "final_supplemental_tables/pleiotropic.tsv", sep = "\t", quote = FALSE,
+              row.names = FALSE, col.names = TRUE)
+  
 }
 
 ha1 <- HeatmapAnnotation(df = data.frame(class = c(tune_df$class, switch_df$class)),

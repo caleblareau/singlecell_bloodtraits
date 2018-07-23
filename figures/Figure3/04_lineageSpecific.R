@@ -87,6 +87,8 @@ allstats <- data.frame(
             pnorm((mean(permuted) - panHemeLDSR_ranksum)/sd(permuted), lower.tail = FALSE)
   )
 )
+
+
 allstats$method <- c("LDscore", "chromVAR", "g-chromVAR", "goShifter", "LDscore\nHeme Adj.")
 
 ggplot(allstats[,c(3,4),drop=FALSE], aes(x = method, y = -1*log10(pval))) +

@@ -31,6 +31,7 @@ coding_con <- all_consequences[all_consequences %in% coding_consequences] %>% ta
 colnames(coding_con)[1] <- "Categorie"
 coding_con$Categorie <- factor(coding_con$Categorie, levels = coding_con$Categorie)
 
+# LOF variants: 3, 11, 15, 16, 17, 21, 22 = frameshift, splice donor, splice acceptor, stop_gained, stop_lost, start_lost
 # Barplot
 p <- ggplot(coding_con, aes(x = Categorie, y = Freq)) + 
   geom_bar(stat = "identity", color = "black", fill = "firebrick") + pretty_plot() +
@@ -40,3 +41,12 @@ p <- ggplot(coding_con, aes(x = Categorie, y = Freq)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 cowplot::ggsave(p, file = "figures/revisions/plots/coding_subtypes_PP10.pdf", height = 5, width = 8)
 
+# Supplementary Table for Coding Variants ---------------------------------
+
+CS.gr <- readRDS("data/Finemap/UKBB_BC_v3_VEPannotations.rds")
+CS.df <- as.data.frame(CS.gr)
+
+coding_variants <- CS.df[CS.df$Consequence %in% coding_consequences,] %>% 
+  filter(PP>0.10)%>%
+  dplyr::select(-c(width,strand,end,INTRON))
+write.table(coding_variants, file = "/Users/erikbao/Dropbox (MIT)/HMS/Sankaran Lab/ATACSeq_GWAS/Revisions/Supp_Tables/SupplementalTable_coding_PP10.tsv", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)  
