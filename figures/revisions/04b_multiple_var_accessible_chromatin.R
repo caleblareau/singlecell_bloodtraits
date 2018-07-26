@@ -38,8 +38,17 @@ lapply(1:dim(ov_2uniqueEnhancers)[1], function(i){
   
 }) %>% rbindlist() %>% data.frame() -> odf
 
-ggplot(odf, aes(x = vals1, y = vals2, color = cellType, group = distance)) + geom_point() +
-  scale_color_manual(values = ejc_color_maps) -> p1
-ggplotly(p1)
+odf$cellType2 <- ifelse(odf$cellType == "GMP.A", "GMP-A",
+                        ifelse(odf$cellType == "GMP.B", "GMP-B",
+                               ifelse(odf$cellType == "GMP.C", "GMP-C", as.character(odf$cellType))))
+                        
 
-cor(odf$vals1, odf$vals2)
+ggplot(odf, aes(x = vals1, y = vals2, color = cellType2)) + geom_point() +
+  scale_color_manual(values = ejc_color_maps) +
+   geom_abline(intercept = 0, slope = 1, linetype = 2) + pretty_plot(fontsize = 7) + 
+    theme(legend.position = "none") + L_border() + 
+  scale_x_continuous(limits = c(0,6)) +
+  scale_y_continuous(limits = c(0,6)) +
+  labs(x = "Accessibility at variant 1", y = "Accessibility at variant 2") -> p1
+
+cowplot::ggsave(p1, file = "nearestVariantOut/accessibility2plot.pdf", width = 2, height = 2)
