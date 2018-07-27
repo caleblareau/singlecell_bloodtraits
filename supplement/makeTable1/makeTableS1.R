@@ -3,12 +3,18 @@ library(dplyr)
 library(stringr)
 library(GenomicRanges)
 library(diffloop)
+"%ni%" <- Negate("%in%")
 
 bdf <- lapply(list.files("../../data/UKBB_BC_PP001/betas_added/", full.names = TRUE), fread) %>% rbindlist %>% as.data.frame
 splitdf <- str_split_fixed(bdf$V4, "-", 3)
 splitdf2 <- str_split_fixed(splitdf[,2], "_", 3)
 
 bbdf <- cbind(bdf, splitdf, splitdf2)
+
+# Exclude variants from exclude list
+exdf <- read.table("../../figures/revisions/exclude_list_revised.txt", header = FALSE, stringsAsFactors = FALSE)[,1]
+colnames(bbdf)[10] <- "var"
+bbdf <- bbdf[bbdf$var %ni% exdf,]
 
 odf <- bbdf[,c(1,2,3,9,13,14,5,6,7,8)]
 odf <- odf[!duplicated(odf),]

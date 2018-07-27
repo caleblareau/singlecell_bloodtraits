@@ -51,7 +51,7 @@ names(heme.gr) <- c("B","CD4","CD8","CLP","CMP","Ery","GMP-A","GMP-B","GMP-C","H
 CS.gr <- readRDS("../../data/Finemap/UKBB_BC_v3_VEPannotations.rds")
 CS.df <- as.data.frame(CS.gr)
 
-filtered_all_regions <- readRDS("../revisions/topconfigs_PPs/filtered_all_configs.rds")
+filtered_all_configs <- readRDS("../revisions/topconfigs_PPs/filtered_all_configs.rds")
 trait_region <- paste(filtered_all_configs$region, filtered_all_configs$trait,sep="_") %>% unique
 CS.df$trait_region <- paste(CS.df$region, CS.df$trait,sep="_") %>% gsub("region","",.)
 CS.df <- CS.df[CS.df$trait_region %in% trait_region,]
