@@ -52,7 +52,7 @@ odf$rsID <- rsids[odf$tomatch]
 odf <- odf %>% dplyr::select(-tomatch,-end)
 
 # Load up previously made table
-s1 <- readxl::read_xlsx("SupplementalTable1.xlsx")
+s1 <- readxl::read_xlsx("SupplementalTable1_old.xlsx")
 s1$var <- paste(s1$chr,s1$start,sep=":") %>% gsub("chr","",.)
 s1$var <- paste(s1$var,s1$ref,s1$alt, sep="_")
 s1 <- s1[s1$var %ni% exdf,] %>% dplyr::select(-end)
