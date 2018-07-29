@@ -26,7 +26,7 @@ lapply(traits, function(trait){
   # Filter out the exclude variants
   t <- t[reg_split[,2] %ni% ex_var, ]
   
-  t <- t[t$V5 > 0.5, ]
+  t <- t[t$V5 > 0.1, ]
   t$trait <- trait
   colnames(t) <- c("chr", "start", "stop", "region", "PP", "Z", "trait")
   gr_t <- unique(makeGRangesFromDataFrame(t, keep.extra.columns = TRUE))
@@ -39,10 +39,10 @@ lapply(traits, function(trait){
   ov_5 <- findOverlaps(gr_t, x05_intron_gr)
   
   # Classify each variant
-  t$class <- ifelse(1:length(gr_t) %in% queryHits(ov_1), "coding",
+  t$class <- ifelse(1:length(gr_t) %in% queryHits(ov_4), "coding",
                   ifelse(1:length(gr_t) %in% queryHits(ov_2), "promoter",
                          ifelse(1:length(gr_t) %in% queryHits(ov_3), "utr",
-                                ifelse(1:length(gr_t) %in% queryHits(ov_4), "accessible",
+                                ifelse(1:length(gr_t) %in% queryHits(ov_1), "accessible",
                                        ifelse(1:length(gr_t) %in% queryHits(ov_5), "intron", "intergenic")))))
 
   t

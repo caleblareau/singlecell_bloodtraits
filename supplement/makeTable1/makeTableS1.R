@@ -5,6 +5,7 @@ library(GenomicRanges)
 library(diffloop)
 "%ni%" <- Negate("%in%")
 
+rsids <- readRDS("rsid_vector.rds")
 bdf <- lapply(list.files("../../data/UKBB_BC_PP001/betas_added/", full.names = TRUE), fread) %>% rbindlist %>% as.data.frame
 splitdf <- str_split_fixed(bdf$V4, "-", 3)
 splitdf2 <- str_split_fixed(splitdf[,2], "_", 3)
@@ -41,8 +42,9 @@ odf$In_Gwas_catalog <- 1:length(g) %in% queryHits(ov1)
 # Import heme ATAC peaks
 heme <- data.frame(fread(paste0( "../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.bed"), sep = "\t", header = FALSE))
 heme_g <- makeGRangesFromDataFrame(heme[complete.cases(heme),], seqnames.field = "V1", start.field = "V2", end.field = "V3")
-ov2 <- findOverlaps(g, addchr(gwas_g))
+ov2 <- findOverlaps(g, heme_g)
 odf$In_Heme_peak <- 1:length(g) %in% queryHits(ov2)
+sum(odf$In_Heme_peak)
 
 #write.table(odf, file = "SupplementalTable1.tsv", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 
@@ -66,6 +68,6 @@ phylos <- phylo_means$Phylop_100way; names(phylos) <- phylo_means$var
 odf$Phylop_100way <- phylos[odf$var]
 
 write.table(odf, file = "SupplementalTable1_v2.tsv", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
-
+odf %>% filter(PP >= 0.10 & In_Heme_peak) %>% select(chr, start) %>% distinct() %>% dim()
 # List out incorrect rsID mappings
 s1[duplicated(s1[,c("var","trait")]),c("var","rsID")] %>% nrow
