@@ -57,15 +57,13 @@ ALL.motif.sub <- ALL.motif %>%
   dplyr::filter(PP > 0.1, SNP %ni% gsub("_", ":", exdf)) %>%
   dplyr::select(seqnames, start, end, SNP, REF, ALT, geneSymbol, providerName, seqMatch, effect, PP, MAF, trait)
 ALL.motif.sub.gr <- GRanges(ALL.motif.sub)
-ALL.motif.sub.gr <- unique(ALL.motif.sub.gr)
 
-# PChiC 
+# PCHiC 
 pchic.df <- readRDS("../../data/pchic/pchic.rds")
 pchic.gr <- GRanges(pchic.df)
 grch38.pc <- grch38 %>%
   dplyr::filter(biotype == "protein_coding")
 pchic.gr <- pchic.gr[pchic.gr$Gene %in% grch38.pc$symbol,] 
-pchic.gr <- unique(pchic.gr)
 
 # ATAC-RNA
 pg.df <- fread(paste0("zcat < ", "../../data/bulk/peakGeneCorrelation.tsv.gz"))
@@ -73,8 +71,6 @@ names(pg.df) <- c("chrom","j.start","j.end","gene","cor","pvalue")
 pg.df$qvalue <- qvalue(pg.df$pvalue)$qvalues
 pg.df <- pg.df %>% dplyr::filter(qvalue < 0.001)
 pg.gr <- makeGRangesFromDataFrame(pg.df, seqnames = "chrom", start.field = "j.start", end.field = "j.end")
-pg.gr <- unique(pg.gr)
-
 
 # Perform permutations ----------------------------------------------------
 #' Helper function for shifting
@@ -88,13 +84,14 @@ randomizeLocalRegions <- function(A, ...) {
 # PP filter for FINEMAP variants
 CS.PP.gr <- CS.gr[CS.gr$PP > 0.10,]
 # Compile all annotations into a list
-gr.list <- list(peaks.gr,ALL.motif.sub.gr,pchic.gr,pg.gr)
+gr.list <- list(peaks.gr,chip_atlas.bed.sub.gr,ALL.motif.sub.gr,pchic.gr,pg.gr)
+names(gr.list) <- c("hemeATAC","ChIP","motifs","PCHiC","ATAC-RNA")
 
 # Run permutations on each annotation
 enrichments <- NULL
 perm <- NULL
 for (i in 1:length(gr.list)) {
-  print(paste0("Starting annotation #",i))
+  print(paste0("Starting annotation #",names(gr.list)[i]))
   perm[[i]] <- permTest(A=CS.PP.gr, B=gr.list[[i]], 
                         ntimes=1000, 
                         alternative="auto", 
@@ -103,10 +100,10 @@ for (i in 1:length(gr.list)) {
                         force.parallel=FALSE, 
                         mc.set.seed=T, 
                         mc.cores=2)
-  enrichments <- rbind(enrichments,c(i,
+  enrichments <- rbind(enrichments,c(names(gr.list)[i],
                    perm[[i]]$numOverlaps$zscore,
                    pnorm(perm[[i]]$numOverlaps$zscore, lower.tail = FALSE)))
-  print(paste0("Finished annotation #",i))
+  print(paste0("Finished annotation #",names(gr.list)[i]))
 }
 
 enrich.df <- as.data.frame(enrichments,stringsAsFactors=F)
