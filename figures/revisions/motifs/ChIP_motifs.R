@@ -14,13 +14,10 @@ library(preprocessCore)
 
 #' Read in and munge ChIP-Atlas
 # Read in meta data
-chip_atlas.meta <- fread("../../../data/chipatlas/experimentList.clean.tab", sep = "\t", header = F)
+chip_atlas.meta <- fread("../../data/chipatlas/experimentList.clean.tab", sep = "\t", header = F)
 names(chip_atlas.meta) <- c("id", "genome", "class1", "antigen", "class2", "celltype")
 chip_atlas.meta <- chip_atlas.meta %>%
-  dplyr::filter(genome == "hg19", class1 == "TFs and others", class2 == "Blood", antigen %ni% c("-", "5-hmC", "5-mC", "Cyclobutane pyrimidine dimers", "Epitope tags", "HIV Tat", "MethylCap", "pFM2")) 
-chip_atlas.meta <- chip_atlas.meta %>%
-  dplyr::filter(genome == "mm9", class1 == "TFs and others", class2 == "Blood", antigen %ni% c("-", "5-hmC", "5-mC", "Cyclobutane pyrimidine dimers", "Epitope tags", "HIV Tat", "MethylCap", "pFM2"))
-
+  dplyr::filter(genome == "hg19", class1 == "TFs and others", class2 == "Blood", antigen %ni% c("-", "5-hmC", "5-mC", "Cyclobutane pyrimidine dimers", "Epitope tags", "HIV Tat", "MethylCap", "pFM2")) #%>%
 
 # Read in bed file
 chip_atlas.bed <- fread("zcat < ../../data/chipatlas/Oth.Bld.05.AllAg.AllCell.clean.bed.gz", sep = "\t", header = F)

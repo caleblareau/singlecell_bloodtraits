@@ -11,7 +11,6 @@ library(Matrix)
 library(preprocessCore)
 library(tidyverse)
 library(qvalue)
-"%ni%" <- Negate("%in%")
 
 # Functions
 colScale = function(x,center = TRUE, scale = TRUE){
@@ -36,7 +35,7 @@ ATAC.cpm <- round(sweep(counts.df, 2, colSums(counts.df), FUN="/") * 1000000, 1)
 ATAC.cpm.log2 <- log2(ATAC.cpm+1)
 
 # Subset to only good peaks
-peaks.gr <- peaks[keep,]
+peaks <- peaks[keep,]
 ukbb <- ukbb[keep,]
 ukbb.df <- data.frame(as.matrix(assays(ukbb)[["weights"]]))
 
