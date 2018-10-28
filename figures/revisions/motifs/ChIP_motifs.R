@@ -35,6 +35,25 @@ chip_atlas.bed.sub <- chip_atlas.bed %>%
 # Convert to GRanges since these are so much faster for overlaps
 chip_atlas.bed.sub.gr <- GRanges(chip_atlas.bed.sub)
 
+# Read in heme ATAC-seq peaks
+peaksdf <- fread("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.bed")
+peaks <- makeGRangesFromDataFrame(peaksdf, seqnames = "V1", start.field = "V2", end.field = "V3")
+
+# Import counts, filter, and normalize
+counts.df <-  data.matrix(fread("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.counts.txt"))
+n = 0.9
+counts.df[1:dim(counts.df)[1],1:dim(counts.df)[2]] <- normalize.quantiles(as.matrix(counts.df))
+keep <- apply(counts.df,1,max) > mean(apply(counts.df,2,function(x) {quantile(x,n)}))
+
+# Subset to only good peaks
+peaks <- peaks[keep,]
+
+# Import counts, filter, and normalize
+counts.df <-  data.matrix(fread("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.counts.txt"))
+n = 0.9
+counts.df[1:dim(counts.df)[1],1:dim(counts.df)[2]] <- normalize.quantiles(as.matrix(counts.df))
+keep <- apply(counts.df,1,max) > mean(apply(counts.df,2,function(x) {quantile(x,n)}))
+
 #' Read in and munge fine mapped variants
 CS.df <- read.table("../../data/Finemap/UKBB_BC_v3.bed")
 names(CS.df) <- c("seqnames","end","start","annotation","PP")
@@ -46,14 +65,16 @@ CS.df$var <- gsub("_", ":", CS.df$var)
 
 # UKBB exclusion list
 exdf <- read.table("exclude_list_revised.txt", header = FALSE, stringsAsFactors = FALSE)[,1]
+CS.gr <- GRanges(CS.df)
 CS.gr <- CS.gr[CS.gr$var %ni% exdf,]
 
 # Only PP > 10% variants
-CS.df.sub <- CS.df %>%
-  dplyr::filter(PP > 0.1)
-highPP <- CS.df.sub %>% 
-  .$var
-CS.df.sub.gr <- GRanges(CS.df.sub)
+#CS.df.sub <- CS.df %>%
+#  dplyr::filter(PP > 0.1)
+#highPP <- CS.df.sub %>% 
+#  .$var
+#CS.df.sub.gr <- GRanges(CS.df.sub)
+CS.df.sub.gr <- CS.gr[CS.gr$PP > 0.1,]
 
 # Read in and munge motifbreakR results
 ALL.motif <- readRDS("../../data/motifbreakR/alltraits.mbreaker.withPPs.rds")
@@ -162,29 +183,104 @@ hm <- Heatmap(ALL.M_C.df.match.TFcount.wide, col=as.character(jdb_palette("brewe
               row_names_gp = gpar(fontsize = 6),
               column_names_gp = gpar(fontsize = 6),
               show_heatmap_legend = FALSE)
-ha1 <- rowAnnotation(foo2 = row_anno_barplot(rev(ALL.M_C.df.match.TFcountSum.vec), axis = TRUE, width = unit(2, "cm")))
+ha1 <- rowAnnotation(foo2 = row_anno_barplot(sort(ALL.M_C.df.match.TFcountSum.vec), axis = TRUE, width = unit(2, "cm")))
 hm + ha1
 
-# Read in heme ATAC-seq peaks
-peaksdf <- fread("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.bed")
-peaks <- makeGRangesFromDataFrame(peaksdf, seqnames = "V1", start.field = "V2", end.field = "V3")
+############
+# Hypothesis tests (high PP vs. low PP for each TF/motif)
+CS.perm.ctrl <- unique(CS.gr$var)
+CS.perm.case <- unique(CS.gr[CS.gr$PP > 0.10,]$var)
 
-# Import counts, filter, and normalize
-counts.df <-  data.matrix(fread("../../data/bulk/ATAC/29August2017_EJCsamples_allReads_500bp.counts.txt"))
-n = 0.9
-counts.df[1:dim(counts.df)[1],1:dim(counts.df)[2]] <- normalize.quantiles(as.matrix(counts.df))
-keep <- apply(counts.df,1,max) > mean(apply(counts.df,2,function(x) {quantile(x,n)}))
+# Munge motif breaking file
+ALL.motif.sub <- ALL.motif %>%
+  dplyr::filter(PP > 0, SNP %ni% gsub("_", ":", exdf)) %>%
+  dplyr::select(seqnames, start, end, SNP, REF, ALT, geneSymbol, providerName, seqMatch, effect, PP, MAF, trait)
+ALL.motif.sub.gr <- GRanges(ALL.motif.sub)
 
-# Subset to only good peaks
-peaks <- peaks[keep,]
+# Merge motifbreakR and ChIP-Atlas for high PP variants
+idx <- findOverlaps(ALL.motif.sub.gr, chip_atlas.bed.sub.gr)
+ALL.M_C.df <- data.frame(cbind(as.data.frame(ALL.motif.sub.gr[idx@from]), as.data.frame(chip_atlas.bed.sub.gr[idx@to])))
+ALL.M_C.df.match <- ALL.M_C.df %>%
+  rowwise() %>%
+  mutate(keep = ifelse(antigen %in% motif.cor.ls[[providerName]], "yes", "no")) %>%
+  dplyr::filter(keep == "yes") %>%
+  dplyr::select(SNP, trait, PP, antigen, celltype, geneSymbol, providerName, seqMatch, effect, seqnames, start, end) %>% 
+  arrange(SNP) %>%
+  as.data.frame()
+ALL.M_C.df.match$seqMatch <- gsub("[ ]*", "", ALL.M_C.df.match$seqMatch)
+
+# Prepare ChIP+motif df for all variants; only test TFs in "cases" 
+CS.perm.ctrl.res <- ALL.M_C.df.match %>% 
+  merge(., lineage, by.x = "trait", by.y = "row.names") %>%
+  mutate(lineage = y) %>%
+  dplyr::filter(antigen %in% names(ALL.M_C.df.match.TFcountSum.vec))
+
+# So that we see names of TFs with 0
+CS.perm.ctrl.res$antigen <- as.factor(CS.perm.ctrl.res$antigen)
+
+# Sample same number of unique variants from ctrls 
+nperms <- 20000
+samp <- lapply(1:nperms, function(x) {sample(CS.perm.ctrl, length(CS.perm.case))})
+
+# Collapse to unique variant / antigen / lineage (trait) combinations
+perm <- function(samples) {
+  CS.perm.ctrl.res %>%
+    dplyr::filter(SNP %in% samples) %>%
+    group_by(SNP, antigen) %>%
+    summarize(count = n()) %>%
+    ungroup() %>%
+    group_by(antigen) %>%
+    summarize(count = sum(count > 0)) %>%
+    complete(antigen, fill = list(count = 0)) %>%
+    as.data.frame() 
+}
+
+# Run permutations
+out <- lapply(1:nperms, function(x) {perm(samp[[x]])})
+test.tf <- perm(CS.perm.case) %>%
+  arrange(desc(count))
+
+# Munge list into data frame
+out.df <- as.data.frame(flatten(data.frame(as.tibble(out, validate = F))))
+out.df <- out.df %>%
+  select(-contains("antigen."))
+
+# Combine with "cases" and check significant
+perms.df <- merge(data.frame(test.tf), out.df, by = "antigen")
+perms.df <- as_tibble(perms.df)
+
+# Get p-value and expected number from permuations
+pvalue <- lapply(1:73, function(x) {table(as.numeric(as.vector(perms.df[x,2])) > as.numeric(as.vector(perms.df[x,3:(nperms + 2)])))["FALSE"] / nperms})
+exp <- lapply(1:73, function(x) {mean(as.numeric(as.vector(perms.df[x,3:(nperms + 2)])))})
+perms.res.df <- unnest(data.frame(cbind(antigen = as.character(perms.df$antigen), count = perms.df$count.x, exp, pvalue)))
+perms.res.df <- perms.res.df %>%
+  arrange(desc(count))
+
+# Calculate FDR; conservatively add 1 to each
+perms.res.df[is.na(perms.res.df$pvalue),]$pvalue <- 0
+perms.res.df$pvalue <- perms.res.df$pvalue + 1 / nperms
+perms.res.df$qvalue <- qvalue(perms.res.df$pvalue, lambda = 0)$qvalues
+table(perms.res.df$pvalue < 0.05, perms.res.df$qvalue < 0.10)
+row.names(perms.res.df) <- perms.res.df$antigen
+
+# Re-make the heatmap with expected and observed
+exp <- perms.res.df$exp
+names(exp) <- perms.res.df$antigen
+ha2 <- rowAnnotation(foo3 = row_anno_points(x = exp[names(sort(ALL.M_C.df.match.TFcountSum.vec))], axis = TRUE, pch = 19, ylim = c(0,20)))
+hm + ha1 + ha2
+
+############
+
+# Reduce subset of space to define motifs
+#peaks2 <- IRanges::reduce(c(peaks,flank(CS.gr, 50, both = TRUE))) # dont report ultimately
 
 # Calculate motifmatches for PP > 0.10 variants
 data(hocomoco)
-hocomoco.mm <- convert_motifs(hocomoco, "TFBSTools-PWMatrixList")
-hocomoco.mm.name <- unlist(lapply(hocomoco.mm, function(x) {x@name}))
+hocomoco.mm <- convert_motifs(hocomoco, "TFBSTools-PFMatrix")
+hocomoco.mm.name <- unlist(lapply(hocomoco.mm, function(x) {x@ID}))
 hocomoco.mm <- do.call(PFMatrixList, hocomoco.mm)
 names(hocomoco.mm) <- hocomoco.mm.name
-motif_ix <- motifmatchr::matchMotifs(hocomoco.mm, peaks, genome = "hg19", out = "positions") 
+motif_ix <- motifmatchr::matchMotifs(hocomoco.mm, peaks, genome = "BSgenome.Hsapiens.UCSC.hg19", bg = "subject", out = "positions") 
 motif_ix.df <- as.data.frame(motif_ix)
 motif_ix.df$start <- motif_ix.df$start - 20 
 motif_ix.df$end <- motif_ix.df$end + 20
@@ -270,8 +366,90 @@ hm <- Heatmap(ALL.MM_C.df.match.TFcount.wide, col=as.character(jdb_palette("brew
               row_names_gp = gpar(fontsize = 6),
               column_names_gp = gpar(fontsize = 6),
               show_heatmap_legend = TRUE)
-ha1 <- rowAnnotation(foo2 = row_anno_barplot(rev(ALL.MM_C.df.match.TFcountSum.vec), axis = TRUE, width = unit(2, "cm")))
+ha1 <- rowAnnotation(foo2 = row_anno_barplot(sort(ALL.MM_C.df.match.TFcountSum.vec), axis = TRUE, width = unit(2, "cm")))
 hm + ha1
+
+############
+# Hypothesis tests (high PP vs. low PP for each TF/motif)
+CS.perm.ctrl <- unique(CS.gr$var)
+CS.perm.case <- unique(CS.gr[CS.gr$PP > 0.10,]$var)
+
+# Munge motif breaking file
+idx <- findOverlaps(CS.gr, motif_ix.gr)
+CS.motif.df <- data.frame(cbind(as.data.frame(CS.gr[idx@from]), as.data.frame(motif_ix.gr[idx@to])))
+CS.motif.gr <- GRanges(CS.motif.df)
+
+# Merge motifMatchR and ChIP-Atlas
+idx <- findOverlaps(CS.motif.gr, chip_atlas.bed.sub.gr)
+ALL.MM_C.df <- data.frame(cbind(as.data.frame(CS.motif.gr[idx@from]), as.data.frame(chip_atlas.bed.sub.gr[idx@to])))
+ALL.MM_C.df.match <- ALL.MM_C.df %>%
+  rowwise() %>%
+  mutate(keep = ifelse(antigen %in% motif.cor.ls[[group_name]], "yes", "no")) %>%
+  dplyr::filter(keep == "yes") %>%
+  dplyr::select(var, trait, PP, antigen, celltype, group_name, seqnames, start, end) %>% 
+  arrange(var) %>%
+  as.data.frame()
+
+# Prepare ChIP+motif df for all variants; only test TFs in "cases" 
+CS.perm.ctrl.res <- ALL.MM_C.df.match %>% 
+  merge(., lineage, by.x = "trait", by.y = "row.names") %>%
+  mutate(lineage = y) %>%
+  dplyr::filter(antigen %in% names(ALL.MM_C.df.match.TFcountSum.vec))
+
+# So that we see names of TFs with 0
+CS.perm.ctrl.res$antigen <- as.factor(CS.perm.ctrl.res$antigen)
+
+# Sample same number of unique variants from ctrls 
+samp <- lapply(1:100000, function(x) {sample(CS.perm.ctrl, length(CS.perm.case))})
+
+# Collapse to unique variant / antigen / lineage (trait) combinations
+perm <- function(samples) {
+  CS.perm.ctrl.res %>%
+    dplyr::filter(var %in% samples) %>%
+    group_by(var, antigen) %>%
+    summarize(count = n()) %>%
+    ungroup() %>%
+    group_by(antigen) %>%
+    summarize(count = sum(count > 0)) %>%
+    complete(antigen, fill = list(count = 0)) %>%
+    as.data.frame() 
+}
+
+# Run permutations
+nperms <- 100000
+out <- lapply(1:nperms, function(x) {perm(samp[[x]])})
+test.tf <- perm(CS.perm.case) %>%
+  arrange(desc(count))
+
+# Munge list into data frame
+out.df <- as.data.frame(flatten(data.frame(as.tibble(out, validate = F))))
+out.df <- out.df %>%
+  select(-contains("antigen."))
+
+# Combine with "cases" and check significant
+perms.df <- merge(data.frame(test.tf),out.df, by.x = "antigen", by.y = "antigen")
+perms.df <- as_tibble(perms.df)
+
+# Get p-value and expected number from permuations
+pvalue <- lapply(1:98, function(x) {table(as.numeric(as.vector(perms.df[x,2])) > as.numeric(as.vector(perms.df[x,3:(nperms + 2)])))["FALSE"] / nperms})
+exp <- lapply(1:98, function(x) {mean(as.numeric(perms.df[x,3:(nperms+2)]))})
+perms.res.df <- unnest(data.frame(cbind(antigen = as.character(perms.df$antigen), count = perms.df$count.x, exp, pvalue)))
+perms.res.df <- perms.res.df %>%
+  arrange(desc(count))
+
+# Calculate FDR; conservatively add 1 to each
+perms.res.df[is.na(perms.res.df$pvalue),]$pvalue <- 0
+perms.res.df$pvalue <- perms.res.df$pvalue + 1 / nperms
+perms.res.df$qvalue <- qvalue(perms.res.df$pvalue, lambda = 0)$qvalues
+table(perms.res.df$pvalue < 0.05, perms.res.df$qvalue < 0.05)
+
+# Re-make the heatmap with expected and observed
+exp <- perms.res.df$exp
+names(exp) <- perms.res.df$antigen
+ha2 <- rowAnnotation(foo3 = row_anno_points(x = exp[names(sort(ALL.MM_C.df.match.TFcountSum.vec))], axis = TRUE, pch = 19, ylim = c(0,40)))
+hm + ha1 + ha2
+
+############
 
 # Examples
 results <- readRDS("../../data/motifbreakR/MEAN_RETIC_VOL_Motifbreakr_output_PP001.rds")
@@ -284,7 +462,5 @@ plotMB(results = results[results$geneSymbol=="RUNX1",], rsid = "chr1:31241886:G:
 results <- readRDS("../..//LYMPH_COUNT_Motifbreakr_output_PP001.rds")
 plotMB(results = results[results$geneSymbol=="RUNX1",], rsid = "chr2:143886819:G:A", effect = "strong")
 
-
-chr1:203275157-203275657
 
   
