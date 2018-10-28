@@ -44,7 +44,7 @@ ukbb.df <- ukbb.df[ukbb.df$ID %ni% exdf[,1],]
 # Identify pleiotropic variants
 ukbb.df %>%
   group_by(chr, start, stop) %>%
-  filter(n()>1) %>% arrange(desc(round(PP,2)),chr, start) %>%  summarise(totalUp = sum(UP), totalDown = sum(DOWN)) %>%
+  filter(n()>1) %>% arrange(desc(round(PP,2)),chr, start) %>%  summarise(totalUp = sum(UP), totalDown = sum(DOWN)) %>%s
   mutate(switch = totalUp > 0 & totalDown > 0) %>% data.frame() -> summaryDF
 
 dim(summaryDF)

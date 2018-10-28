@@ -296,6 +296,55 @@ VAV1_phenos <-ggplot(plotdf, aes(x = name, y = estimate)) +
   labs(x = "", y = "Mean platelet volume (femtolitres)") + coord_cartesian(ylim = limits)
 cowplot::ggsave(VAV1_phenos, file = "VAV1_MPV_phenotypes.pdf", height = 5, width = 10)
 
+########################################################################################################################
+# C9orf72 - WBC_COUNT
+# Bar plots
+rs_alleles <- fread("../../../data/examples/rawphenos_mixed.rs7041409_rs868856.txt")
+trait <- "WBC_COUNT"
+
+colnames(rs_alleles)[1:2] <- c("alleleA.rs1","alleleA.rs2")
+# rs1 = rs868856, rs2 = rs7041409
+
+# Round imputed genotypes to nearest integer
+rs_alleles_onlyabsolutes <- as.data.frame(rs_alleles)
+rs_alleles_onlyabsolutes$alleleA.rs1 <- round(rs_alleles_onlyabsolutes$alleleA.rs1,0)
+rs_alleles_onlyabsolutes$alleleB.rs1 <- 2-rs_alleles_onlyabsolutes$alleleA.rs1
+rs_alleles_onlyabsolutes$alleleA.rs2 <- round(rs_alleles_onlyabsolutes$alleleA.rs2,0)
+rs_alleles_onlyabsolutes$alleleB.rs2 <- 2-rs_alleles_onlyabsolutes$alleleA.rs2
+
+rs_alleles_onlyabsolutes <- rs_alleles_onlyabsolutes[,c("alleleB.rs1","alleleB.rs2",trait)]
+
+# Make bar plot with mean and se of trait
+eval_gene <- function(rs2, rs2_l, rs1, rs1_l,trait="WBC_COUNT"){
+  v <- subset(rs_alleles_onlyabsolutes,alleleB.rs2==rs2 & alleleB.rs1==rs1)
+  if (nrow(v)<10){
+    v <- NULL
+  }
+  data.frame(name = paste0("rs7041409: ", rs2_l, "\nrs868856: ", rs1_l), estimate = mean(v[,trait]), se = sd(v[,trait])/sqrt(length(v[,trait])))
+}
+
+plotdf <- rbind(
+  eval_gene(rs2 = 2, rs2_l = "CC", rs1 = 2, rs1_l = "GG"),
+  eval_gene(rs2 = 2, rs2_l = "CC", rs1 = 0, rs1_l = "AA"),
+  eval_gene(rs2 = 1, rs2_l = "TC", rs1 = 2, rs1_l = "GG"),
+  eval_gene(rs2 = 1, rs2_l = "TC", rs1 = 1, rs1_l = "AG"),
+  eval_gene(rs2 = 1, rs2_l = "TC", rs1 = 0, rs1_l = "AA"),
+  eval_gene(rs2 = 0, rs2_l = "TT", rs1 = 2, rs1_l = "GG"),
+  eval_gene(rs2 = 0, rs2_l = "TT", rs1 = 1, rs1_l = "AG"),
+  eval_gene(rs2 = 0, rs2_l = "TT", rs1 = 0, rs1_l = "AA")
+)
+
+plotdf <- plotdf[complete.cases(plotdf),]
+
+limits <- c(as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.4)),
+            as.numeric(quantile(rs_alleles_onlyabsolutes[,trait],0.7)))
+
+ggplot(plotdf, aes(x = name, y = estimate)) + 
+  geom_bar(stat = "identity", color = "black", fill = "firebrick") + pretty_plot() +
+  geom_errorbar(aes(ymin=estimate-se, ymax=estimate+se), width=.1) +
+  labs(x = "", y = "WBC count (10^6 cells/uL)") + coord_cartesian(ylim = limits)
+cowplot::ggsave(c9orf72_phenos, file = "C9orf72_WBC_COUNT_phenotypes.pdf", height = 5, width = 10)
+
 #########
 # Piechart of haplotype frequencies for the two AK3 SNPs
 rs_alleles_onlyabsolutes$con_rs1 <- paste(rs_alleles_onlyabsolutes$alleleB.rs409950,rs_alleles_onlyabsolutes$alleleB.rs12005199,sep="/")

@@ -42,12 +42,20 @@ np_files <- np_files[c(-7,-13,-21)]
 heme.gr <- lapply(np_files, function(file){import(file, format = "BED", extraCols = extraCols_narrowPeak)})
 names(heme.gr) <- c("B","CD4","CD8","CLP","CMP","Ery","GMP-A","GMP-B","GMP-C","HSC","LMPP","mDC","Mega","MEP","mono","MPP","NK","pDC")
 
-#' Figure 1B
+#' Figure 1C
 #+ echo=FALSE, message=FALSE, warning=FALSE, fig.height = 10, fig.width = 10
-CS.df <- read.table("../../data/Finemap/UKBB_BC_v3.bed")
-names(CS.df) <- c("seqnames","end","start","annotation","PP")
-CS.df[,c("trait","var","region")] <- str_split_fixed(CS.df$annotation, "-", 3)
-CS.df <- CS.df %>% dplyr::select(-annotation)
+# CS.df <- read.table("../../data/Finemap/UKBB_BC_v3.bed")
+# names(CS.df) <- c("seqnames","end","start","annotation","PP")
+# CS.df[,c("trait","var","region")] <- str_split_fixed(CS.df$annotation, "-", 3)
+# CS.df <- CS.df %>% dplyr::select(-annotation)
+CS.gr <- readRDS("../../data/Finemap/UKBB_BC_v3_VEPannotations.rds")
+CS.df <- as.data.frame(CS.gr)
+
+filtered_all_configs <- readRDS("../revisions/topconfigs_PPs/filtered_all_configs.rds")
+trait_region <- paste(filtered_all_configs$region, filtered_all_configs$trait,sep="_") %>% unique
+CS.df$trait_region <- paste(CS.df$region, CS.df$trait,sep="_") %>% gsub("region","",.)
+CS.df <- CS.df[CS.df$trait_region %in% trait_region,]
+
 CS.df.best <- CS.df %>%
   group_by(region,trait) %>%
   dplyr::summarize(PPmax=max(PP)) %>%
@@ -56,25 +64,43 @@ CS.df.best$PPbin <- cut(CS.df.best$PPmax, c(0, 0.001, 0.01, 0.05, 0.1, 0.25, 0.7
 CS.df.best.sum <- CS.df.best %>%
   group_by(trait,PPbin) %>%
   dplyr::summarize(count=n())
-ggplot(CS.df.best.sum,aes(y=count,x=trait,group=trait)) + 
+p1 <- ggplot(CS.df.best.sum,aes(y=count,x=trait,group=trait)) + 
   geom_bar(stat="identity",aes(fill=PPbin),position = position_stack(reverse = TRUE)) + 
   coord_flip() +
   theme_bw() +
-  pretty_plot() +
+  pretty_plot(fontsize = 8) +
+  L_border()+
+  scale_y_continuous(expand=c(0,0))+
+  theme(legend.position="none")+
+  labs(x="",y="number of regions")+
   scale_fill_manual(values = c(jdb_palette("GrandBudapest2")[c(4)],jdb_palette("Zissou")[1:5]))
 
-#' Figure 1C
+cowplot::ggsave(p1, file = paste0("Top_variant_per_region.pdf"),
+                height = 2.5, width = 4)
+
+#' Figure 1D
 #+ echo=FALSE, message=FALSE, warning=FALSE, fig.height = 10, fig.width = 10
 allregions <- readRDS("../../data/Finemap/allFINEMAPregions.rds")
+all_configs_sum <- filtered_all_configs %>% subset(rank<=1) %>% 
+  group_by(region,trait) %>%
+  dplyr::summarize(PPsum=sum(config_prob)) %>%
+  as.data.frame()
+allregions <- all_configs_sum %>% left_join(.,allregions[,c("region","trait","expectedvalue")],by=c("region","trait"))
 allregions$numbin <- cut(allregions$expectedvalue, c(1,2,3,4,5))
 allregions_toplot <- allregions %>% group_by(trait,numbin) %>% dplyr::summarize(count=n())
-ggplot(allregions_toplot,aes(y=count,x=trait,group=trait)) + 
+p2 <- ggplot(allregions_toplot,aes(y=count,x=trait,group=trait)) + 
   guides(fill=guide_legend(title="# Causal Variants"))+
   geom_bar(stat="identity",aes(fill=numbin),position = position_stack(reverse = TRUE)) + 
   coord_flip() +
   theme_bw() +
-  pretty_plot() +
+  pretty_plot(fontsize = 8) +
+  L_border()+
+  scale_y_continuous(expand=c(0,0))+
+  theme(legend.position="none")+
+  labs(x="",y="number of regions")+
   scale_fill_manual(values = c(jdb_palette("GrandBudapest2")[c(4)],jdb_palette("Zissou")[2:5]))
+cowplot::ggsave(p2, file = paste0("Num_Causalvariants_per_region.pdf"),
+                height = 2.5, width = 4)
 
 # Old ggjoy plot
 # FM_exp <- readRDS("../../data/Finemap/allFINEMAPregions.rds")

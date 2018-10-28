@@ -8,7 +8,7 @@ library(BuenColors)
 library(cowplot)
 "%ni%" <- Negate("%in%")
 
-setwd("/Volumes/broad_sankaranlab/ebao/singlecell_bloodtraits/")
+setwd("/Users/erikbao/Documents/GitHub/singlecell_bloodtraits/")
 
 # Load Finemap CS ---------------------------------------------------------
 
@@ -45,6 +45,11 @@ cowplot::ggsave(p, file = "figures/revisions/plots/coding_subtypes_PP10.pdf", he
 
 CS.gr <- readRDS("data/Finemap/UKBB_BC_v3_VEPannotations.rds")
 CS.df <- as.data.frame(CS.gr)
+filtered_all_configs <- readRDS("figures/revisions/topconfigs_PPs/filtered_all_configs.rds")
+trait_region <- paste(filtered_all_configs$region, filtered_all_configs$trait,sep="_") %>% unique
+CS.df$trait_region <- paste(CS.df$region, CS.df$trait,sep="_") %>% gsub("region","",.)
+CS.df <- CS.df[CS.df$trait_region %in% trait_region,]
+coding_variants$trait_region %>% unique %>% length
 
 coding_variants <- CS.df[CS.df$Consequence %in% coding_consequences,] %>% 
   filter(PP>0.10)%>%
